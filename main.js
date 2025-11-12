@@ -6,6 +6,7 @@
   const bpBackdrop = qs('#bp-backdrop');
   const bpDialog = qs('#bp-dialog');
   const bpClose = qs('#bp-close');
+  const bpOpen = qs('#bp-open');
 
   // Mobile menu toggle
   if (mobileBtn && mobileMenu) {
@@ -18,10 +19,12 @@
   function openDialog() {
     bpBackdrop.classList.remove('hidden');
     bpDialog.classList.remove('hidden');
+    if (bpOpen) bpOpen.classList.add('hidden');
   }
   function closeDialog() {
     bpBackdrop.classList.add('hidden');
     bpDialog.classList.add('hidden');
+    if (bpOpen) bpOpen.classList.remove('hidden');
   }
 
   if (bpDialog) {
@@ -34,6 +37,16 @@
   if (bpBackdrop) {
     bpBackdrop.addEventListener('click', closeDialog);
   }
+  if (bpOpen) {
+    bpOpen.addEventListener('click', openDialog);
+  }
+
+  // Close on Escape for accessibility
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !bpDialog.classList.contains('hidden')) {
+      closeDialog();
+    }
+  });
 
   // Initialize lucide icons
   if (window.lucide) {
