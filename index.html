@@ -1,159 +1,416 @@
 
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cybersens Academy – Sensibilisation Cyber</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="nav-left">
-      <div class="brand"><span class="logo-shield" aria-hidden="true">🛡️</span> CyberSense</div>
-    </div>
-    <nav class="main-nav" aria-label="Navigation principale">
-      <ul class="nav-center">
-        <li><a href="#">Accueil</a></li>
-        <li><a href="#cours">Cours</a></li>
-        <li><a href="#ressources">Ressources</a></li>
-        <li><a href="#apropos">À propos</a></li>
-      </ul>
-    </nav>
-    <div class="nav-right">
-      <a href="#" class="link-muted">Connexion</a>
-      <button class="btn-primary btn-small">S'inscrire</button>
-      <button id="openTips" class="btn-link" aria-haspopup="dialog" aria-controls="goodPractices">Bonnes pratiques</button>
-    </div>
-  </header>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cybersens — Maîtrisez la Cybersécurité</title>
+  <meta name="description" content="Apprenez la cybersécurité avec Cybersens : cours, labs, certifications. Plateforme d'apprentissage pour tous les niveaux." />
+  <link rel="stylesheet" href="./styles.css" />
+  </head>
 
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-inner hero-grid">
-      <div class="hero-col hero-text">
-        <div class="badge">Plateforme d'apprentissage n°1</div>
-        <h1 id="hero-title" class="hero-title">
-          Maîtrisez la <span class="accent">Cybersécurité</span>
-        </h1>
-        <p class="hero-sub">Apprenez à protéger les systèmes, réseaux et données contre les cyberattaques. Des cours pratiques pour tous les niveaux, de débutant à expert.</p>
-        <div class="hero-cta">
-          <a href="#cours" class="btn-primary">Commencer gratuitement</a>
-          <a href="#cours" class="btn-outline">Explorer les cours</a>
+  <body class="min-h-screen bg-slate-950">
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
+      <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield" class="w-8 h-8 text-cyan-400"></i>
+          <span class="text-white text-xl">Cybersens</span>
         </div>
-        <div class="metrics">
-          <div class="metric"><div class="metric-value">50K+</div><div class="metric-label">Étudiants</div></div>
-          <div class="metric"><div class="metric-value">200+</div><div class="metric-label">Cours</div></div>
-          <div class="metric"><div class="metric-value">98%</div><div class="metric-label">Satisfaction</div></div>
+
+        <nav class="hidden md:flex items-center gap-6">
+          <a href="#accueil" class="text-slate-300 hover:text-cyan-400 transition-colors">Accueil</a>
+          <a href="#cours" class="text-slate-300 hover:text-cyan-400 transition-colors">Cours</a>
+          <a href="#ressources" class="text-slate-300 hover:text-cyan-400 transition-colors">Ressources</a>
+          <a href="#apropos" class="text-slate-300 hover:text-cyan-400 transition-colors">À propos</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+          <button class="hidden md:inline-flex text-slate-300 hover:text-cyan-400 transition-colors px-3 py-2 rounded-md">Connexion</button>
+          <button class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">S'inscrire</button>
+          <button id="open-mobile" aria-label="Ouvrir le menu" class="md:hidden text-slate-300 px-2 py-2 rounded-md">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
         </div>
       </div>
-      <aside class="hero-col hero-panel" aria-label="Aperçu des parcours">
-        <div class="panel-item">
-          <span class="icon">🔒</span>
-          <div>
-            <div class="item-title">Sécurité réseau</div>
-            <div class="item-sub">12 modules</div>
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden hidden border-t border-slate-800 bg-slate-950">
+        <div class="container mx-auto px-4 py-4 flex flex-col gap-3">
+          <a href="#accueil" class="text-slate-300 hover:text-cyan-400 transition-colors">Accueil</a>
+          <a href="#cours" class="text-slate-300 hover:text-cyan-400 transition-colors">Cours</a>
+          <a href="#ressources" class="text-slate-300 hover:text-cyan-400 transition-colors">Ressources</a>
+          <a href="#apropos" class="text-slate-300 hover:text-cyan-400 transition-colors">À propos</a>
+          <div class="flex gap-3 pt-2">
+            <button class="flex-1 bg-slate-800 text-slate-300 hover:bg-slate-800 px-4 py-2 rounded-md">Connexion</button>
+            <button class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">S'inscrire</button>
           </div>
         </div>
-        <div class="panel-item">
-          <span class="icon">🛡️</span>
-          <div>
-            <div class="item-title">Tests de pénétration</div>
-            <div class="item-sub">18 modules</div>
+      </div>
+    </header>
+
+    <main id="accueil" class="pt-32">
+      <!-- Hero -->
+      <section class="pb-20 px-4">
+        <div class="container mx-auto">
+          <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div class="inline-flex items-center gap-2 bg-cyan-950/50 border border-cyan-900 rounded-full px-4 py-2 mb-6">
+                <i data-lucide="shield" class="w-4 h-4 text-cyan-400"></i>
+                <span class="text-cyan-400">Plateforme d'apprentissage n°1</span>
+              </div>
+
+              <h1 class="text-white text-5xl lg:text-6xl mb-6">Maîtrisez la <span class="text-cyan-400">Cybersécurité</span></h1>
+
+              <p class="text-slate-400 text-lg mb-8">
+                Apprenez à protéger les systèmes, réseaux et données contre les cyberattaques.
+                Des cours pratiques pour tous les niveaux, de débutant à expert.
+              </p>
+
+              <div class="flex flex-wrap gap-4">
+                <a href="#cours" class="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-md inline-flex items-center justify-center">Commencer gratuitement</a>
+                <a href="#cours" class="border border-slate-700 text-slate-300 hover:bg-slate-800 px-8 py-3 rounded-md inline-flex items-center justify-center">Explorer les cours</a>
+              </div>
+
+              <div class="flex gap-8 mt-12">
+                <div>
+                  <div class="text-white text-3xl mb-1">50K+</div>
+                  <div class="text-slate-400">Étudiants</div>
+                </div>
+                <div>
+                  <div class="text-white text-3xl mb-1">200+</div>
+                  <div class="text-slate-400">Cours</div>
+                </div>
+                <div>
+                  <div class="text-white text-3xl mb-1">98%</div>
+                  <div class="text-slate-400">Satisfaction</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative">
+              <div class="absolute inset-0 bg-cyan-600/20 blur-3xl rounded-full"></div>
+              <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-2xl p-8">
+                <div class="space-y-4">
+                  <div class="flex items-center gap-3 bg-slate-950/50 rounded-lg p-4">
+                    <i data-lucide="lock" class="w-8 h-8 text-cyan-400"></i>
+                    <div>
+                      <div class="text-white">Sécurité réseau</div>
+                      <div class="text-slate-400">12 modules</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 bg-slate-950/50 rounded-lg p-4">
+                    <i data-lucide="shield" class="w-8 h-8 text-emerald-400"></i>
+                    <div>
+                      <div class="text-white">Tests de pénétration</div>
+                      <div class="text-slate-400">18 modules</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 bg-slate-950/50 rounded-lg p-4">
+                    <i data-lucide="code" class="w-8 h-8 text-purple-400"></i>
+                    <div>
+                      <div class="text-white">Cryptographie</div>
+                      <div class="text-slate-400">10 modules</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="panel-item">
-          <span class="icon">⟲</span>
-          <div>
-            <div class="item-title">Cryptographie</div>
-            <div class="item-sub">10 modules</div>
+      </section>
+
+      <!-- Features -->
+      <section class="py-20 px-4 bg-slate-900/50">
+        <div class="container mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-white text-4xl mb-4">Pourquoi choisir Cybersens ?</h2>
+            <p class="text-slate-400 text-lg max-w-2xl mx-auto">Une plateforme complète pour devenir un expert en cybersécurité</p>
+          </div>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-cyan-600 transition-colors">
+              <i data-lucide="shield" class="w-12 h-12 text-cyan-400 mb-4"></i>
+              <h3 class="text-white text-xl mb-2">Protection avancée</h3>
+              <p class="text-slate-400">Apprenez les techniques de protection les plus récentes contre les cybermenaces</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-cyan-600 transition-colors">
+              <i data-lucide="target" class="w-12 h-12 text-emerald-400 mb-4"></i>
+              <h3 class="text-white text-xl mb-2">Pratique ciblée</h3>
+              <p class="text-slate-400">Des exercices pratiques et des labs pour mettre en application vos connaissances</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-cyan-600 transition-colors">
+              <i data-lucide="award" class="w-12 h-12 text-purple-400 mb-4"></i>
+              <h3 class="text-white text-xl mb-2">Certifications</h3>
+              <p class="text-slate-400">Obtenez des certifications reconnues dans l'industrie</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-cyan-600 transition-colors">
+              <i data-lucide="users" class="w-12 h-12 text-orange-400 mb-4"></i>
+              <h3 class="text-white text-xl mb-2">Communauté active</h3>
+              <p class="text-slate-400">Rejoignez une communauté de professionnels de la cybersécurité</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-cyan-600 transition-colors">
+              <i data-lucide="book-open" class="w-12 h-12 text-blue-400 mb-4"></i>
+              <h3 class="text-white text-xl mb-2">Contenu actualisé</h3>
+              <p class="text-slate-400">Cours régulièrement mis à jour avec les dernières menaces et solutions</p>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 hover:border-cyan-600 transition-colors">
+              <i data-lucide="zap" class="w-12 h-12 text-yellow-400 mb-4"></i>
+              <h3 class="text-white text-xl mb-2">Apprentissage rapide</h3>
+              <p class="text-slate-400">Méthodes d'apprentissage optimisées pour progresser rapidement</p>
+            </div>
           </div>
         </div>
-      </aside>
+      </section>
+
+      <!-- Courses -->
+      <section id="cours" class="py-20 px-4">
+        <div class="container mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-white text-4xl mb-4">Nos cours populaires</h2>
+            <p class="text-slate-400 text-lg max-w-2xl mx-auto">Découvrez nos formations les plus appréciées par la communauté</p>
+          </div>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-600 transition-all hover:transform hover:scale-105">
+              <div class="bg-cyan-600 h-32 flex items-center justify-center">
+                <div class="text-white text-2xl">Introduction</div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-md">Débutant</span>
+                </div>
+                <h3 class="text-white text-xl mb-2">Introduction à la Cybersécurité</h3>
+                <p class="text-slate-400 mb-4">Découvrez les fondamentaux de la cybersécurité et les concepts essentiels</p>
+                <div class="flex items-center gap-4 text-slate-400 mb-4">
+                  <div class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i><span>8 heures</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i><span>12.5K</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4 text-yellow-400"></i><span>4.8</span></div>
+                </div>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">Commencer</button>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-600 transition-all hover:transform hover:scale-105">
+              <div class="bg-emerald-600 h-32 flex items-center justify-center">
+                <div class="text-white text-2xl">Ethical</div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-md">Intermédiaire</span>
+                </div>
+                <h3 class="text-white text-xl mb-2">Ethical Hacking & Pentesting</h3>
+                <p class="text-slate-400 mb-4">Maîtrisez les techniques des hackers éthiques pour tester la sécurité</p>
+                <div class="flex items-center gap-4 text-slate-400 mb-4">
+                  <div class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i><span>24 heures</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i><span>8.3K</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4 text-yellow-400"></i><span>4.9</span></div>
+                </div>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">Commencer</button>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-600 transition-all hover:transform hover:scale-105">
+              <div class="bg-purple-600 h-32 flex items-center justify-center">
+                <div class="text-white text-2xl">Sécurité</div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-md">Intermédiaire</span>
+                </div>
+                <h3 class="text-white text-xl mb-2">Sécurité des Applications Web</h3>
+                <p class="text-slate-400 mb-4">Protégez vos applications contre les vulnérabilités web courantes</p>
+                <div class="flex items-center gap-4 text-slate-400 mb-4">
+                  <div class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i><span>16 heures</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i><span>9.7K</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4 text-yellow-400"></i><span>4.7</span></div>
+                </div>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">Commencer</button>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-600 transition-all hover:transform hover:scale-105">
+              <div class="bg-orange-600 h-32 flex items-center justify-center">
+                <div class="text-white text-2xl">Crypto</div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-md">Avancé</span>
+                </div>
+                <h3 class="text-white text-xl mb-2">Cryptographie Avancée</h3>
+                <p class="text-slate-400 mb-4">Plongez dans les algorithmes de chiffrement et la cryptographie moderne</p>
+                <div class="flex items-center gap-4 text-slate-400 mb-4">
+                  <div class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i><span>20 heures</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i><span>5.2K</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4 text-yellow-400"></i><span>4.9</span></div>
+                </div>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">Commencer</button>
+              </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-600 transition-all hover:transform hover:scale-105">
+              <div class="bg-red-600 h-32 flex items-center justify-center">
+                <div class="text-white text-2xl">Malware</div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-md">Avancé</span>
+                </div>
+                <h3 class="text-white text-xl mb-2">Analyse de Malware</h3>
+                <p class="text-slate-400 mb-4">Apprenez à analyser et détecter les logiciels malveillants</p>
+                <div class="flex items-center gap-4 text-slate-400 mb-4">
+                  <div class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i><span>18 heures</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i><span>4.8K</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4 text-yellow-400"></i><span>4.8</span></div>
+                </div>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">Commencer</button>
+              </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden hover:border-cyan-600 transition-all hover:transform hover:scale-105">
+              <div class="bg-blue-600 h-32 flex items-center justify-center">
+                <div class="text-white text-2xl">Cloud</div>
+              </div>
+              <div class="p-6">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-md">Intermédiaire</span>
+                </div>
+                <h3 class="text-white text-xl mb-2">Sécurité Cloud (AWS, Azure)</h3>
+                <p class="text-slate-400 mb-4">Sécurisez vos infrastructures cloud sur les plateformes principales</p>
+                <div class="flex items-center gap-4 text-slate-400 mb-4">
+                  <div class="flex items-center gap-1"><i data-lucide="clock" class="w-4 h-4"></i><span>14 heures</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i><span>7.1K</span></div>
+                  <div class="flex items-center gap-1"><i data-lucide="star" class="w-4 h-4 text-yellow-400"></i><span>4.7</span></div>
+                </div>
+                <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">Commencer</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-12 px-4">
+      <div class="container mx-auto">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="shield" class="w-8 h-8 text-cyan-400"></i>
+              <span class="text-white text-xl">Cybersens</span>
+            </div>
+            <p class="text-slate-400">Votre partenaire pour maîtriser la cybersécurité et protéger le monde numérique.</p>
+          </div>
+
+          <div>
+            <h3 class="text-white mb-4">Formation</h3>
+            <ul class="space-y-2 text-slate-400">
+              <li><a href="#cours" class="hover:text-cyan-400 transition-colors">Tous les cours</a></li>
+              <li><a href="#" class="hover:text-cyan-400 transition-colors">Parcours certifiants</a></li>
+              <li><a href="#" class="hover:text-cyan-400 transition-colors">Workshops</a></li>
+              <li><a href="#" class="hover:text-cyan-400 transition-colors">Labs pratiques</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-white mb-4">Entreprise</h3>
+            <ul class="space-y-2 text-slate-400">
+              <li><a href="#apropos" class="hover:text-cyan-400 transition-colors">À propos</a></li>
+              <li><a href="#" class="hover:text-cyan-400 transition-colors">Blog</a></li>
+              <li><a href="#" class="hover:text-cyan-400 transition-colors">Carrières</a></li>
+              <li><a href="#" class="hover:text-cyan-400 transition-colors">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-white mb-4">Contact</h3>
+            <ul class="space-y-2 text-slate-400">
+              <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i><span>contact@cybersense.fr</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i><span>+33 1 23 45 67 89</span></li>
+              <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i><span>Paris, France</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-800 pt-8 text-center text-slate-400">
+          <p>&copy; 2025 Cybersens. Tous droits réservés.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Best Practice Modal -->
+    <div id="bp-backdrop" class="hidden fixed inset-0 bg-black/50 z-50"></div>
+    <div id="bp-dialog" role="dialog" aria-modal="true" class="hidden fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 w-full max-w-[calc(100%-2rem)] sm:max-w-lg shadow-lg">
+      <div class="max-w-2xl bg-slate-900 border-cyan-600 border-2 rounded-xl p-6">
+        <div class="mb-4">
+          <h2 class="flex items-center gap-2 text-2xl text-white">
+            <i data-lucide="alert-circle" class="w-6 h-6 text-cyan-400"></i>
+            Page Bonne pratique obligatoire
+          </h2>
+          <p class="text-slate-300 mt-1">Consignes de sécurité essentielles à respecter</p>
+        </div>
+
+        <div class="space-y-4 py-4">
+          <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <i data-lucide="shield" class="w-6 h-6 text-cyan-400 flex-shrink-0 mt-1"></i>
+              <div>
+                <h3 class="text-white mb-2">Protection des données personnelles</h3>
+                <p class="text-slate-400">Ne partagez jamais vos informations personnelles sensibles (mots de passe, numéros de carte bancaire, etc.) sur des sites non sécurisés.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <i data-lucide="lock" class="w-6 h-6 text-emerald-400 flex-shrink-0 mt-1"></i>
+              <div>
+                <h3 class="text-white mb-2">Mots de passe forts</h3>
+                <p class="text-slate-400">Utilisez des mots de passe complexes (12+ caractères, majuscules, minuscules, chiffres et symboles) et uniques pour chaque compte.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <i data-lucide="eye" class="w-6 h-6 text-purple-400 flex-shrink-0 mt-1"></i>
+              <div>
+                <h3 class="text-white mb-2">Vigilance face au phishing</h3>
+                <p class="text-slate-400">Vérifiez toujours l'URL des sites web et l'expéditeur des emails. Ne cliquez pas sur des liens suspects.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <i data-lucide="file-check" class="w-6 h-6 text-orange-400 flex-shrink-0 mt-1"></i>
+              <div>
+                <h3 class="text-white mb-2">Mises à jour régulières</h3>
+                <p class="text-slate-400">Maintenez vos systèmes et applications à jour pour bénéficier des derniers correctifs de sécurité.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-cyan-950/30 border border-cyan-800 rounded-lg p-4">
+            <p class="text-cyan-300 text-center">⚠️ Ces bonnes pratiques sont obligatoires pour garantir votre sécurité numérique</p>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button id="bp-close" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">J'ai compris</button>
+        </div>
+      </div>
     </div>
-  </section>
 
-  <main>
-    <section id="cours" class="cours-section" aria-labelledby="cours-heading">
-      <h2 id="cours-heading">Catalogue des cours</h2>
-      <div class="cours-grid">
-        <article class="cours-card" data-course-id="phishing">
-          <h3>Reconnaître le phishing</h3>
-          <p>Identifier les emails et sites frauduleux avant de cliquer.</p>
-          <button class="btn-secondary" data-start-course>Voir le cours</button>
-        </article>
-        <article class="cours-card" data-course-id="mdp">
-          <h3>Gestion des mots de passe</h3>
-          <p>Créer et stocker des mots de passe robustes.</p>
-          <button class="btn-secondary" data-start-course>Voir le cours</button>
-        </article>
-        <article class="cours-card" data-course-id="reseau">
-          <h3>Réseaux publics</h3>
-          <p>Risques des Wi‑Fi ouverts et protections essentielles.</p>
-          <button class="btn-secondary" data-start-course>Voir le cours</button>
-        </article>
-        <article class="cours-card" data-course-id="rgpd">
-          <h3>Protection des données</h3>
-          <p>Sensibilisation à la confidentialité et au RGPD.</p>
-          <button class="btn-secondary" data-start-course>Voir le cours</button>
-        </article>
-      </div>
-    </section>
-
-    <section id="courseDetail" class="course-detail" hidden aria-labelledby="detail-heading">
-      <div class="course-detail-inner">
-        <button class="close-detail" id="closeDetail" aria-label="Fermer le cours">×</button>
-        <h2 id="detail-heading">Détail du cours</h2>
-        <div id="courseContent" class="course-content">
-          <!-- Contenu injecté via JS -->
-        </div>
-        <div class="detail-actions">
-          <button id="startQuizFromCourse" class="btn-primary">Passer le quiz</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="quiz" class="quiz-section" aria-labelledby="quiz-heading">
-      <h2 id="quiz-heading">Quiz de sensibilisation</h2>
-      <form id="quizForm" novalidate>
-        <div class="quiz-items" id="quizItems"><!-- Questions générées par JS --></div>
-        <div class="quiz-actions">
-          <button type="submit" class="btn-primary">Valider mes réponses</button>
-          <button type="button" id="resetQuiz" class="btn-secondary">Réinitialiser</button>
-        </div>
-      </form>
-      <div id="quizResult" class="quiz-result" aria-live="polite"></div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>© 2025 Cybersens – Formation et prévention cyber.</p>
-  </footer>
-
-  <!-- Popup bonnes pratiques -->
-  <dialog id="goodPractices" class="modal" aria-labelledby="gp-title">
-    <form method="dialog" class="modal-inner">
-      <header class="modal-header">
-        <h2 id="gp-title">Bonnes pratiques essentielles</h2>
-        <button value="close" aria-label="Fermer" class="modal-close">×</button>
-      </header>
-      <div class="modal-content">
-        <ul class="tips-list">
-          <li>Utiliser un gestionnaire de mots de passe fiable.</li>
-          <li>Activer l'authentification multi-facteur (MFA) partout.</li>
-          <li>Ne jamais cliquer sur un lien douteux sans vérifier l'expéditeur.</li>
-          <li>Mettre à jour systèmes et logiciels rapidement.</li>
-          <li>Chiffrer les données sensibles stockées ou transmises.</li>
-          <li>Sauvegarder régulièrement vos données critiques.</li>
-        </ul>
-        <div class="tips-actions">
-          <button value="close" class="btn-secondary" id="closeTips">Fermer</button>
-        </div>
-      </div>
-      <footer class="modal-footer">
-        <button type="button" id="rememberTips" class="btn-link">Ne plus afficher au chargement</button>
-      </footer>
-    </form>
-  </dialog>
-
-  <script src="index.js" type="module"></script>
-</body>
+    <!-- Lucide icons and main script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="./main.js"></script>
+  </body>
 </html>
+  
