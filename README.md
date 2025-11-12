@@ -36,4 +36,8 @@ Aucun serveur n'est nécessaire.
 - Internationalisation (FR/EN)
 
 ## Licence
-Vous pouvez réutiliser et adapter ce code librement pour vos maquettes ou démonstrations internes.
+Ce projet est diffusé sous une licence propriétaire. Toute copie, redistribution, publication ou modification du code est interdite sans autorisation écrite préalable du titulaire des droits.
+
+Usage autorisé sans autorisation préalable : consultation et usage interne pour tests, démonstrations ou maquettes au sein de votre organisation uniquement.
+
+Consultez le fichier `LICENSE` pour les conditions complètes.
