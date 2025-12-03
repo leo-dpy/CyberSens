@@ -1,0 +1,98 @@
+<!-- AUTH FORMS -->
+<div id="auth-container">
+    <h1>Accès <span class="text-gradient">Agent</span></h1>
+    <p class="subtitle">Identifiez-vous pour accéder à vos données classifiées.</p>
+
+    <div class="app-container" style="grid-template-columns: 1fr 1fr; gap: 4rem; padding: 0; max-width: 1000px; margin: 0;">
+        
+        <!-- LOGIN FORM -->
+        <div id="login-view" class="card">
+            <h3>Connexion</h3>
+            <form id="login-form" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <input type="email" id="login-email" class="form-input" placeholder="Identifiant Agent (Email)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" class="form-input" placeholder="Code d'accès (Mot de passe)" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Initialiser la session</button>
+            </form>
+            <p id="login-error" style="color: var(--accent-color); margin-top: 1rem; display: none;"></p>
+        </div>
+
+        <!-- SIGNUP FORM (Hidden initially via JS logic or CSS toggle) -->
+        <div id="signup-view" class="card" style="display: none;">
+            <h3>Nouveau Dossier</h3>
+            <form id="signup-form" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <input type="text" id="signup-username" class="form-input" placeholder="Nom de code (Pseudo)" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="signup-email" class="form-input" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="signup-password" class="form-input" placeholder="Mot de passe" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Créer le dossier</button>
+            </form>
+            <p id="signup-error" style="color: var(--accent-color); margin-top: 1rem; display: none;"></p>
+        </div>
+
+        <!-- TOGGLE BUTTONS -->
+        <div class="card" style="background: transparent; border: none; box-shadow: none;">
+            <div id="login-toggle-content">
+                <h3>Nouvelle Recrue ?</h3>
+                <p style="margin-bottom: 2rem;">Rejoignez les rangs de l'élite. La formation commence maintenant.</p>
+                <button id="show-signup-btn" class="btn btn-outline">Créer un dossier agent</button>
+            </div>
+            <div id="signup-toggle-content" style="display: none;">
+                <h3>Déjà Agent ?</h3>
+                <p style="margin-bottom: 2rem;">Retournez à votre poste.</p>
+                <button id="show-login-btn" class="btn btn-outline">Connexion</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- USER DASHBOARD (Hidden by default) -->
+<div id="user-dashboard" style="display: none;">
+    <h1>Dossier <span class="text-gradient" id="user-name-display">Agent</span></h1>
+    <p class="subtitle">Niveau d'accréditation : <span id="user-level-display" style="color: var(--primary-color)">Novice</span></p>
+    
+    <div class="bento-grid">
+        <div class="card">
+            <div class="card-icon"><i data-lucide="activity"></i></div>
+            <h3>Statistiques</h3>
+            <p>XP: <span id="user-xp-display">0</span></p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i data-lucide="settings"></i></div>
+            <h3>Paramètres</h3>
+            <button id="logout-btn" class="btn btn-outline" style="margin-top: 1rem; border-color: var(--accent-color); color: var(--accent-color);">Déconnexion</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN DASHBOARD (Hidden by default) -->
+<div id="admin-dashboard" style="display: none; margin-top: 4rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+    <h2><i data-lucide="shield-alert" style="color: var(--accent-color)"></i> Panneau Administrateur</h2>
+    <p class="subtitle">Gestion des agents et du système.</p>
+
+    <div class="card" style="width: 100%; overflow-x: auto;">
+        <table class="leaderboard-table" id="admin-users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Agent</th>
+                    <th>Email</th>
+                    <th>Groupe</th>
+                    <th>Rôle</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="admin-users-list">
+                <!-- Populated by JS -->
+            </tbody>
+        </table>
+    </div>
+</div>

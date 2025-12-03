@@ -1,67 +1,224 @@
-document.addEventListener('DOMContentLoaded', () => {
+// ==========================================
+// DATABASE CLASS (Replaces database.js)
+// ==========================================
+class UserDB {
+    constructor() {
+        this.ready = this.init();
+    }
+
+    async init() {
+        // Initialize AlaSQL with LocalStorage
+        alasql('CREATE LOCALSTORAGE DATABASE IF NOT EXISTS cybersens_db');
+        alasql('ATTACH LOCALSTORAGE DATABASE cybersens_db');
+        alasql('USE cybersens_db');
+
+        // Check if tables exist, if not load from SQL file
+        const res = alasql('SHOW TABLES');
+        if (res.length === 0) {
+            await this.loadSQLFile();
+        } else {
+            // Ensure schema is up to date (in case of reload)
+            this.patchSchema();
+        }
+    }
+
+    async loadSQLFile() {
+        try {
+            console.log("Loading ydays.sql...");
+            const response = await fetch('ydays.sql');
+            if (!response.ok) throw new Error('Impossible de charger le fichier SQL (Vérifiez que vous utilisez un serveur local)');
+            let sql = await response.text();
+
+            // Clean SQL for AlaSQL compatibility
+            // Remove comments
+            sql = sql.replace(/--.*$/gm, '');
+            sql = sql.replace(/\/\*[\s\S]*?\*\//g, '');
+            
+            // Fix MySQL escaped quotes for AlaSQL
+            sql = sql.replace(/\\'/g, "''");
+
+            // Remove unsupported MySQL directives
+            sql = sql.replace(/ENGINE=MyISAM/g, '');
+            sql = sql.replace(/DEFAULT CHARSET=utf8mb4/g, '');
+            sql = sql.replace(/COLLATE=utf8mb4_0900_ai_ci/g, '');
+            sql = sql.replace(/SET SQL_MODE.*;/g, '');
+            sql = sql.replace(/START TRANSACTION;/g, '');
+            sql = sql.replace(/COMMIT;/g, '');
+            
+            // Split by semicolon and execute statements one by one
+            const statements = sql.split(';').filter(s => s.trim().length > 0);
+            
+            for (const stmt of statements) {
+                try {
+                    alasql(stmt);
+                } catch (e) {
+                    console.warn('Skipping SQL statement:', e.message, stmt.substring(0, 50));
+                }
+            }
+
+            this.patchSchema();
+            this.seedAppDefaults();
+
+        } catch (e) {
+            console.error("Error initializing database from SQL file:", e);
+        }
+    }
+
+    patchSchema() {
+        // Add columns required by the App but missing in SQL dump
+        try {
+            alasql('ALTER TABLE users ADD COLUMN xp INT DEFAULT 0');
+        } catch(e) {}
+        try {
+            alasql('ALTER TABLE users ADD COLUMN level STRING DEFAULT "Novice"');
+        } catch(e) {}
+        try {
+            alasql('ALTER TABLE users ADD COLUMN [group] STRING DEFAULT "Aucun"');
+        } catch(e) {}
+    }
+
+    seedAppDefaults() {
+        // Reset passwords for demo (since we can't decrypt bcrypt hashes)
+        // And assign groups/xp for leaderboard demo
+        alasql('UPDATE users SET password = "password", xp = 1200, level = "Initié", [group] = "Red Team" WHERE username = "tom"');
+        alasql('UPDATE users SET password = "password", xp = 500, level = "Novice", [group] = "Blue Team" WHERE username = "aaa"');
+        alasql('UPDATE users SET password = "admin", xp = 99999, level = "Grand Maître", [group] = "Staff" WHERE username = "Admin"');
+    }
+
+    // ==========================================
+    // API METHODS
+    // ==========================================
+
+    getUsers() {
+        const users = alasql('SELECT * FROM users');
+        return users.map(u => ({
+            ...u,
+            role: u.is_admin === 1 ? 'admin' : 'user'
+        }));
+    }
+
+    findUser(email, password) {
+        // Note: In a real app, we would hash the input password and compare.
+        // Here we compare plain text because we reset them in seedAppDefaults.
+        const res = alasql('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
+        if (res.length > 0) {
+            const u = res[0];
+            return {
+                ...u,
+                role: u.is_admin === 1 ? 'admin' : 'user'
+            };
+        }
+        return undefined;
+    }
+
+    createUser(username, email, password) {
+        const existing = alasql('SELECT * FROM users WHERE email = ?', [email]);
+        if (existing.length > 0) {
+            return { success: false, message: 'Cet email est déjà utilisé.' };
+        }
+
+        const newId = Date.now(); 
+        alasql('INSERT INTO users (id, username, email, password, created_at, is_admin, xp, level, [group]) VALUES (?,?,?,?,NOW(),0,0,"Novice","Aucun")', 
+            [newId, username, email, password]);
+        
+        const newUser = this.findUser(email, password);
+        return { success: true, user: newUser };
+    }
+
+    updateUserGroup(id, groupName) {
+        alasql('UPDATE users SET [group] = ? WHERE id = ?', [groupName, id]);
+        return true;
+    }
+
+    deleteUser(id) {
+        alasql('DELETE FROM users WHERE id = ?', [id]);
+        return true;
+    }
+}
+
+const db = new UserDB();
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Wait for DB to be ready
+    await db.ready;
+
     // Initialize Lucide Icons
     lucide.createIcons();
 
-    // Navigation Logic
+    const contentArea = document.getElementById('content-area');
     const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.view-section');
 
-    function navigateTo(viewId) {
-        // Update Nav State
-        navItems.forEach(item => {
-            if (item.dataset.view === viewId) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        });
+    // ==========================================
+    // NAVIGATION & TEMPLATE LOADING
+    // ==========================================
 
-        // Update View State
-        sections.forEach(section => {
-            section.classList.remove('active');
-            if (section.id === viewId) {
-                // Small delay to allow fade out if we were doing complex transitions
-                // For now, just switch
-                setTimeout(() => {
-                    section.classList.add('active');
-                }, 50);
-            }
-        });
+    async function loadTemplate(viewId) {
+        try {
+            const response = await fetch(`templates/${viewId}.html`);
+            if (!response.ok) throw new Error('Template not found');
+            const html = await response.text();
+            contentArea.innerHTML = html;
+            
+            // Re-initialize icons for new content
+            lucide.createIcons();
+            
+            // Initialize specific view logic
+            if (viewId === 'profil') initAuth();
+            if (viewId === 'leaderboard') loadLeaderboards();
+            if (viewId === 'home' || viewId === 'cours' || viewId === 'quiz') initTiltEffect();
+
+            // Update Active State in Sidebar
+            navItems.forEach(item => {
+                if (item.dataset.view === viewId) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+
+        } catch (error) {
+            console.error('Error loading template:', error);
+            contentArea.innerHTML = '<h1>Erreur 404</h1><p>Impossible de charger le contenu.</p>';
+        }
     }
 
     // Add Click Listeners
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             const viewId = item.dataset.view;
-            navigateTo(viewId);
+            loadTemplate(viewId);
         });
     });
 
-    // Interactive Cards (3D Tilt Effect)
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            
-            const rotateX = ((y - centerY) / centerY) * -5; // Max rotation deg
-            const rotateY = ((x - centerX) / centerX) * 5;
+    // Load Home by default
+    loadTemplate('home');
 
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+
+    // ==========================================
+    // UI EFFECTS
+    // ==========================================
+
+    function initTiltEffect() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            });
         });
+    }
 
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-        });
-    });
-
-    console.log('System Initialized. Welcome, Agent.');
-
-    // Modal Logic
+    // Modal Logic (Global)
     const modalOverlay = document.getElementById('modal-overlay');
     const modal = document.getElementById('modal-bp');
     const closeBtn = document.getElementById('close-modal-btn');
@@ -70,17 +227,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openModal() {
         modalOverlay.classList.add('active');
-        // Small delay for animation
-        setTimeout(() => {
-            modal.classList.add('active');
-        }, 10);
+        setTimeout(() => modal.classList.add('active'), 10);
     }
 
     function closeModal() {
         modal.classList.remove('active');
-        setTimeout(() => {
-            modalOverlay.classList.remove('active');
-        }, 300);
+        setTimeout(() => modalOverlay.classList.remove('active'), 300);
     }
 
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -88,6 +240,209 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
     if (openBtn) openBtn.addEventListener('click', openModal);
 
-    // Auto-open logic - Always open on launch
+    // Auto-open logic
     setTimeout(openModal, 500);
+
+
+    // ==========================================
+    // AUTHENTICATION & ADMIN LOGIC
+    // ==========================================
+    
+    function initAuth() {
+        const authContainer = document.getElementById('auth-container');
+        const userDashboard = document.getElementById('user-dashboard');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        
+        const loginView = document.getElementById('login-view');
+        const signupView = document.getElementById('signup-view');
+        const loginToggleContent = document.getElementById('login-toggle-content');
+        const signupToggleContent = document.getElementById('signup-toggle-content');
+
+        // Check Session
+        const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (sessionUser) {
+            updateUI(sessionUser);
+        }
+
+        // Toggle Forms
+        document.getElementById('show-signup-btn')?.addEventListener('click', () => {
+            loginView.style.display = 'none';
+            signupView.style.display = 'block';
+            loginToggleContent.style.display = 'none';
+            signupToggleContent.style.display = 'block';
+        });
+
+        document.getElementById('show-login-btn')?.addEventListener('click', () => {
+            signupView.style.display = 'none';
+            loginView.style.display = 'block';
+            signupToggleContent.style.display = 'none';
+            loginToggleContent.style.display = 'block';
+        });
+
+        // Handle Login
+        document.getElementById('login-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            const user = db.findUser(email, password);
+
+            if (user) {
+                loginUser(user);
+                errorMsg.style.display = 'none';
+            } else {
+                errorMsg.textContent = 'Identifiants invalides.';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        // Handle Signup
+        document.getElementById('signup-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorMsg = document.getElementById('signup-error');
+
+            const result = db.createUser(username, email, password);
+
+            if (result.success) {
+                loginUser(result.user);
+                errorMsg.style.display = 'none';
+            } else {
+                errorMsg.textContent = result.message;
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        // Handle Logout
+        document.getElementById('logout-btn')?.addEventListener('click', () => {
+            sessionStorage.removeItem('currentUser');
+            loadTemplate('profil'); // Reload profile view to reset
+        });
+
+        function loginUser(user) {
+            sessionStorage.setItem('currentUser', JSON.stringify(user));
+            updateUI(user);
+        }
+
+        function updateUI(user) {
+            if (!authContainer) return;
+            
+            // Hide Auth, Show Dashboard
+            authContainer.style.display = 'none';
+            userDashboard.style.display = 'block';
+
+            // Update User Info
+            document.getElementById('user-name-display').textContent = user.username;
+            document.getElementById('user-level-display').textContent = user.level;
+            document.getElementById('user-xp-display').textContent = user.xp;
+
+            // Admin Check
+            if (user.role === 'admin') {
+                adminDashboard.style.display = 'block';
+                loadAdminTable();
+            }
+        }
+    }
+
+    function loadAdminTable() {
+        const tbody = document.getElementById('admin-users-list');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        const users = db.getUsers();
+
+        users.forEach(u => {
+            const tr = document.createElement('tr');
+            
+            // Group Select Options
+            const groups = ['Aucun', 'Red Team', 'Blue Team', 'Purple Team', 'Staff'];
+            let groupOptions = '';
+            groups.forEach(g => {
+                groupOptions += `<option value="${g}" ${u.group === g ? 'selected' : ''}>${g}</option>`;
+            });
+
+            tr.innerHTML = `
+                <td>${u.id}</td>
+                <td>${u.username}</td>
+                <td>${u.email}</td>
+                <td>
+                    <select class="group-select form-input" data-id="${u.id}" style="padding: 5px; width: auto;">
+                        ${groupOptions}
+                    </select>
+                </td>
+                <td><span style="color: ${u.role === 'admin' ? 'var(--accent-color)' : 'inherit'}">${u.role}</span></td>
+                <td>
+                    ${u.role !== 'admin' ? `<button class="btn-delete" data-id="${u.id}" style="color: var(--accent-color); background: none; border: 1px solid var(--accent-color); padding: 5px 10px; border-radius: 5px; cursor: pointer;">Supprimer</button>` : '-'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Add Delete Listeners
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                if (confirm('Confirmer la suppression de cet agent ?')) {
+                    db.deleteUser(id);
+                    loadAdminTable();
+                }
+            });
+        });
+
+        // Add Group Change Listeners
+        document.querySelectorAll('.group-select').forEach(select => {
+            select.addEventListener('change', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                const newGroup = e.target.value;
+                db.updateUserGroup(id, newGroup);
+            });
+        });
+    }
+
+    // ==========================================
+    // LEADERBOARD LOGIC
+    // ==========================================
+    
+    function loadLeaderboards() {
+        const users = db.getUsers();
+        
+        // Group Leaderboard Calculation
+        const groups = {};
+        users.forEach(u => {
+            const g = u.group || 'Aucun';
+            if (g === 'Aucun' || g === 'Staff') return; 
+            
+            if (!groups[g]) groups[g] = { name: g, totalXp: 0, members: 0 };
+            groups[g].totalXp += u.xp;
+            groups[g].members++;
+        });
+
+        const sortedGroups = Object.values(groups).sort((a, b) => b.totalXp - a.totalXp);
+        const groupTbody = document.getElementById('group-leaderboard-list');
+        if (!groupTbody) return;
+        
+        groupTbody.innerHTML = '';
+
+        if (sortedGroups.length === 0) {
+            groupTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#666;">Aucun groupe actif</td></tr>';
+        } else {
+            sortedGroups.forEach((g, index) => {
+                const rank = index + 1;
+                let rankBadge = rank;
+                if (rank <= 3) rankBadge = `<div class="rank-badge rank-${rank}">${rank}</div>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${rankBadge}</td>
+                    <td style="color: var(--primary-color); font-weight: bold;">${g.name}</td>
+                    <td>${g.totalXp.toLocaleString()}</td>
+                    <td>${g.members}</td>
+                `;
+                groupTbody.appendChild(tr);
+            });
+        }
+    }
 });
