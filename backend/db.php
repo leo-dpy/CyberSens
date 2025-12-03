@@ -1,6 +1,6 @@
 <?php
 $host = '127.0.0.1';
-$dbname = 'ydays';
+$dbname = 'cybersens';
 $user = 'root';
 $pass = '';
 
