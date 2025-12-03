@@ -25,27 +25,25 @@
         <a href="quiz.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Quiz</a>
         <a href="leaderboard.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Leaderboard</a>
         <a href="aide.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Aide</a>
-        <a href="#apropos" class="text-slate-300 hover:text-cyan-400 transition-colors">À propos</a>
       </nav>
 
       <div class="flex items-center gap-4">
         <a href="login.html"
           class="hidden md:inline-flex text-slate-300 hover:text-cyan-400 transition-colors px-3 py-2 rounded-md">Connexion</a>
         <a href="signup.html" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">S'inscrire</a>
-        <button id="open-mobile" aria-label="Ouvrir le menu" class="md:hidden text-slate-300 px-2 py-2 rounded-md">
+        <button id="ouvrir-mobile" aria-label="Ouvrir le menu" class="md:hidden text-slate-300 px-2 py-2 rounded-md">
           <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
       </div>
     </div>
     <!-- Mobile menu -->
-    <div id="mobile-menu" class="md:hidden hidden border-t border-slate-800 bg-slate-950">
+    <div id="menu-mobile" class="md:hidden hidden border-t border-slate-800 bg-slate-950">
       <div class="container mx-auto px-4 py-4 flex flex-col gap-3">
         <a href="index.html#accueil" class="text-slate-300 hover:text-cyan-400 transition-colors">Accueil</a>
         <a href="cours.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Cours</a>
         <a href="quiz.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Quiz</a>
         <a href="leaderboard.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Leaderboard</a>
         <a href="aide.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Aide</a>
-        <a href="#apropos" class="text-slate-300 hover:text-cyan-400 transition-colors">À propos</a>
         <div class="flex gap-3 pt-2">
           <a href="login.html" class="flex-1 bg-slate-800 text-slate-300 hover:bg-slate-800 px-4 py-2 rounded-md text-center">Connexion</a>
           <a href="signup.html" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md text-center">S'inscrire</a>
@@ -76,10 +74,10 @@
 
             <div class="flex flex-wrap gap-4">
               <a href="cours.html"
-                class="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-md inline-flex items-center justify-center hero-cta">Commencer
+                class="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-md inline-flex items-center justify-center bouton-hero">Commencer
                 gratuitement</a>
               <a href="cours.html"
-                class="border border-slate-700 text-slate-300 hover:bg-slate-800 px-8 py-3 rounded-md inline-flex items-center justify-center hero-cta">Explorer
+                class="border border-slate-700 text-slate-300 hover:bg-slate-800 px-8 py-3 rounded-md inline-flex items-center justify-center bouton-hero">Explorer
                 les cours</a>
             </div>
 
@@ -356,7 +354,6 @@
         <div>
           <h3 class="text-white mb-4">Entreprise</h3>
           <ul class="space-y-2 text-slate-400">
-            <li><a href="#apropos" class="hover:text-cyan-400 transition-colors">À propos</a></li>
             <li><a href="#" class="hover:text-cyan-400 transition-colors">Blog</a></li>
             <li><a href="#" class="hover:text-cyan-400 transition-colors">Carrières</a></li>
             <li><a href="#" class="hover:text-cyan-400 transition-colors">Contact</a></li>
@@ -383,8 +380,8 @@
   </footer>
 
   <!-- Best Practice Modal -->
-  <div id="bp-backdrop" class="hidden fixed inset-0 bg-black/50 z-50"></div>
-  <div id="bp-dialog" role="dialog" aria-modal="true"
+  <div id="fond-bonnes-pratiques" class="hidden fixed inset-0 bg-black/50 z-50"></div>
+  <div id="dialogue-bonnes-pratiques" role="dialog" aria-modal="true"
     class="hidden fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-50 w-full max-w-[calc(100%-2rem)] sm:max-w-lg shadow-lg">
     <div class="max-w-2xl bg-slate-900 border-cyan-600 border-2 rounded-xl p-6">
       <div class="mb-4">
@@ -447,7 +444,7 @@
       </div>
 
       <div class="flex justify-end gap-3">
-        <button id="bp-close" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">J'ai
+        <button id="fermer-bonnes-pratiques" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">J'ai
           compris</button>
       </div>
     </div>
@@ -455,7 +452,7 @@
 
   <!-- Lucide icons and main script -->
   <!-- Reopen Best Practice button (floating) -->
-  <button id="bp-open" aria-label="Ouvrir la bonne pratique"
+  <button id="ouvrir-bonnes-pratiques" aria-label="Ouvrir la bonne pratique"
     class="fixed right-4 z-50 bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md shadow-lg inline-flex items-center gap-2 hidden"
     style="bottom: 1rem;"
   >

@@ -1,67 +1,73 @@
-// Plain JS interactions for mobile menu and best practice modal
+// Interactions JS simples pour le menu mobile et la modale de bonnes pratiques
 (function () {
-  function qs(sel) { return document.querySelector(sel); }
-  const mobileBtn = qs('#open-mobile');
-  const mobileMenu = qs('#mobile-menu');
-  const bpBackdrop = qs('#bp-backdrop');
-  const bpDialog = qs('#bp-dialog');
-  const bpClose = qs('#bp-close');
-  const bpOpen = qs('#bp-open');
+  // Fonction utilitaire pour sélectionner un élément du DOM
+  function selectionner(selecteur) { return document.querySelector(selecteur); }
 
-  // Mobile menu toggle
-  if (mobileBtn && mobileMenu) {
-    mobileBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
+  // Sélection des éléments du DOM avec les nouveaux IDs en français
+  const boutonMobile = selectionner('#ouvrir-mobile');
+  const menuMobile = selectionner('#menu-mobile');
+  const fondBonnesPratiques = selectionner('#fond-bonnes-pratiques');
+  const dialogueBonnesPratiques = selectionner('#dialogue-bonnes-pratiques');
+  const boutonFermerBP = selectionner('#fermer-bonnes-pratiques');
+  const boutonOuvrirBP = selectionner('#ouvrir-bonnes-pratiques');
+
+  // Gestion du menu mobile
+  if (boutonMobile && menuMobile) {
+    boutonMobile.addEventListener('click', () => {
+      menuMobile.classList.toggle('hidden');
     });
   }
 
-  // Show best practice dialog after 1s
-  function openDialog() {
-    bpBackdrop.classList.remove('hidden');
-    bpDialog.classList.remove('hidden');
-    if (bpOpen) bpOpen.classList.add('hidden');
-  }
-  function closeDialog() {
-    bpBackdrop.classList.add('hidden');
-    bpDialog.classList.add('hidden');
-    if (bpOpen) bpOpen.classList.remove('hidden');
+  // Fonction pour ouvrir la boîte de dialogue des bonnes pratiques
+  function ouvrirDialogue() {
+    fondBonnesPratiques.classList.remove('hidden');
+    dialogueBonnesPratiques.classList.remove('hidden');
+    if (boutonOuvrirBP) boutonOuvrirBP.classList.add('hidden');
   }
 
-  // Auto-open only once per session; otherwise, leave closed and show the reopen button
-  if (bpDialog) {
+  // Fonction pour fermer la boîte de dialogue des bonnes pratiques
+  function fermerDialogue() {
+    fondBonnesPratiques.classList.add('hidden');
+    dialogueBonnesPratiques.classList.add('hidden');
+    if (boutonOuvrirBP) boutonOuvrirBP.classList.remove('hidden');
+  }
+
+  // Ouverture automatique une seule fois par session
+  if (dialogueBonnesPratiques) {
     try {
-      const hasShown = sessionStorage.getItem('bpShown');
-      if (!hasShown) {
-        sessionStorage.setItem('bpShown', '1');
-        setTimeout(openDialog, 1000);
+      const aEteAffiche = sessionStorage.getItem('bpAffiche');
+      if (!aEteAffiche) {
+        sessionStorage.setItem('bpAffiche', '1');
+        setTimeout(ouvrirDialogue, 1000);
       } else {
-        // Do not auto-open again on navigation; ensure the open button is visible
-        if (bpOpen) bpOpen.classList.remove('hidden');
+        // Ne pas rouvrir automatiquement lors de la navigation ; s'assurer que le bouton d'ouverture est visible
+        if (boutonOuvrirBP) boutonOuvrirBP.classList.remove('hidden');
       }
     } catch (e) {
-      // If sessionStorage is unavailable, prefer not to auto-open repeatedly
-      if (bpOpen) bpOpen.classList.remove('hidden');
+      // Si sessionStorage n'est pas disponible, préférer ne pas ouvrir automatiquement à répétition
+      if (boutonOuvrirBP) boutonOuvrirBP.classList.remove('hidden');
     }
   }
 
-  if (bpClose) {
-    bpClose.addEventListener('click', closeDialog);
+  // Ajout des écouteurs d'événements pour les boutons
+  if (boutonFermerBP) {
+    boutonFermerBP.addEventListener('click', fermerDialogue);
   }
-  if (bpBackdrop) {
-    bpBackdrop.addEventListener('click', closeDialog);
+  if (fondBonnesPratiques) {
+    fondBonnesPratiques.addEventListener('click', fermerDialogue);
   }
-  if (bpOpen) {
-    bpOpen.addEventListener('click', openDialog);
+  if (boutonOuvrirBP) {
+    boutonOuvrirBP.addEventListener('click', ouvrirDialogue);
   }
 
-  // Close on Escape for accessibility
+  // Fermer avec la touche Échap pour l'accessibilité
   document.addEventListener('keydown', (e) => {
-    if (bpDialog && e.key === 'Escape' && !bpDialog.classList.contains('hidden')) {
-      closeDialog();
+    if (dialogueBonnesPratiques && e.key === 'Escape' && !dialogueBonnesPratiques.classList.contains('hidden')) {
+      fermerDialogue();
     }
   });
 
-  // Initialize lucide icons
+  // Initialiser les icônes Lucide
   if (window.lucide) {
     window.lucide.createIcons();
   } else {

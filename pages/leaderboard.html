@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leaderboard — Cybersens</title>
-  <meta name="description" content="Classements, profils et progression des apprenants Cybersens." />
+  <title>Leaderboard — CyberSens</title>
+  <meta name="description" content="Classements, profils et progression des apprenants CyberSens." />
   <link rel="stylesheet" href="../styles.css" />
 </head>
-<body class="min-h-screen bg-slate-950 cyber-grid-bg text-slate-200">
+<body class="min-h-screen bg-slate-950 fond-grille-cyber text-slate-200">
   <!-- Header (shared) -->
   <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -25,12 +25,12 @@
       <div class="flex items-center gap-4">
         <a href="login.html" class="hidden md:inline-flex text-slate-300 hover:text-cyan-400 transition-colors px-3 py-2 rounded-md">Connexion</a>
         <a href="signup.html" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-md">S'inscrire</a>
-        <button id="open-mobile" aria-label="Ouvrir le menu" class="md:hidden text-slate-300 px-2 py-2 rounded-md">
+        <button id="ouvrir-mobile" aria-label="Ouvrir le menu" class="md:hidden text-slate-300 px-2 py-2 rounded-md">
           <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
       </div>
     </div>
-    <div id="mobile-menu" class="md:hidden hidden border-t border-slate-800 bg-slate-950">
+    <div id="menu-mobile" class="md:hidden hidden border-t border-slate-800 bg-slate-950">
       <div class="container mx-auto px-4 py-4 flex flex-col gap-3">
         <a href="index.html#accueil" class="text-slate-300 hover:text-cyan-400 transition-colors">Accueil</a>
         <a href="cours.html" class="text-slate-300 hover:text-cyan-400 transition-colors">Cours</a>
@@ -48,7 +48,7 @@
   <main class="pt-32 px-4">
     <section class="container mx-auto">
       <!-- Header + filters -->
-      <div class="mb-8 animate-slide-up">
+      <div class="mb-8 animation-glissement-haut">
         <div class="text-center">
           <div class="inline-flex items-center gap-2 bg-cyan-950/40 border border-cyan-900 rounded-full px-4 py-1.5 mb-4">
             <i data-lucide="trophy" class="w-4 h-4 text-cyan-400"></i>
@@ -60,9 +60,9 @@
 
         <div class="mt-6 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
           <div class="inline-flex bg-slate-900 border border-slate-800 rounded-lg p-1 w-fit">
-            <button onclick="filterLeaderboard(this, 'global')" class="filter-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white text-sm transition-colors shadow-sm">Global</button>
-            <button onclick="filterLeaderboard(this, 'week')" class="filter-btn px-3 py-1.5 rounded-md text-slate-300 text-sm hover:bg-slate-800 transition-colors">Cette semaine</button>
-            <button onclick="filterLeaderboard(this, 'friends')" class="filter-btn px-3 py-1.5 rounded-md text-slate-300 text-sm hover:bg-slate-800 transition-colors">Amis</button>
+            <button onclick="filtrerClassement(this, 'global')" class="filter-btn px-3 py-1.5 rounded-md bg-cyan-600 text-white text-sm transition-colors shadow-sm">Global</button>
+            <button onclick="filtrerClassement(this, 'week')" class="filter-btn px-3 py-1.5 rounded-md text-slate-300 text-sm hover:bg-slate-800 transition-colors">Cette semaine</button>
+            <button onclick="filtrerClassement(this, 'friends')" class="filter-btn px-3 py-1.5 rounded-md text-slate-300 text-sm hover:bg-slate-800 transition-colors">Amis</button>
           </div>
           <div class="flex gap-3">
             <div class="relative">
@@ -79,7 +79,7 @@
       </div>
 
       <!-- Podium top 3 -->
-      <div class="grid md:grid-cols-3 gap-6 mb-10 animate-slide-up delay-100">
+      <div class="grid md:grid-cols-3 gap-6 mb-10 animation-glissement-haut delay-100">
         <!-- 2nd -->
         <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm hover:border-cyan-700/50 transition-all duration-300 hover:-translate-y-2 shadow-lg hover:shadow-cyan-900/20 mt-4 flex flex-col">
           <div class="flex items-center justify-between mb-4 w-full">
@@ -95,7 +95,7 @@
           </div>
         </div>
         <!-- 1st -->
-        <div class="relative bg-gradient-to-br from-cyan-950/80 to-slate-900 border border-cyan-500/50 rounded-2xl p-6 ring-1 ring-cyan-400/20 glow-effect transform hover:scale-105 transition-all duration-300 z-10 mt-6">
+        <div class="relative bg-gradient-to-br from-cyan-950/80 to-slate-900 border border-cyan-500/50 rounded-2xl p-6 ring-1 ring-cyan-400/20 effet-lueur transform hover:scale-105 transition-all duration-300 z-10 mt-6">
           <div class="grid grid-cols-3 items-center mb-6">
             <div class="text-left">
               <span class="inline-flex items-center gap-1 text-amber-300 text-sm font-bold"><i data-lucide="crown" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i> #1</span>
@@ -138,7 +138,7 @@
       </div>
 
       <!-- Your profile summary -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-6 mb-8 animate-slide-up delay-200 backdrop-blur-md shadow-lg">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-6 mb-8 animation-glissement-haut delay-200 backdrop-blur-md shadow-lg">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full bg-cyan-600/30 border border-cyan-800 text-cyan-200 flex items-center justify-center">A</div>
@@ -168,7 +168,7 @@
       </div>
 
       <!-- Leaderboard table -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden animate-slide-up delay-300 backdrop-blur-sm shadow-2xl">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden animation-glissement-haut delay-300 backdrop-blur-sm shadow-2xl">
         <div class="hidden md:grid grid-cols-12 px-6 py-3 border-b border-slate-800 text-slate-400 text-sm">
           <div class="col-span-1 text-center">Rang</div>
           <div class="col-span-5">Pseudo</div>
@@ -273,14 +273,14 @@
 
   <footer class="bg-slate-900 border-t border-slate-800 py-12 px-4 mt-12">
     <div class="container mx-auto text-center text-slate-400">
-      <p>&copy; 2025 Cybersens. Tous droits réservés.</p>
+      <p>&copy; 2025 CyberSens. Tous droits réservés.</p>
     </div>
   </footer>
 
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="../main.js"></script>
   <script>
-    function filterLeaderboard(btn, type) {
+    function filtrerClassement(btn, type) {
       // Reset all buttons
       document.querySelectorAll('.filter-btn').forEach(b => {
         b.className = 'filter-btn px-3 py-1.5 rounded-md text-slate-300 text-sm hover:bg-slate-800 transition-colors';
@@ -291,11 +291,11 @@
       
       // Here you would normally fetch new data or filter the list
       // For demo purposes, we'll just animate the table to simulate a refresh
-      const table = document.querySelector('.animate-slide-up.delay-300');
+      const table = document.querySelector('.animation-glissement-haut.delay-300');
       if(table) {
         table.style.animation = 'none';
         table.offsetHeight; /* trigger reflow */
-        table.style.animation = 'fadeSlideUp 0.5s ease-out forwards';
+        table.style.animation = 'glissementHaut 0.5s ease-out forwards';
       }
     }
   </script>
