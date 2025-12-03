@@ -3,86 +3,28 @@
 // ==========================================
 class UserDB {
     constructor() {
-        this.ready = this.init();
+        this.users = this.loadUsers();
     }
 
-    async init() {
-        // Initialize AlaSQL with LocalStorage
-        alasql('CREATE LOCALSTORAGE DATABASE IF NOT EXISTS cybersens_db');
-        alasql('ATTACH LOCALSTORAGE DATABASE cybersens_db');
-        alasql('USE cybersens_db');
-
-        // Check if tables exist, if not load from SQL file
-        const res = alasql('SHOW TABLES');
-        if (res.length === 0) {
-            await this.loadSQLFile();
-        } else {
-            // Ensure schema is up to date (in case of reload)
-            this.patchSchema();
+    loadUsers() {
+        // Try to load from localStorage first
+        const stored = localStorage.getItem('cybersens_users');
+        if (stored) {
+            return JSON.parse(stored);
         }
+        
+        // Default users if nothing in storage
+        const defaults = [
+            { id: 1, username: "tom", email: "tom@gmail.com", password: "password", xp: 1200, level: "Initié", group: "Red Team", role: "user" },
+            { id: 2, username: "aaa", email: "aaa@gmail.com", password: "password", xp: 500, level: "Novice", group: "Blue Team", role: "user" },
+            { id: 3, username: "Admin", email: "admin@cybersens.com", password: "admin", xp: 99999, level: "Grand Maître", group: "Staff", role: "admin" }
+        ];
+        this.saveUsers(defaults);
+        return defaults;
     }
 
-    async loadSQLFile() {
-        try {
-            console.log("Loading ydays.sql...");
-            const response = await fetch('ydays.sql');
-            if (!response.ok) throw new Error('Impossible de charger le fichier SQL (Vérifiez que vous utilisez un serveur local)');
-            let sql = await response.text();
-
-            // Clean SQL for AlaSQL compatibility
-            // Remove comments
-            sql = sql.replace(/--.*$/gm, '');
-            sql = sql.replace(/\/\*[\s\S]*?\*\//g, '');
-            
-            // Fix MySQL escaped quotes for AlaSQL
-            sql = sql.replace(/\\'/g, "''");
-
-            // Remove unsupported MySQL directives
-            sql = sql.replace(/ENGINE=MyISAM/g, '');
-            sql = sql.replace(/DEFAULT CHARSET=utf8mb4/g, '');
-            sql = sql.replace(/COLLATE=utf8mb4_0900_ai_ci/g, '');
-            sql = sql.replace(/SET SQL_MODE.*;/g, '');
-            sql = sql.replace(/START TRANSACTION;/g, '');
-            sql = sql.replace(/COMMIT;/g, '');
-            
-            // Split by semicolon and execute statements one by one
-            const statements = sql.split(';').filter(s => s.trim().length > 0);
-            
-            for (const stmt of statements) {
-                try {
-                    alasql(stmt);
-                } catch (e) {
-                    console.warn('Skipping SQL statement:', e.message, stmt.substring(0, 50));
-                }
-            }
-
-            this.patchSchema();
-            this.seedAppDefaults();
-
-        } catch (e) {
-            console.error("Error initializing database from SQL file:", e);
-        }
-    }
-
-    patchSchema() {
-        // Add columns required by the App but missing in SQL dump
-        try {
-            alasql('ALTER TABLE users ADD COLUMN xp INT DEFAULT 0');
-        } catch(e) {}
-        try {
-            alasql('ALTER TABLE users ADD COLUMN level STRING DEFAULT "Novice"');
-        } catch(e) {}
-        try {
-            alasql('ALTER TABLE users ADD COLUMN [group] STRING DEFAULT "Aucun"');
-        } catch(e) {}
-    }
-
-    seedAppDefaults() {
-        // Reset passwords for demo (since we can't decrypt bcrypt hashes)
-        // And assign groups/xp for leaderboard demo
-        alasql('UPDATE users SET password = "password", xp = 1200, level = "Initié", [group] = "Red Team" WHERE username = "tom"');
-        alasql('UPDATE users SET password = "password", xp = 500, level = "Novice", [group] = "Blue Team" WHERE username = "aaa"');
-        alasql('UPDATE users SET password = "admin", xp = 99999, level = "Grand Maître", [group] = "Staff" WHERE username = "Admin"');
+    saveUsers(users) {
+        localStorage.setItem('cybersens_users', JSON.stringify(users));
     }
 
     // ==========================================
@@ -90,48 +32,50 @@ class UserDB {
     // ==========================================
 
     getUsers() {
-        const users = alasql('SELECT * FROM users');
-        return users.map(u => ({
-            ...u,
-            role: u.is_admin === 1 ? 'admin' : 'user'
-        }));
+        return this.users;
     }
 
     findUser(email, password) {
-        // Note: In a real app, we would hash the input password and compare.
-        // Here we compare plain text because we reset them in seedAppDefaults.
-        const res = alasql('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
-        if (res.length > 0) {
-            const u = res[0];
-            return {
-                ...u,
-                role: u.is_admin === 1 ? 'admin' : 'user'
-            };
-        }
-        return undefined;
+        return this.users.find(u => u.email === email && u.password === password);
     }
 
     createUser(username, email, password) {
-        const existing = alasql('SELECT * FROM users WHERE email = ?', [email]);
-        if (existing.length > 0) {
+        const existing = this.users.find(u => u.email === email);
+        if (existing) {
             return { success: false, message: 'Cet email est déjà utilisé.' };
         }
 
-        const newId = Date.now(); 
-        alasql('INSERT INTO users (id, username, email, password, created_at, is_admin, xp, level, [group]) VALUES (?,?,?,?,NOW(),0,0,"Novice","Aucun")', 
-            [newId, username, email, password]);
+        const newUser = {
+            id: Date.now(),
+            username,
+            email,
+            password,
+            created_at: new Date().toISOString(),
+            role: 'user',
+            xp: 0,
+            level: "Novice",
+            group: "Aucun"
+        };
         
-        const newUser = this.findUser(email, password);
+        this.users.push(newUser);
+        this.saveUsers(this.users);
+        
         return { success: true, user: newUser };
     }
 
     updateUserGroup(id, groupName) {
-        alasql('UPDATE users SET [group] = ? WHERE id = ?', [groupName, id]);
-        return true;
+        const user = this.users.find(u => u.id === id);
+        if (user) {
+            user.group = groupName;
+            this.saveUsers(this.users);
+            return true;
+        }
+        return false;
     }
 
     deleteUser(id) {
-        alasql('DELETE FROM users WHERE id = ?', [id]);
+        this.users = this.users.filter(u => u.id !== id);
+        this.saveUsers(this.users);
         return true;
     }
 }
@@ -139,8 +83,8 @@ class UserDB {
 const db = new UserDB();
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Wait for DB to be ready
-    await db.ready;
+    // No need to wait for DB ready anymore
+    // await db.ready;
 
     // Initialize Lucide Icons
     lucide.createIcons();
