@@ -66,7 +66,8 @@
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        background: rgba(0, 0, 0, 0.9) !important;
+        background: rgba(0, 0, 0, 0.85) !important;
+        backdrop-filter: blur(8px);
         display: none;
         align-items: center !important;
         justify-content: center !important;
@@ -77,52 +78,52 @@
     }
 
     #scenarioModal .modal-content {
-        background: #1a1a2e !important;
-        border-radius: 16px;
-        padding: 2rem;
-        max-width: 700px;
+        background: #14141a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 2.5rem;
+        max-width: 750px;
         width: 90%;
         max-height: 90vh;
         overflow-y: auto;
         position: relative;
-        opacity: 1 !important;
-        visibility: visible !important;
-        transform: none !important;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
     }
 
     #scenarioModal .modal-close {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: none;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.5rem;
-        color: #888;
+        color: #ddd;
         cursor: pointer;
+        transition: 0.2s;
         z-index: 10;
-        pointer-events: auto !important;
     }
 
     #scenarioModal .modal-close:hover {
-        color: #fff;
+        background: white;
+        color: black;
     }
 
     /* Force clickable scenario cards */
     .scenarios-grid .scenario-card {
         cursor: pointer !important;
         pointer-events: auto !important;
-        position: relative;
-        z-index: 1;
-    }
-
-    .scenarios-grid .scenario-card * {
-        pointer-events: none !important;
     }
 
     .phishing-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
     }
 
     .phishing-header {
@@ -136,11 +137,6 @@
         justify-content: center;
         gap: 0.5rem;
         color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .phishing-header p {
-        color: var(--text-muted);
     }
 
     .phishing-stats {
@@ -151,19 +147,19 @@
     }
 
     .phishing-stats .stat-card {
-        background: var(--card-bg);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         padding: 1.5rem;
-        border-radius: 12px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         gap: 1rem;
-        box-shadow: var(--shadow);
     }
 
     .phishing-stats .stat-card i {
-        width: 48px;
-        height: 48px;
         color: var(--primary);
+        width: 32px;
+        height: 32px;
     }
 
     .stat-info {
@@ -174,12 +170,12 @@
     .stat-value {
         font-size: 1.5rem;
         font-weight: 700;
-        color: var(--text);
+        color: #fff;
     }
 
     .stat-label {
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: #aaa;
     }
 
     .phishing-scenarios h2 {
@@ -187,36 +183,26 @@
         align-items: center;
         gap: 0.5rem;
         margin-bottom: 1.5rem;
-        color: var(--text);
+        color: #fff;
     }
 
     .scenarios-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
     }
 
     .scenario-card {
-        background: var(--card-bg);
-        border-radius: 12px;
+        background: rgba(20, 20, 25, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
         padding: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-        position: relative;
+        transition: 0.3s;
     }
 
     .scenario-card:hover {
-        transform: translateY(-4px);
         border-color: var(--primary);
-    }
-
-    .scenario-card.completed {
-        border-color: var(--success);
-    }
-
-    .scenario-card.completed.wrong {
-        border-color: var(--danger);
+        transform: translateY(-3px);
     }
 
     .scenario-card .type-badge {
@@ -227,96 +213,95 @@
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
     }
 
     .scenario-card .type-badge.email {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
     }
 
     .scenario-card .type-badge.sms {
-        background: rgba(16, 185, 129, 0.1);
-        color: #10b981;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
     }
 
     .scenario-card .type-badge.website {
-        background: rgba(139, 92, 246, 0.1);
-        color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
     }
 
     .scenario-card h3 {
-        color: var(--text);
+        color: #fff;
         margin-bottom: 0.5rem;
-        font-size: 1rem;
     }
 
     .scenario-card .difficulty {
         font-size: 0.8rem;
-        color: var(--text-muted);
     }
 
     .scenario-card .difficulty.facile {
-        color: var(--success);
+        color: #34d399;
     }
 
     .scenario-card .difficulty.moyen {
-        color: var(--warning);
+        color: #facc15;
     }
 
     .scenario-card .difficulty.difficile {
-        color: var(--danger);
+        color: #f87171;
     }
 
-    .scenario-card .status-icon {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-    }
-
-    .scenario-card .status-icon i {
-        width: 24px;
-        height: 24px;
-    }
-
-    .scenario-card.completed .status-icon i {
-        color: var(--success);
-    }
-
-    .scenario-card.completed.wrong .status-icon i {
-        color: var(--danger);
-    }
-
-    /* Modal scénario */
-    .scenario-modal {
-        max-width: 700px;
-    }
-
+    /* =========================================
+       SCENARIO PREVIEW - THE "PAPER" LOOK
+       ========================================= */
     .scenario-preview {
-        background: var(--bg-secondary);
+        background: #ffffff;
+        /* White Paper Background */
+        color: #1a1a1a;
+        /* Dark Text */
         border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        font-family: 'Arial', sans-serif;
+        /* Standard email font */
+        position: relative;
+        overflow: hidden;
     }
 
-    .scenario-preview.email {
-        border-left: 4px solid #3b82f6;
+    /* Header Bar Simulation */
+    .scenario-preview::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
     }
 
-    .scenario-preview.sms {
-        border-left: 4px solid #10b981;
-        max-width: 400px;
-        margin: 0 auto 1.5rem;
+    .scenario-preview.email::before {
+        background: #3b82f6;
     }
 
-    .scenario-preview.website {
-        border-left: 4px solid #8b5cf6;
+    /* Blue for Email */
+    .scenario-preview.sms::before {
+        background: #10b981;
     }
+
+    /* Green for SMS */
+    .scenario-preview.website::before {
+        background: #8b5cf6;
+    }
+
+    /* Purple for Web */
 
     .email-header {
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border);
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e5e7eb;
     }
 
     .email-header .from,
@@ -325,191 +310,146 @@
         align-items: center;
         gap: 0.5rem;
         margin-bottom: 0.5rem;
+        font-size: 0.95rem;
     }
 
     .email-header .label {
-        font-weight: 600;
-        color: var(--text-muted);
+        font-weight: 700;
+        color: #4b5563;
         min-width: 60px;
     }
 
     .email-header .value {
-        color: var(--text);
+        color: #111827;
     }
 
     .email-body,
-    .sms-body,
     .website-body {
-        color: var(--text);
-        white-space: pre-wrap;
+        color: #1f2937;
         line-height: 1.6;
+        font-size: 1rem;
     }
 
-    .sms-sender {
-        text-align: center;
-        margin-bottom: 1rem;
-        font-weight: 600;
-        color: var(--text-muted);
+    .sms-body {
+        background: #e5e7eb;
+        padding: 1rem 1.5rem;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        display: inline-block;
+        max-width: 80%;
+        color: #000;
     }
 
     .website-url {
-        background: #1a1a2e;
-        color: #10b981;
-        padding: 0.5rem 1rem;
+        background: #f1f5f9;
+        color: #059669;
+        padding: 0.75rem;
         border-radius: 8px;
         font-family: monospace;
-        margin-bottom: 1rem;
-        overflow-x: auto;
-    }
-
-    .scenario-question {
-        text-align: center;
         margin-bottom: 1.5rem;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
     }
 
+    .website-url::before {
+        content: '🔒 ';
+        margin-right: 0.5rem;
+    }
+
+    /* Interactive Buttons */
     .scenario-question h3 {
-        color: var(--text);
-        margin-bottom: 1rem;
+        color: #fff;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
     }
 
     .answer-buttons {
         display: flex;
-        gap: 1rem;
+        gap: 1.5rem;
         justify-content: center;
     }
 
     .answer-btn {
-        padding: 1rem 2rem;
+        padding: 1rem 2.5rem;
         border-radius: 12px;
-        font-weight: 600;
-        font-size: 1rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
-        border: 2px solid;
+        transition: 0.2s;
+        border: none;
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        font-size: 1.1rem;
     }
 
     .answer-btn.phishing {
-        background: rgba(239, 68, 68, 0.1);
-        border-color: #ef4444;
-        color: #ef4444;
+        background: #ef4444;
+        color: white;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
     .answer-btn.phishing:hover {
-        background: #ef4444;
-        color: white;
+        transform: translateY(-2px);
+        background: #dc2626;
     }
 
     .answer-btn.legitimate {
-        background: rgba(16, 185, 129, 0.1);
-        border-color: #10b981;
-        color: #10b981;
+        background: #10b981;
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
     }
 
     .answer-btn.legitimate:hover {
-        background: #10b981;
-        color: white;
+        transform: translateY(-2px);
+        background: #059669;
     }
 
-    /* Résultat */
-    .result-container {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .result-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1rem;
-    }
-
-    .result-container.correct .result-icon {
-        color: var(--success);
-    }
-
-    .result-container.incorrect .result-icon {
-        color: var(--danger);
-    }
-
+    /* Results */
     .result-container h2 {
+        font-size: 2rem;
         margin-bottom: 1rem;
     }
 
-    .result-container.correct h2 {
-        color: var(--success);
-    }
-
-    .result-container.incorrect h2 {
-        color: var(--danger);
-    }
-
     .result-explanation {
-        background: var(--bg-secondary);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         padding: 1.5rem;
+        margin-top: 2rem;
         text-align: left;
-        margin: 1.5rem 0;
     }
 
     .result-explanation h4 {
         color: var(--primary);
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
     }
 
     .result-explanation p {
-        color: var(--text);
+        color: #d1d5db;
         line-height: 1.6;
     }
 
-    .indicators-list {
-        margin-top: 1rem;
-        padding-left: 1.5rem;
-    }
-
     .indicators-list li {
-        color: var(--text-muted);
+        color: #9ca3af;
         margin-bottom: 0.5rem;
     }
 
     .result-actions {
+        margin-top: 2rem;
         display: flex;
+        justify-content: center;
         gap: 1rem;
-        justify-content: center;
-        margin-top: 1.5rem;
     }
 
-    .xp-earned {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        font-size: 1.25rem;
+    .btn-next {
+        background: var(--primary);
+        color: #000;
         font-weight: 700;
-        color: #fbbf24;
-        margin: 1rem 0;
-        animation: pulse-xp 1s ease-in-out;
-    }
-
-    .xp-earned i {
-        width: 24px;
-        height: 24px;
-    }
-
-    @keyframes pulse-xp {
-
-        0%,
-        100% {
-            transform: scale(1);
-        }
-
-        50% {
-            transform: scale(1.1);
-        }
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
     }
 </style>
