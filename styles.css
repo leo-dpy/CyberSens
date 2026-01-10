@@ -1813,3 +1813,5 @@ input[type=number]:focus {
   box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
 }
 
+
+.difficulty-badge.intermediaire, .difficulty-badge.intermédiaire { background: rgba(255, 204, 0, 0.1); color: var(--warning); border-color: rgba(255, 204, 0, 0.2); }

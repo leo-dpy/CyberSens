@@ -347,9 +347,11 @@ foreach ($users as $u) {
                                 </span>
                             </td>
                             <td>
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="color: var(--warning);"><i data-lucide="zap" style="width: 14px;"></i> <?php echo $u['xp']; ?></span>
-                                    <span class="badge" style="font-size: 0.7rem;">Lvl <?php echo $u['level']; ?></span>
+                                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                    <div style="display: inline-flex; align-items: center; gap: 0.3rem; color: var(--warning); font-weight: 600;">
+                                        <i data-lucide="zap" style="width: 14px; height: 14px;"></i> <?php echo $u['xp']; ?>
+                                    </div>
+                                    <span class="badge" style="font-size: 0.7rem; background: rgba(255, 255, 255, 0.1); color: var(--text-main);">LVL <?php echo $u['level']; ?></span>
                                 </div>
                             </td>
                             <td>
@@ -550,7 +552,7 @@ foreach ($users as $u) {
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 2rem;">
                     <label class="form-label">Groupe</label>
                     <select name="group_name" class="form-input" style="background: var(--bg-tertiary);">
                         <?php foreach($availableGroups as $g): ?>

@@ -177,8 +177,14 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                             <tr>
                                 <td style="font-weight: 500; color: var(--text-primary);"><?php echo htmlspecialchars($r['title']); ?></td>
                                 <td>
-                                    <span class="difficulty-badge <?php echo strtolower($r['difficulty']); ?>">
-                                        <?php echo $r['difficulty']; ?>
+                                    <?php 
+                                    $diffVal = $r['difficulty'];
+                                    $diffClass = 'facile';
+                                    if (stripos($diffVal, 'Interm') !== false) $diffClass = 'moyen';
+                                    if (stripos($diffVal, 'Difficile') !== false) $diffClass = 'difficile';
+                                    ?>
+                                    <span class="difficulty-badge <?php echo $diffClass; ?>">
+                                        <?php echo $diffVal; ?>
                                     </span>
                                 </td>
                                 <td class="text-muted"><?php echo date('d/m/Y', strtotime($r['created_at'])); ?></td>

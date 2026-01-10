@@ -63,28 +63,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         .option-group {
             display: flex;
-            align-items: stretch;
+            align-items: center;
             margin-bottom: 1rem;
+            gap: 0.75rem;
         }
         .option-radio-label {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 48px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-right: none;
-            border-radius: var(--radius-md) 0 0 var(--radius-md);
             cursor: pointer;
         }
-        .option-radio-label:has(input:checked) {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: var(--success);
-            color: var(--success);
+        .option-radio-label input[type="radio"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--success, #10b981);
+            cursor: pointer;
+            margin-top: 0.35rem;
         }
         .option-input {
             flex: 1;
-            border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
         }
     </style>
 </head>
@@ -156,7 +153,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="option-group">
                                 <label class="option-radio-label">
                                     <input type="radio" name="correct_answer" value="A" <?php echo $question['correct_answer'] == 'A' ? 'checked' : ''; ?>>
-                                    <span style="font-weight: bold; margin-left: 0.5rem;">A</span>
                                 </label>
                                 <input type="text" name="option_a" class="form-input option-input" required value="<?php echo htmlspecialchars($question['option_a']); ?>">
                             </div>
@@ -164,7 +160,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="option-group">
                                 <label class="option-radio-label">
                                     <input type="radio" name="correct_answer" value="B" <?php echo $question['correct_answer'] == 'B' ? 'checked' : ''; ?>>
-                                    <span style="font-weight: bold; margin-left: 0.5rem;">B</span>
                                 </label>
                                 <input type="text" name="option_b" class="form-input option-input" required value="<?php echo htmlspecialchars($question['option_b']); ?>">
                             </div>
@@ -172,7 +167,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="option-group">
                                 <label class="option-radio-label">
                                     <input type="radio" name="correct_answer" value="C" <?php echo $question['correct_answer'] == 'C' ? 'checked' : ''; ?>>
-                                    <span style="font-weight: bold; margin-left: 0.5rem;">C</span>
                                 </label>
                                 <input type="text" name="option_c" class="form-input option-input" required value="<?php echo htmlspecialchars($question['option_c']); ?>">
                             </div>
@@ -180,7 +174,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="option-group">
                                 <label class="option-radio-label">
                                     <input type="radio" name="correct_answer" value="D" <?php echo $question['correct_answer'] == 'D' ? 'checked' : ''; ?>>
-                                    <span style="font-weight: bold; margin-left: 0.5rem;">D</span>
                                 </label>
                                 <input type="text" name="option_d" class="form-input option-input" value="<?php echo htmlspecialchars($question['option_d'] ?? ''); ?>" placeholder="Optionnelle">
                             </div>
