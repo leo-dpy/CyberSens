@@ -3,7 +3,7 @@
         <h1><i data-lucide="fish"></i> Simulation Phishing</h1>
         <p>Testez votre capacité à détecter les tentatives d'hameçonnage</p>
     </div>
-    
+
     <div class="phishing-stats" id="phishingStats">
         <div class="stat-card">
             <i data-lucide="target"></i>
@@ -34,23 +34,23 @@
             </div>
         </div>
     </div>
-    
+
     <div class="phishing-scenarios">
         <h2><i data-lucide="list"></i> Scénarios disponibles</h2>
         <div class="scenarios-grid" id="scenariosGrid">
             <!-- Scenarios loaded dynamically -->
         </div>
     </div>
-    
+
     <!-- Modal pour le scénario -->
     <div class="modal" id="scenarioModal">
         <div class="modal-content scenario-modal">
             <button class="modal-close" onclick="closeScenarioModal()">&times;</button>
-            
+
             <div id="scenarioContent">
                 <!-- Scenario content loaded here -->
             </div>
-            
+
             <div id="scenarioResult" style="display: none;">
                 <!-- Result shown here -->
             </div>
@@ -59,435 +59,457 @@
 </div>
 
 <style>
-/* Modal styles for phishing - with !important to override global styles */
-#scenarioModal {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background: rgba(0, 0, 0, 0.9) !important;
-    display: none;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 99999 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-}
-
-#scenarioModal .modal-content {
-    background: #1a1a2e !important;
-    border-radius: 16px;
-    padding: 2rem;
-    max-width: 700px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
-}
-
-#scenarioModal .modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #888;
-    cursor: pointer;
-    z-index: 10;
-    pointer-events: auto !important;
-}
-
-#scenarioModal .modal-close:hover {
-    color: #fff;
-}
-
-/* Force clickable scenario cards */
-.scenarios-grid .scenario-card {
-    cursor: pointer !important;
-    pointer-events: auto !important;
-    position: relative;
-    z-index: 1;
-}
-
-.scenarios-grid .scenario-card * {
-    pointer-events: none !important;
-}
-
-.phishing-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.phishing-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.phishing-header h1 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    color: var(--primary);
-    margin-bottom: 0.5rem;
-}
-
-.phishing-header p {
-    color: var(--text-muted);
-}
-
-.phishing-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.phishing-stats .stat-card {
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: var(--shadow);
-}
-
-.phishing-stats .stat-card i {
-    width: 48px;
-    height: 48px;
-    color: var(--primary);
-}
-
-.stat-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-}
-
-.phishing-scenarios h2 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text);
-}
-
-.scenarios-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-}
-
-.scenario-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 1.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    position: relative;
-}
-
-.scenario-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--primary);
-}
-
-.scenario-card.completed {
-    border-color: var(--success);
-}
-
-.scenario-card.completed.wrong {
-    border-color: var(--danger);
-}
-
-.scenario-card .type-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-}
-
-.scenario-card .type-badge.email {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-}
-
-.scenario-card .type-badge.sms {
-    background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
-}
-
-.scenario-card .type-badge.website {
-    background: rgba(139, 92, 246, 0.1);
-    color: #8b5cf6;
-}
-
-.scenario-card h3 {
-    color: var(--text);
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-}
-
-.scenario-card .difficulty {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-.scenario-card .difficulty.facile { color: var(--success); }
-.scenario-card .difficulty.moyen { color: var(--warning); }
-.scenario-card .difficulty.difficile { color: var(--danger); }
-
-.scenario-card .status-icon {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-}
-
-.scenario-card .status-icon i {
-    width: 24px;
-    height: 24px;
-}
-
-.scenario-card.completed .status-icon i {
-    color: var(--success);
-}
-
-.scenario-card.completed.wrong .status-icon i {
-    color: var(--danger);
-}
-
-/* Modal scénario */
-.scenario-modal {
-    max-width: 700px;
-}
-
-.scenario-preview {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.scenario-preview.email {
-    border-left: 4px solid #3b82f6;
-}
-
-.scenario-preview.sms {
-    border-left: 4px solid #10b981;
-    max-width: 400px;
-    margin: 0 auto 1.5rem;
-}
-
-.scenario-preview.website {
-    border-left: 4px solid #8b5cf6;
-}
-
-.email-header {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-}
-
-.email-header .from, .email-header .subject {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.email-header .label {
-    font-weight: 600;
-    color: var(--text-muted);
-    min-width: 60px;
-}
-
-.email-header .value {
-    color: var(--text);
-}
-
-.email-body, .sms-body, .website-body {
-    color: var(--text);
-    white-space: pre-wrap;
-    line-height: 1.6;
-}
-
-.sms-sender {
-    text-align: center;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    color: var(--text-muted);
-}
-
-.website-url {
-    background: #1a1a2e;
-    color: #10b981;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-family: monospace;
-    margin-bottom: 1rem;
-    overflow-x: auto;
-}
-
-.scenario-question {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.scenario-question h3 {
-    color: var(--text);
-    margin-bottom: 1rem;
-}
-
-.answer-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.answer-btn {
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid;
-}
-
-.answer-btn.phishing {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-    color: #ef4444;
-}
-
-.answer-btn.phishing:hover {
-    background: #ef4444;
-    color: white;
-}
-
-.answer-btn.legitimate {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: #10b981;
-    color: #10b981;
-}
-
-.answer-btn.legitimate:hover {
-    background: #10b981;
-    color: white;
-}
-
-/* Résultat */
-.result-container {
-    text-align: center;
-    padding: 2rem;
-}
-
-.result-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1rem;
-}
-
-.result-container.correct .result-icon {
-    color: var(--success);
-}
-
-.result-container.incorrect .result-icon {
-    color: var(--danger);
-}
-
-.result-container h2 {
-    margin-bottom: 1rem;
-}
-
-.result-container.correct h2 {
-    color: var(--success);
-}
-
-.result-container.incorrect h2 {
-    color: var(--danger);
-}
-
-.result-explanation {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: left;
-    margin: 1.5rem 0;
-}
-
-.result-explanation h4 {
-    color: var(--primary);
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.result-explanation p {
-    color: var(--text);
-    line-height: 1.6;
-}
-
-.indicators-list {
-    margin-top: 1rem;
-    padding-left: 1.5rem;
-}
-
-.indicators-list li {
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-}
-
-.result-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1.5rem;
-}
-
-.xp-earned {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #fbbf24;
-    margin: 1rem 0;
-    animation: pulse-xp 1s ease-in-out;
-}
-
-.xp-earned i {
-    width: 24px;
-    height: 24px;
-}
-
-@keyframes pulse-xp {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
+    /* Modal styles for phishing - with !important to override global styles */
+    #scenarioModal {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.9) !important;
+        display: none;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 99999 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+    }
+
+    #scenarioModal .modal-content {
+        background: #1a1a2e !important;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 700px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+    }
+
+    #scenarioModal .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #888;
+        cursor: pointer;
+        z-index: 10;
+        pointer-events: auto !important;
+    }
+
+    #scenarioModal .modal-close:hover {
+        color: #fff;
+    }
+
+    /* Force clickable scenario cards */
+    .scenarios-grid .scenario-card {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    .scenarios-grid .scenario-card * {
+        pointer-events: none !important;
+    }
+
+    .phishing-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .phishing-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .phishing-header h1 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .phishing-header p {
+        color: var(--text-muted);
+    }
+
+    .phishing-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .phishing-stats .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--shadow);
+    }
+
+    .phishing-stats .stat-card i {
+        width: 48px;
+        height: 48px;
+        color: var(--primary);
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .phishing-scenarios h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--text);
+    }
+
+    .scenarios-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+
+    .scenario-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        position: relative;
+    }
+
+    .scenario-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+    }
+
+    .scenario-card.completed {
+        border-color: var(--success);
+    }
+
+    .scenario-card.completed.wrong {
+        border-color: var(--danger);
+    }
+
+    .scenario-card .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .scenario-card .type-badge.email {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .scenario-card .type-badge.sms {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    .scenario-card .type-badge.website {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    .scenario-card h3 {
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .scenario-card .difficulty {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .scenario-card .difficulty.facile {
+        color: var(--success);
+    }
+
+    .scenario-card .difficulty.moyen {
+        color: var(--warning);
+    }
+
+    .scenario-card .difficulty.difficile {
+        color: var(--danger);
+    }
+
+    .scenario-card .status-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .scenario-card .status-icon i {
+        width: 24px;
+        height: 24px;
+    }
+
+    .scenario-card.completed .status-icon i {
+        color: var(--success);
+    }
+
+    .scenario-card.completed.wrong .status-icon i {
+        color: var(--danger);
+    }
+
+    /* Modal scénario */
+    .scenario-modal {
+        max-width: 700px;
+    }
+
+    .scenario-preview {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .scenario-preview.email {
+        border-left: 4px solid #3b82f6;
+    }
+
+    .scenario-preview.sms {
+        border-left: 4px solid #10b981;
+        max-width: 400px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .scenario-preview.website {
+        border-left: 4px solid #8b5cf6;
+    }
+
+    .email-header {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .email-header .from,
+    .email-header .subject {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .email-header .label {
+        font-weight: 600;
+        color: var(--text-muted);
+        min-width: 60px;
+    }
+
+    .email-header .value {
+        color: var(--text);
+    }
+
+    .email-body,
+    .sms-body,
+    .website-body {
+        color: var(--text);
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    .sms-sender {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .website-url {
+        background: #1a1a2e;
+        color: #10b981;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-family: monospace;
+        margin-bottom: 1rem;
+        overflow-x: auto;
+    }
+
+    .scenario-question {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .scenario-question h3 {
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .answer-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .answer-btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .answer-btn.phishing {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+        color: #ef4444;
+    }
+
+    .answer-btn.phishing:hover {
+        background: #ef4444;
+        color: white;
+    }
+
+    .answer-btn.legitimate {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: #10b981;
+        color: #10b981;
+    }
+
+    .answer-btn.legitimate:hover {
+        background: #10b981;
+        color: white;
+    }
+
+    /* Résultat */
+    .result-container {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .result-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+    }
+
+    .result-container.correct .result-icon {
+        color: var(--success);
+    }
+
+    .result-container.incorrect .result-icon {
+        color: var(--danger);
+    }
+
+    .result-container h2 {
+        margin-bottom: 1rem;
+    }
+
+    .result-container.correct h2 {
+        color: var(--success);
+    }
+
+    .result-container.incorrect h2 {
+        color: var(--danger);
+    }
+
+    .result-explanation {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: left;
+        margin: 1.5rem 0;
+    }
+
+    .result-explanation h4 {
+        color: var(--primary);
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .result-explanation p {
+        color: var(--text);
+        line-height: 1.6;
+    }
+
+    .indicators-list {
+        margin-top: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .indicators-list li {
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .result-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .xp-earned {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fbbf24;
+        margin: 1rem 0;
+        animation: pulse-xp 1s ease-in-out;
+    }
+
+    .xp-earned i {
+        width: 24px;
+        height: 24px;
+    }
+
+    @keyframes pulse-xp {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+    }
 </style>

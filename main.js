@@ -722,7 +722,6 @@ async function loadNotifications() {
         } else {
             list.innerHTML = `
                 <div class="notifications-empty">
-                    <i data-lucide="bell-off"></i>
                     <p>Aucune notification</p>
                 </div>
             `;
@@ -1537,20 +1536,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const isRead = c.is_read === true || c.is_read === 1;
 
                 return `
-                <div class="card ${isLocked ? 'card-locked' : ''} ${isCompleted ? 'card-completed' : ''} ${isRead ? 'card-read' : ''}" data-course-id="${c.id}">
+                <div class="card course-card ${isLocked ? 'card-locked' : ''} ${isCompleted ? 'card-completed' : ''} ${isRead ? 'card-read' : ''}" data-course-id="${c.id}">
                     ${isLocked ? '<div class="lock-overlay"><i data-lucide="lock" class="lock-icon"></i><span>Terminez le module précédent</span></div>' : ''}
-                    ${isCompleted ? '<div class="completed-badge" title="Quiz réussi"><i data-lucide="check-circle"></i></div>' : ''}
-                    ${isRead && !isCompleted ? '<div class="read-badge" title="Cours lu"><i data-lucide="book-open"></i></div>' : ''}
-                    <div class="card-icon"><i data-lucide="${getDifficultyIcon(c.difficulty)}"></i></div>
-                    <h3>${c.title}</h3>
-                    <p>${c.description}</p>
-                    <span class="difficulty-badge difficulty-${c.difficulty?.toLowerCase()}">${c.difficulty}</span>
-                    ${isLocked
+                    
+                    <div class="course-header">
+                        <div class="card-icon"><i data-lucide="${getDifficultyIcon(c.difficulty)}"></i></div>
+                        <span class="difficulty-badge difficulty-${c.difficulty?.toLowerCase()}">${c.difficulty}</span>
+                    </div>
+                    
+                    <div class="course-body">
+                        <h3>${c.title}</h3>
+                        <p>${c.description}</p>
+                    </div>
+
+                    <div class="course-footer">
+                        ${isCompleted ? '<div class="status-indicator completed"><i data-lucide="check-circle" size="14"></i> Terminé</div>' : ''}
+                        ${isRead && !isCompleted ? '<div class="status-indicator in-progress"><i data-lucide="loader-2" size="14"></i> En cours</div>' : ''}
+                        
+                        ${isLocked
                         ? '<span class="card-action card-action-locked"><i data-lucide="lock" size="16"></i> Verrouillé</span>'
-                        : `<a href="#" class="card-action" onclick="viewCourse(${c.id}); return false;">${isCompleted ? 'Refaire' : isRead ? 'Continuer' : 'Commencer'} <i data-lucide="play" size="16"></i></a>`
+                        : `<a href="#" class="btn btn-primary btn-sm full-width" onclick="viewCourse(${c.id}); return false;">${isCompleted ? 'Refaire le module' : isRead ? 'Continuer' : 'Commencer'} <i data-lucide="arrow-right" size="16"></i></a>`
                     }
+                    </div>
                 </div>
-            `}).join('');
+            `;
+            }).join('');
 
             lucide.createIcons();
             initTiltEffect();
@@ -1679,20 +1689,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const contentArea = document.getElementById('content-area');
         contentArea.innerHTML = `
-            <div style="margin-bottom: 1rem;">
+            <div style="margin-bottom: 2rem;">
                 <button class="btn btn-outline" onclick="loadTemplate('cours')">
                     <i data-lucide="arrow-left"></i> Retour aux cours
                 </button>
             </div>
-            <h1>${course.title}</h1>
-            <span class="difficulty-badge difficulty-${course.difficulty?.toLowerCase()}">${course.difficulty}</span>
-            <div class="card" style="margin-top: 2rem;">
-                <div class="course-content">${course.content}</div>
-            </div>
-            <div style="margin-top: 2rem;">
-                <button class="btn btn-primary" onclick="startQuiz(${course.id})">
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; margin-bottom: 1.5rem;">
+                <div>
+                    <h1 style="margin-bottom: 0.5rem; line-height: 1.2;">${course.title}</h1>
+                    <span class="difficulty-badge difficulty-${course.difficulty?.toLowerCase()}">${course.difficulty}</span>
+                </div>
+                <button class="btn btn-primary" onclick="startQuiz(${course.id})" style="flex-shrink: 0;">
                     <i data-lucide="brain-circuit"></i> Commencer le Quiz
                 </button>
+            </div>
+
+            <div class="card">
+                <div class="course-content">${course.content}</div>
             </div>
         `;
         lucide.createIcons();
@@ -2282,7 +2296,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h2>${categoryNames[cat] || cat}</h2>
                         <div class="resources-grid">
                             ${resources.map(r => `
-                                <div class="resource-card ${r.category}" data-resource-id="${r.id}">
+                                <div class="resource-card ${r.category}" data-resource-id="${r.id}" data-url="${r.url || ''}">
                                     <div class="card-header">
                                         <div class="icon-wrapper">
                                             <i data-lucide="${r.icon || 'file-text'}"></i>
@@ -2320,8 +2334,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
+                const url = this.getAttribute('data-url');
                 const resourceId = this.getAttribute('data-resource-id');
-                if (resourceId) {
+
+                if (url) {
+                    window.open(url, '_blank');
+                } else if (resourceId) {
                     openResource(parseInt(resourceId));
                 }
             });
@@ -2381,9 +2399,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // click outside to close
+    // click outside to close
     window.addEventListener('click', (e) => {
-        if (e.target === modalBp) {
-            closeBpModal();
+        const modals = [
+            document.getElementById('modal-bp'),
+            document.getElementById('resourceModal'),
+            document.getElementById('scenarioModal'),
+            document.getElementById('course-modal'),
+            document.getElementById('question-modal')
+        ];
+
+        modals.forEach(modal => {
+            if (modal && e.target === modal) {
+                if (modal.id === 'modal-bp') closeBpModal();
+                else modal.style.display = 'none';
+            }
+        });
+    });
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modals = [
+                document.getElementById('modal-bp'),
+                document.getElementById('resourceModal'),
+                document.getElementById('scenarioModal'),
+                document.getElementById('course-modal'),
+                document.getElementById('question-modal')
+            ];
+
+            modals.forEach(modal => {
+                if (modal && modal.style.display !== 'none' && modal.style.display !== '') {
+                    if (modal.id === 'modal-bp') closeBpModal();
+                    else modal.style.display = 'none';
+                }
+            });
         }
     });
 
