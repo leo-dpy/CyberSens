@@ -137,8 +137,4 @@ Usage autorisé sans autorisation préalable : consultation et usage interne pou
 
 Consultez le fichier `LICENSE` pour les conditions complètes.
 
----
 
-## Auteur
-
-Développé par [leo-dpy](https://github.com/leo-dpy)
