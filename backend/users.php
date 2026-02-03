@@ -14,6 +14,35 @@ require 'db.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    // Récupérer un utilisateur spécifique si ID fourni
+    if (isset($_GET['id'])) {
+        $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+        if ($id) {
+            try {
+                $sql = "SELECT u.id, u.username, u.email, u.role, u.xp, u.level, u.avatar, u.created_at, u.last_login,
+                        (SELECT COUNT(*) FROM progression WHERE user_id = u.id AND is_completed = 1) as completed_courses,
+                        (SELECT COUNT(*) FROM user_badges WHERE user_id = u.id) as badges_count
+                        FROM users u WHERE u.id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$id]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($user) {
+                    $user['xp'] = (int)($user['xp'] ?? 0);
+                    $user['level'] = (int)($user['level'] ?? 1);
+                    $user['completed_courses'] = (int)($user['completed_courses'] ?? 0);
+                    $user['badges_count'] = (int)($user['badges_count'] ?? 0);
+                    echo json_encode(['success' => true, 'user' => $user]);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Utilisateur non trouvé']);
+                }
+            } catch (PDOException $e) {
+                echo json_encode(['success' => false, 'message' => 'Erreur base de données']);
+            }
+            exit;
+        }
+    }
+
     // Liste des utilisateurs pour l'admin avec statistiques
     // Utiliser LEFT JOIN et gérer les tables qui peuvent ne pas exister
     try {

@@ -36,3 +36,212 @@
     margin: 0 auto;
     padding: 0;
 }
+
+/* --- PODIUM DESIGN --- */
+.podium-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-top: 2rem;
+    height: 350px;
+}
+
+.podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    width: 140px;
+    transition: transform 0.3s;
+}
+
+.podium-item:hover {
+    transform: translateY(-5px);
+}
+
+.podium-item.rank-1 { order: 2; z-index: 10; }
+.podium-item.rank-2 { order: 1; }
+.podium-item.rank-3 { order: 3; }
+
+.podium-avatar-wrapper {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.podium-avatar {
+    width: 70px;
+    height: 70px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-transform: uppercase;
+}
+
+.podium-item.rank-1 .podium-avatar {
+    width: 100px;
+    height: 100px;
+    border-color: #ffd700;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
+    font-size: 2.5rem;
+}
+.podium-item.rank-2 .podium-avatar {
+    border-color: #c0c0c0;
+    box-shadow: 0 0 30px rgba(192, 192, 192, 0.15);
+}
+.podium-item.rank-3 .podium-avatar {
+    border-color: #cd7f32;
+    box-shadow: 0 0 30px rgba(205, 127, 50, 0.15);
+}
+
+.podium-crown {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffd700;
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.5));
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+.podium-info {
+    text-align: center;
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.podium-username {
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 1.1rem;
+}
+
+.podium-xp {
+    font-family: monospace;
+    color: #00f3ff;
+    font-size: 0.85rem;
+    background: rgba(0, 243, 255, 0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.podium-stand {
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+}
+
+.podium-item.rank-1 .podium-stand { 
+    height: 140px; 
+    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.02)); 
+    border-top: 1px solid rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.1) inset;
+}
+.podium-item.rank-2 .podium-stand { 
+    height: 100px; 
+    background: linear-gradient(to bottom, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.02)); 
+    border-top: 1px solid rgba(192, 192, 192, 0.5);
+}
+.podium-item.rank-3 .podium-stand { 
+    height: 70px; 
+    background: linear-gradient(to bottom, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.02)); 
+    border-top: 1px solid rgba(205, 127, 50, 0.5);
+}
+
+.stand-rank {
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- LISTE SUITE --- */
+.ranking-table {
+    border-spacing: 0;
+    width: 100%;
+}
+.ranking-table th {
+    padding: 1.25rem 1rem;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.ranking-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: #eee;
+}
+.ranking-table tr:last-child td {
+    border-bottom: none;
+}
+.ranking-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+}
+
+.rank-text {
+    font-family: monospace;
+    font-weight: bold;
+    color: #666;
+    font-size: 1.1rem;
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.user-avatar-sm {
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #888;
+}
+.user-name-cell {
+    font-weight: 600;
+}
+.current-user-row td {
+    background: rgba(0, 243, 255, 0.05);
+    border-color: rgba(0, 243, 255, 0.2);
+}
+.current-user-row:hover td {
+    background: rgba(0, 243, 255, 0.08);
+}

@@ -18,51 +18,73 @@
 #resourceModal .modal-content {
     background: #030305 !important;
     border-radius: 16px;
-    padding: 2rem;
+    padding: 0 !important; /* Move padding to content container for full edge scrollbar */
     max-width: 1000px;
     width: 95%;
     max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden !important; /* Stop modal from scrolling, let inner content scroll */
+    display: flex !important;
+    flex-direction: column !important;
     position: relative;
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
+}
+
+#resourceModalContent {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
     scrollbar-width: thin;
     scrollbar-color: #000000 transparent;
 }
 
-#resourceModal .modal-content::-webkit-scrollbar {
+#resourceModalContent::-webkit-scrollbar {
     width: 6px;
 }
 
-#resourceModal .modal-content::-webkit-scrollbar-track {
+#resourceModalContent::-webkit-scrollbar-track {
     background: transparent;
 }
 
-#resourceModal .modal-content::-webkit-scrollbar-thumb {
+#resourceModalContent::-webkit-scrollbar-thumb {
     background: #000000;
     border-radius: 3px;
 }
 
-#resourceModal .modal-content::-webkit-scrollbar-thumb:hover {
+#resourceModalContent::-webkit-scrollbar-thumb:hover {
     background: #222222;
 }
+
+/* Legacy scrollbar styles on modal-content removed functionally, but kept if needed by other things? No specific need. */
+
 
 #resourceModal .modal-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: none;
-    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
     font-size: 1.5rem;
-    color: #888;
+    color: #fff;
     cursor: pointer;
-    z-index: 10;
+    z-index: 20; /* Ensure it stays above scrolling content */
     pointer-events: auto !important;
+    transition: all 0.2s ease;
 }
 
 #resourceModal .modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Forcer les cartes de ressources cliquables */

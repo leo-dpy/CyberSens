@@ -215,7 +215,7 @@ if ($course_filter) {
                                     </a>
                                     <a href="questions.php?delete=<?php echo $q['id']; ?><?php echo $course_filter ? '&course_id='.$course_filter : ''; ?>" 
                                        class="btn-icon delete" title="Supprimer" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette question ?');">
+                                       onclick="return confirmAction(event, 'Êtes-vous sûr de vouloir supprimer cette question ?');">
                                         <i data-lucide="trash-2"></i>
                                     </a>
                                 </div>

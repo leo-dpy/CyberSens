@@ -194,156 +194,356 @@
 }
 
 /* =========================================
-   APERCU SCENARIO - LE STYLE "PAPIER"
+   APERCU SCENARIO - REALISTIC MOCKUPS
    ========================================= */
-.scenario-preview {
-    background: #ffffff;
-    /* Fond blanc papier */
-    color: #1a1a1a;
-    /* Texte sombre */
-    border-radius: 12px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    font-family: 'Arial', sans-serif;
-    /* Police email standard */
-    position: relative;
-    overflow: hidden;
+
+/* Layout Global Modale */
+.scenario-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-/* Simulation de la barre d'en-tête */
-.scenario-preview::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-}
-
-.scenario-preview.email::before {
-    background: #3b82f6;
-}
-
-/* Bleu pour Email */
-.scenario-preview.sms::before {
-    background: #10b981;
-}
-
-/* Vert pour SMS */
-.scenario-preview.website::before {
-    background: #8b5cf6;
-}
-
-/* Violet pour Web */
-
-.email-header {
-    background: #f8f9fa;
+.scenario-instruction {
+    background: rgba(255,255,255,0.1);
+    border-left: 4px solid var(--primary);
     padding: 1rem;
-    border-radius: 8px;
     margin-bottom: 1.5rem;
-    border: 1px solid #e5e7eb;
+    color: #fff;
+    font-size: 0.95rem;
+    border-radius: 0 8px 8px 0;
 }
 
-.email-header .from,
-.email-header .subject {
+/* --- MOCKUP COMMUN --- */
+.email-mockup, .browser-mockup {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #333;
+}
+
+/* --- EMAIL MOCKUP --- */
+.email-header-top {
+    background: #f3f4f6;
+    padding: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.window-dots {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+.dot-red { background: #ef4444; }
+.dot-yellow { background: #f59e0b; }
+.dot-green { background: #10b981; }
+
+.email-meta-area {
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    position: relative;
+}
+
+.email-avatar {
+    width: 48px;
+    height: 48px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.25rem;
 }
 
-.email-header .label {
+.email-info {
+    flex: 1;
+}
+
+.email-sender-line {
+    margin-bottom: 0.25rem;
+}
+
+.sender-name {
     font-weight: 700;
-    color: #4b5563;
-    min-width: 60px;
+    color: #111827;
+    font-size: 1.05rem;
 }
 
-.email-header .value {
+.sender-email {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.email-recipient-line {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.email-date {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.email-subject {
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
     color: #111827;
 }
 
-.email-body,
-.website-body {
-    color: #1f2937;
+.email-body {
+    padding: 1rem 1.5rem 2rem 1.5rem;
     line-height: 1.6;
+    font-size: 1rem;
+    color: #374151;
+}
+
+.email-attachment {
+    margin: 0 1.5rem 1.5rem 1.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+/* --- SMS MOCKUP --- */
+.phone-mockup {
+    background: #000;
+    border-radius: 30px;
+    padding: 1rem;
+    max-width: 320px;
+    margin: 0 auto;
+    border: 4px solid #333;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    position: relative;
+}
+
+.phone-notch {
+    width: 40%;
+    height: 20px;
+    background: #333;
+    margin: -1rem auto 1rem auto;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.sms-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+}
+
+.contact-info {
+    text-align: center;
+}
+
+.contact-name {
+    font-weight: 600;
     font-size: 1rem;
 }
 
-.sms-body {
-    background: #e5e7eb;
-    padding: 1rem 1.5rem;
-    border-radius: 18px;
-    border-bottom-left-radius: 4px;
-    display: inline-block;
-    max-width: 80%;
-    color: #000;
+.sms-content-area {
+    background: #1c1c1e;
+    min-height: 200px;
+    border-radius: 20px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
 }
 
-.website-url {
-    background: #f1f5f9;
-    color: #059669;
+.sms-bubble {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.sms-bubble.received {
+    background: #3a3a3c;
+    color: white;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.sms-timestamp {
+    display: block;
+    font-size: 0.65rem;
+    color: #999;
+    margin-top: 0.25rem;
+    text-align: right;
+}
+
+/* --- BROWSER MOCKUP --- */
+.browser-header {
+    background: #f3f4f6;
     padding: 0.75rem;
-    border-radius: 8px;
-    font-family: monospace;
-    margin-bottom: 1.5rem;
-    border: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
+    gap: 1rem;
 }
 
-.website-url::before {
-    content: '🔒 ';
-    margin-right: 0.5rem;
+.browser-nav-btns {
+    display: flex;
+    gap: 0.5rem;
+    color: #9ca3af;
 }
 
-/* Boutons interactifs */
-.scenario-question h3 {
-    color: #fff;
-    margin-bottom: 1.5rem;
-    font-size: 1.3rem;
+.browser-nav-btns svg {
+    width: 16px;
+    height: 16px;
+}
+
+.url-bar {
+    flex: 1;
+    background: #fff;
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.padlock-icon {
+    width: 12px;
+    height: 12px;
+    color: #059669;
+}
+
+.browser-viewport {
+    padding: 2rem;
+    text-align: center;
+    background: #fff;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.site-title {
+    font-size: 1.5rem;
+    color: #111827;
+}
+
+.site-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: default; /* C'est une image */
+}
+
+
+/* --- BOUTONS REPONSE --- */
+.scenario-decision {
+    text-align: center;
+}
+
+.scenario-decision h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-main);
+}
+
+.scenario-decision p {
+    margin-bottom: 2rem;
+    color: var(--text-muted);
 }
 
 .answer-buttons {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
-    justify-content: center;
 }
 
 .answer-btn {
-    padding: 1rem 2.5rem;
-    border-radius: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-    border: none;
     display: flex;
+    flex-direction: row; /* Horizontal layout is more compact */
     align-items: center;
+    justify-content: center;
     gap: 0.75rem;
-    font-size: 1.1rem;
+    padding: 1rem 1.5rem; /* Reduced padding */
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-main);
+    transition: all 0.3s;
+    cursor: pointer;
+    font-weight: 600;
 }
 
-.answer-btn.phishing {
-    background: #ef4444;
-    color: white;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+.btn-icon {
+    width: 32px; /* Smaller icon container */
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem; /* Smaller icon font */
+    transition: 0.3s;
+}
+}
+
+/* Style Phishing Button */
+.answer-btn.phishing .btn-icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
 .answer-btn.phishing:hover {
-    transform: translateY(-2px);
-    background: #dc2626;
+    background: rgba(239, 68, 68, 0.05);
+    border-color: #ef4444;
 }
 
-.answer-btn.legitimate {
-    background: #10b981;
+.answer-btn.phishing:hover .btn-icon {
+    background: #ef4444;
     color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    transform: scale(1.1);
+}
+
+/* Style Legit Button */
+.answer-btn.legitimate .btn-icon {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
 }
 
 .answer-btn.legitimate:hover {
-    transform: translateY(-2px);
-    background: #059669;
+    background: rgba(16, 185, 129, 0.05);
+    border-color: #10b981;
+}
+
+.answer-btn.legitimate:hover .btn-icon {
+    background: #10b981;
+    color: white;
+    transform: scale(1.1);
 }
 
 /* Résultats */

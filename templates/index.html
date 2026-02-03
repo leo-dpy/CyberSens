@@ -53,40 +53,56 @@
     <div id="modal-overlay" class="modal-overlay"></div>
     <div id="modal-bp" class="modal">
         <div class="modal-header">
-            <h2><i data-lucide="shield-alert"></i> Bonnes Pratiques</h2>
+            <h2><i data-lucide="shield-check"></i> Bonnes Pratiques</h2>
         </div>
-        <div class="modal-content">
-            <div class="bp-item">
-                <i data-lucide="lock"></i>
-                <div>
-                    <h4>Mots de passe forts</h4>
-                    <p>Utilisez 12+ caractères, mélangez majuscules, chiffres et symboles.</p>
+        <div class="modal-content-bp">
+            <div class="bp-grid">
+                <div class="bp-card">
+                    <div class="bp-icon"><i data-lucide="lock"></i></div>
+                    <div class="bp-info">
+                        <h4>Mots de passe</h4>
+                        <p>12+ caractères, mélange de types, phrases secrètes.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="bp-item">
-                <i data-lucide="eye-off"></i>
-                <div>
-                    <h4>Données Personnelles</h4>
-                    <p>Ne partagez jamais d'informations sensibles sur des réseaux non sécurisés.</p>
+                <div class="bp-card">
+                    <div class="bp-icon"><i data-lucide="eye-off"></i></div>
+                    <div class="bp-info">
+                        <h4>Confidentialité</h4>
+                        <p>Ne partagez jamais d'infos sensibles sur WiFi public.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="bp-item">
-                <i data-lucide="mail-warning"></i>
-                <div>
-                    <h4>Phishing</h4>
-                    <p>Vérifiez toujours l'expéditeur et les liens avant de cliquer.</p>
+                <div class="bp-card">
+                    <div class="bp-icon"><i data-lucide="mail-warning"></i></div>
+                    <div class="bp-info">
+                        <h4>Anti-Phishing</h4>
+                        <p>Vérifiez l'expéditeur. En doute ? Ne cliquez pas.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="bp-item warning">
-                <i data-lucide="alert-triangle"></i>
-                <div>
-                    <h4>Mises à jour</h4>
-                    <p>Gardez vos systèmes à jour pour combler les failles de sécurité.</p>
+                <div class="bp-card">
+                    <div class="bp-icon"><i data-lucide="refresh-cw"></i></div>
+                    <div class="bp-info">
+                        <h4>Mises à jour</h4>
+                        <p>Systèmes à jour = Failles de sécurité comblées.</p>
+                    </div>
+                </div>
+                <div class="bp-card">
+                    <div class="bp-icon"><i data-lucide="smartphone"></i></div>
+                    <div class="bp-info">
+                        <h4>2FA / MFA</h4>
+                        <p>Activez la double authentification partout.</p>
+                    </div>
+                </div>
+                <div class="bp-card">
+                    <div class="bp-icon"><i data-lucide="hard-drive"></i></div>
+                    <div class="bp-info">
+                        <h4>Sauvegardes</h4>
+                        <p>La règle 3-2-1 : 3 copies, 2 supports, 1 hors site.</p>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button id="ack-btn" class="btn btn-primary">J'ai compris</button>
+            <button id="ack-btn" class="btn btn-primary w-100">J'ai compris, je sécurise !</button>
         </div>
     </div>
 

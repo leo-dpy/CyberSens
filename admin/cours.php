@@ -145,7 +145,7 @@ $cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_i
 
             <div class="admin-table-container">
                 <?php if(count($cours) > 0): ?>
-                <table class="admin-table">
+                <table class="admin-table has-hidden-col">
                     <thead>
                         <tr>
                             <th class="order-handle-col" style="display: none; width: 50px;"></th>
@@ -169,7 +169,7 @@ $cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_i
                             </td>
                             <td>
                                 <div style="font-weight: 500; color: var(--text-primary);"><?php echo htmlspecialchars($c['title']); ?></div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);"><?php echo htmlspecialchars(substr($c['description'], 0, 50)); ?>...</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;"><?php echo htmlspecialchars($c['description']); ?></div>
                             </td>
                             <td>
                                 <?php 
@@ -206,7 +206,7 @@ $cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_i
                                     <a href="questions.php?course_id=<?php echo $c['id']; ?>" class="btn-icon" style="color: var(--accent-primary);" title="Gérer les questions">
                                         <i data-lucide="help-circle"></i>
                                     </a>
-                                    <a href="cours.php?delete=<?php echo $c['id']; ?>" class="btn-icon delete" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours et toutes ses questions ?');">
+                                    <a href="cours.php?delete=<?php echo $c['id']; ?>" class="btn-icon delete" title="Supprimer" onclick="return confirmAction(event, 'Êtes-vous sûr de vouloir supprimer ce cours et toutes ses questions ?');">
                                         <i data-lucide="trash-2"></i>
                                     </a>
                                 </div>

@@ -82,6 +82,17 @@ class ApiClient {
         }
     }
 
+    async getUser(id) {
+        try {
+            const response = await fetch(`${API_URL}/users.php?id=${id}`);
+            const data = await response.json();
+            return data.success ? data.user : null;
+        } catch (e) {
+            console.error("Erreur GetUser:", e);
+            return null;
+        }
+    }
+
     async deleteUser(id) {
         try {
             await fetch(`${API_URL}/users.php`, {
@@ -768,6 +779,43 @@ async function markAllNotificationsRead() {
     showToast('Notifications', 'Toutes les notifications ont été marquées comme lues', 'info', 3000);
 }
 
+// Nouvelle fonction pour tout supprimer
+async function deleteAllNotifications() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    if (!currentUser) return;
+
+    if (!await showConfirmModal('Supprimer Notifications', 'Supprimer définitivement l\'historique ?', 'Cette action est irréversible.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/notifications.php`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                user_id: currentUser.id,
+                delete_all: true 
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            loadNotifications();
+            showToast('Notifications', 'Historique des notifications effacé', 'success', 3000);
+        } else {
+            showToast('Erreur', 'Impossible de supprimer les notifications', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Erreur', 'Erreur de connexion', 'error');
+    }
+}
+
+// Rendre la fonction accessible globalement
+window.deleteAllNotifications = deleteAllNotifications;
+window.markAllNotificationsRead = markAllNotificationsRead;
+
 // Fermer le panneau en cliquant ailleurs
 document.addEventListener('click', (e) => {
     const panel = document.getElementById('notifications-panel');
@@ -1105,12 +1153,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadNotifications();
         }
 
-        function updateUI(user) {
+        async function updateUI(user) {
             if (!authContainer) return;
 
             // Masquer Auth, Afficher Dashboard
             authContainer.style.display = 'none';
             userDashboard.style.display = 'block';
+
+            // Rafraîchir les données depuis le serveur pour avoir l'XP exact à jour
+            try {
+                const freshUser = await api.getUser(user.id);
+                if (freshUser) {
+                    user = freshUser;
+                    sessionStorage.setItem('currentUser', JSON.stringify(user));
+                }
+            } catch (e) {
+                console.error("Erreur rafraîchissement profil:", e);
+            }
 
             // Mettre à jour les infos utilisateur
             document.getElementById('user-name-display').textContent = user.username;
@@ -1276,6 +1335,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await api.getLeaderboard();
 
         const groupTbody = document.getElementById('group-leaderboard-list');
+        const podiumContainer = document.getElementById('podium-container');
         if (!groupTbody) return;
 
         // Mettre à jour les stats globales
@@ -1290,29 +1350,84 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         groupTbody.innerHTML = '';
+        if(podiumContainer) podiumContainer.innerHTML = '';
 
         const leaderboard = data.leaderboard || data || [];
 
         if (leaderboard.length === 0) {
             groupTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">Aucun participant</td></tr>';
         } else {
-            leaderboard.forEach((user, index) => {
-                const rank = user.rank || index + 1;
-                let rankBadge = rank;
-                if (rank <= 3) rankBadge = `<div class="rank-badge rank-${rank}">${rank}</div>`;
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            
+            // Séparer Podium et Liste
+            // On veut afficher dans l'ordre du podium : 2ème, 1er, 3ème
+            const podiumUsers = [];
+            // Assigner les places (l'API renvoie trié par rang)
+            const first = leaderboard[0]; 
+            const second = leaderboard[1]; 
+            const third = leaderboard[2];
 
+            // Construire le tableau podium dans l'ordre visuel (2, 1, 3)
+            if (second) podiumUsers.push({ ...second, place: 2 });
+            if (first)  podiumUsers.push({ ...first, place: 1 });
+            if (third)  podiumUsers.push({ ...third, place: 3 });
+
+            // Afficher le podium
+            if(podiumContainer) {
+                podiumUsers.forEach(u => {
+                    const avatarContent = u.avatar || u.username.charAt(0).toUpperCase();
+                    // Si avatar est une image ou emoji, sinon lettre
+                    
+                    const isCrown = u.place === 1 ? '<div class="podium-crown"><i data-lucide="crown"></i></div>' : '';
+                    
+                    podiumContainer.innerHTML += `
+                        <div class="podium-item rank-${u.place}">
+                            <div class="podium-avatar-wrapper">
+                                ${isCrown}
+                                <div class="podium-avatar">${avatarContent}</div>
+                            </div>
+                            <div class="podium-info">
+                                <div class="podium-username">${u.username}</div>
+                                <div class="podium-xp">${parseInt(u.xp).toLocaleString()} XP</div>
+                            </div>
+                            <div class="podium-stand">
+                                <span class="stand-rank">${u.place}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Afficher le reste (à partir du 4ème)
+            const listUsers = leaderboard.slice(3);
+            
+            // Si on veut aussi afficher ceux du podium dans la liste ? 
+            // Généralement non, mais parfois oui pour voir les stats détaillées.
+            // Ici, affichons le reste de la liste, ou toute la liste ? 
+            // Design pattern courant : Podium + suite.
+            // Si utilisateur est 1er, il est sur le podium.
+
+            listUsers.forEach((user, index) => {
+                const globalRank = index + 4; // 1,2,3 sont sur podium
+                
                 const tr = document.createElement('tr');
-                // Mettre en évidence l'utilisateur connecté
-                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
                 if (currentUser && currentUser.id === user.id) {
-                    tr.style.background = 'rgba(0, 255, 136, 0.1)';
+                    tr.classList.add('current-user-row');
                 }
 
+                // Avatar
+                const initial = user.username.charAt(0).toUpperCase();
+                const avatarDisplay = user.avatar 
+                    ? `<span style="font-size:1.2rem;">${user.avatar}</span>` 
+                    : `<div class="user-avatar-sm">${initial}</div>`;
+
                 tr.innerHTML = `
-                    <td>${rankBadge}</td>
-                    <td style="color: var(--primary-color); font-weight: bold;">
-                        ${user.avatar ? `<span style="margin-right: 0.5rem;">${user.avatar}</span>` : ''}
-                        ${user.username}
+                    <td><span class="rank-text">#${globalRank}</span></td>
+                    <td>
+                        <div class="user-cell">
+                            ${avatarDisplay}
+                            <span class="user-name-cell">${user.username}</span>
+                        </div>
                     </td>
                     <td>${getLevelName(user.level)}</td>
                     <td>${parseInt(user.xp).toLocaleString()}</td>
@@ -1321,7 +1436,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
                 groupTbody.appendChild(tr);
             });
+            
+            // Petit hack : si liste vide et seulement < 3 personnes, afficher message ?
+            if(listUsers.length === 0 && leaderboard.length > 0) {
+                 groupTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666; padding: 2rem;">Le top 3 domine le classement !</td></tr>';
+            }
         }
+        lucide.createIcons();
     }
 
     // ==========================================
@@ -1522,6 +1643,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userId = currentUser ? currentUser.id : null;
         const userRole = currentUser ? currentUser.role : null;
 
+        // Thèmes de couleurs (identiques à admin/add_cours.php)
+        const themes = {
+            'blue': { primary: '#3b82f6', glow: 'rgba(59, 130, 246, 0.4)' },
+            'purple': { primary: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.4)' },
+            'green': { primary: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
+            'red': { primary: '#ef4444', glow: 'rgba(239, 68, 68, 0.4)' },
+            'orange': { primary: '#f59e0b', glow: 'rgba(245, 158, 11, 0.4)' },
+            'cyan': { primary: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)' },
+            'pink': { primary: '#ec4899', glow: 'rgba(236, 72, 153, 0.4)' }
+        };
+
         const courses = await api.getCourses(userId, userRole);
         const contentArea = document.getElementById('content-area');
 
@@ -1535,12 +1667,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const isCompleted = c.is_completed === true || c.is_completed === 1;
                 const isRead = c.is_read === true || c.is_read === 1;
 
+                // Application du thème personnalisé
+                const theme = themes[c.theme] || themes['blue'];
+                const styleAttr = `style="--primary: ${theme.primary}; --primary-glow: ${theme.glow}; --primary-dim: ${theme.primary}80;"`;
+
+                // Icône personnalisée ou par défaut
+                const iconName = c.icon && c.icon !== '' ? c.icon : getDifficultyIcon(c.difficulty);
+
                 return `
-                <div class="card course-card ${isLocked ? 'card-locked' : ''} ${isCompleted ? 'card-completed' : ''} ${isRead ? 'card-read' : ''}" data-course-id="${c.id}">
+                <div class="card course-card ${isLocked ? 'card-locked' : ''} ${isCompleted ? 'card-completed' : ''} ${isRead ? 'card-read' : ''}" 
+                     data-course-id="${c.id}" 
+                     ${styleAttr}>
                     ${isLocked ? '<div class="lock-overlay"><i data-lucide="lock" class="lock-icon"></i><span>Terminez le module précédent</span></div>' : ''}
                     
                     <div class="course-header">
-                        <div class="card-icon"><i data-lucide="${getDifficultyIcon(c.difficulty)}"></i></div>
+                        <div class="card-icon"><i data-lucide="${iconName}"></i></div>
                         <span class="difficulty-badge difficulty-${c.difficulty?.toLowerCase()}">${c.difficulty}</span>
                     </div>
                     
@@ -1614,12 +1755,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     window.deleteCourse = async function (id) {
-        if (!confirm('Supprimer ce cours et toutes ses questions ?')) return;
+        if (!await showConfirmModal('Supprimer un Cours', 'Supprimer ce cours et toutes ses questions ?', 'Cette action est définitive.')) return;
         const result = await api.deleteCourse(id);
         if (result.success) {
             loadAdminCourses();
+            showToast('Succès', 'Cours supprimé', 'success');
         } else {
-            alert('Erreur: ' + result.message);
+            showToast('Erreur', result.message || 'Impossible de supprimer', 'error');
         }
     };
 
@@ -1642,25 +1784,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     window.deleteQuestion = async function (id) {
-        if (!confirm('Supprimer cette question ?')) return;
+        if (!await showConfirmModal('Supprimer Question', 'Voulez-vous vraiment supprimer cette question ?')) return;
         const result = await api.deleteQuestion(id);
         if (result.success) {
             loadAdminQuestions();
+            showToast('Succès', 'Question supprimée', 'success');
         } else {
-            alert('Erreur: ' + result.message);
+            showToast('Erreur', result.message, 'error');
         }
     };
 
     window.toggleAdmin = async function (id) {
-        if (!confirm('Modifier les droits admin de cet utilisateur ?')) return;
+        if (!await showConfirmModal('Droits Admin', 'Modifier les privilèges administrateur de cet utilisateur ?')) return;
         await api.toggleUserAdmin(id);
         loadAdminUsersTable();
+        showToast('Succès', 'Droits mis à jour', 'success');
     };
 
     window.deleteUserAdmin = async function (id) {
-        if (!confirm('Supprimer cet utilisateur ?')) return;
+        if (!await showConfirmModal('Supprimer Utilisateur', 'Supprimer définitivement cet utilisateur ?', 'Toutes ses données seront perdues.')) return;
         await api.deleteUser(id);
         loadAdminUsersTable();
+        showToast('Succès', 'Utilisateur supprimé', 'success');
     };
 
     window.viewCourse = async function (id) {
@@ -2167,45 +2312,106 @@ document.addEventListener('DOMContentLoaded', async () => {
         resultDiv.style.display = 'none';
 
         let previewHtml = '';
+        const today = new Date().toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
         if (scenario.type === 'email') {
+            const initial = scenario.sender.charAt(0).toUpperCase();
             previewHtml = `
-                <div class="scenario-preview email">
-                    <div class="email-header">
-                        <div class="from"><span class="label">De:</span> <span class="value">${scenario.sender}</span></div>
-                        <div class="subject"><span class="label">Objet:</span> <span class="value">${scenario.subject}</span></div>
+                <div class="scenario-container">
+                    
+                    <div class="email-mockup">
+                        <div class="email-header-top">
+                            <div class="window-dots dot-red"></div>
+                            <div class="window-dots dot-yellow"></div>
+                            <div class="window-dots dot-green"></div>
+                        </div>
+                        <div class="email-meta-area">
+                            <div class="email-avatar">${initial}</div>
+                            <div class="email-info">
+                                <div class="email-sender-line">
+                                    <span class="sender-name">Expéditeur Inconnu</span>
+                                    <span class="sender-email">&lt;${scenario.sender}&gt;</span>
+                                </div>
+                                <div class="email-recipient-line">À : moi@entreprise.com</div>
+                            </div>
+                            <div class="email-date">${today}</div>
+                        </div>
+                        <div class="email-subject">${scenario.subject}</div>
+                        <div class="email-body">
+                            ${scenario.content.replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="email-attachment">
+                            <i data-lucide="paperclip"></i> pièce_jointe.pdf <span style="opacity:0.5">(1.2 MB)</span>
+                        </div>
                     </div>
-                    <div class="email-body">${scenario.content.replace(/\n/g, '<br>')}</div>
                 </div>
             `;
         } else if (scenario.type === 'sms') {
             previewHtml = `
-                <div class="scenario-preview sms">
-                    <div class="sms-sender">${scenario.sender}</div>
-                    <div class="sms-body">${scenario.content}</div>
+                <div class="scenario-container">
+                    
+                    <div class="phone-mockup">
+                        <div class="phone-notch"></div>
+                        <div class="sms-header-bar">
+                            <i data-lucide="chevron-left"></i>
+                            <div class="contact-info">
+                                <div class="contact-name">${scenario.sender}</div>
+                            </div>
+                            <i data-lucide="info"></i>
+                        </div>
+                        <div class="sms-content-area">
+                            <div class="sms-bubble received">
+                                ${scenario.content}
+                                <span class="sms-timestamp">Maintenant</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         } else {
             previewHtml = `
-                <div class="scenario-preview website">
-                    <div class="website-url">${scenario.sender}</div>
-                    <div class="website-body">${scenario.content}</div>
+                <div class="scenario-container">
+                    
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <div class="browser-nav-btns">
+                                <i data-lucide="arrow-left"></i>
+                                <i data-lucide="arrow-right"></i>
+                                <i data-lucide="rotate-cw"></i>
+                            </div>
+                            <div class="url-bar">
+                                <i data-lucide="lock" class="padlock-icon"></i>
+                                <span class="url-text">${scenario.sender || 'https://site-suspect.com'}</span>
+                            </div>
+                        </div>
+                        <div class="browser-viewport">
+                            <h3 class="site-title">${scenario.subject}</h3>
+                            <div class="site-content">${scenario.content}</div>
+                            <button class="site-btn">Connexion</button>
+                        </div>
+                    </div>
                 </div>
             `;
         }
 
         contentDiv.innerHTML = `
-            <h2 style="margin-bottom: 1.5rem; text-align: center;">${scenario.title}</h2>
-            ${previewHtml}
-            <div class="scenario-question">
-                <h3>Ce message est-il une tentative de phishing ?</h3>
-                <div class="answer-buttons">
-                    <button class="answer-btn phishing" onclick="submitPhishingAnswer(${scenario.id}, true)">
-                        <i data-lucide="alert-triangle"></i> Phishing
-                    </button>
-                    <button class="answer-btn legitimate" onclick="submitPhishingAnswer(${scenario.id}, false)">
-                        <i data-lucide="check"></i> Légitime
-                    </button>
+            <div class="scenario-layout">
+                <div class="scenario-visual">
+                    ${previewHtml}
+                </div>
+                <div class="scenario-decision">
+                    <h3>Verdict ?</h3>
+                    <p>Analysez les indices et prenez une décision.</p>
+                    <div class="answer-buttons">
+                        <button class="answer-btn phishing" onclick="submitPhishingAnswer(${scenario.id}, true)">
+                            <div class="btn-icon"><i data-lucide="alert-triangle"></i></div>
+                            <span>C'est un Phishing</span>
+                        </button>
+                        <button class="answer-btn legitimate" onclick="submitPhishingAnswer(${scenario.id}, false)">
+                            <div class="btn-icon"><i data-lucide="shield-check"></i></div>
+                            <span>C'est Légitime</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         `;
@@ -2381,9 +2587,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Auto-show on first visit
-    if (!localStorage.getItem('bp_acknowledged')) {
-        setTimeout(openBpModal, 1000); // 1s delay for effect
+    // ==========================================
+    // CONFIRM MODAL LOGIC
+    // ==========================================
+    window.showConfirmModal = function (title, message, submessage = '') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirm-modal');
+            if (!modal) {
+                if(confirm(message)) resolve(true);
+                else resolve(false);
+                return;
+            }
+
+            const titleEl = modal.querySelector('h2');
+            const msgEl = document.getElementById('confirm-message');
+            const subMsgEl = document.getElementById('confirm-submessage');
+            const okBtn = document.getElementById('confirm-ok-btn');
+            const cancelBtn = document.getElementById('confirm-cancel-btn');
+
+            if (titleEl && title) titleEl.innerHTML = `<i data-lucide="alert-triangle"></i> ${title}`;
+            if (msgEl) msgEl.textContent = message;
+            if (subMsgEl) subMsgEl.textContent = submessage;
+
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            lucide.createIcons();
+
+            // Clone to remove listeners
+            const newOk = okBtn.cloneNode(true);
+            const newCancel = cancelBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOk, okBtn);
+            cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+            const closeModal = () => {
+                modal.classList.remove('active');
+                setTimeout(() => modal.style.display = 'none', 300);
+            };
+
+            newOk.addEventListener('click', () => {
+                closeModal();
+                resolve(true);
+            });
+
+            newCancel.addEventListener('click', () => {
+                closeModal();
+                resolve(false);
+            });
+
+            // Click outside
+            const clickOutside = (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                    resolve(false);
+                    modal.removeEventListener('click', clickOutside);
+                }
+            };
+            modal.addEventListener('click', clickOutside);
+        });
+    };
+
+    // Auto-show on first visit (or resets)
+    // On enlève la condition localStorage pour forcer l'affichage si l'utilisateur le souhaite à chaque actualisation
+    // Ou on peut vérifier une version dans le localStorage pour réafficher si le contenu change
+    // Pour l'instant, on laisse la vérification mais on s'assure qu'elle fonctionne
+    
+    // Si l'utilisateur a demandé à ce que ça s'affiche "au lancement", 
+    // peut-être qu'il pense que ça ne marche plus car il a déjà cliqué "J'ai compris".
+    // On va commenter la condition pour le debug ou changer la clé pour reset
+    
+    // CODE CORRIGÉ : On vérifie si l'utilisateur n'a PAS encore acquitté ET on s'assure que le DOM est chargé
+    if (!localStorage.getItem('bp_acknowledged_v2')) {
+        // Petit délai pour laisser le temps au site de se charger visuellement
+        setTimeout(openBpModal, 1500); 
     }
 
     if (openBpBtn) openBpBtn.addEventListener('click', openBpModal);
@@ -2393,7 +2668,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ackBtn) {
         ackBtn.addEventListener('click', () => {
             closeBpModal();
-            localStorage.setItem('bp_acknowledged', 'true');
+            // On enregistre que l'utilisateur a vu le message
+            localStorage.setItem('bp_acknowledged_v2', 'true');
             showToast('Top !', 'Vous connaissez maintenant les bases.', 'success');
         });
     }

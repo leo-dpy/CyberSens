@@ -96,18 +96,26 @@ try {
             
         case 'DELETE':
             $data = json_decode(file_get_contents('php://input'), true);
-            $notification_id = (int)($data['notification_id'] ?? 0);
+            $notification_id = isset($data['notification_id']) ? (int)$data['notification_id'] : null;
             $user_id = (int)($data['user_id'] ?? 0);
+            $delete_all = isset($data['delete_all']) && $data['delete_all'] === true;
             
-            if (!$notification_id || !$user_id) {
-                echo json_encode(['success' => false, 'message' => 'notification_id et user_id requis']);
+            if (!$user_id) {
+                echo json_encode(['success' => false, 'message' => 'user_id requis']);
                 exit;
             }
             
-            $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
-            $stmt->execute([$notification_id, $user_id]);
-            
-            echo json_encode(['success' => true, 'message' => 'Notification supprimée']);
+            if ($delete_all) {
+                $stmt = $pdo->prepare("DELETE FROM notifications WHERE user_id = ?");
+                $stmt->execute([$user_id]);
+                echo json_encode(['success' => true, 'message' => 'Toutes les notifications ont été supprimées']);
+            } elseif ($notification_id) {
+                $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
+                $stmt->execute([$notification_id, $user_id]);
+                echo json_encode(['success' => true, 'message' => 'Notification supprimée']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'ID notification ou delete_all requis']);
+            }
             break;
             
         default:

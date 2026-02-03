@@ -7,9 +7,11 @@ document.getElementById('toggleOrderMode').addEventListener('click', function ()
     const panel = document.getElementById('orderModePanel');
     const handleCols = document.querySelectorAll('.order-handle-col');
     const actionsCols = document.querySelectorAll('.actions-col');
+    const tableBody = document.getElementById('coursesTableBody');
 
     if (orderMode) {
         panel.style.display = 'block';
+        tableBody.classList.add('reorder-active');
         handleCols.forEach(col => col.style.display = 'table-cell');
         actionsCols.forEach(col => col.style.display = 'none');
         this.innerHTML = '<i data-lucide="x"></i> Annuler';
@@ -29,6 +31,7 @@ document.getElementById('toggleOrderMode').addEventListener('click', function ()
         });
     } else {
         panel.style.display = 'none';
+        tableBody.classList.remove('reorder-active');
         handleCols.forEach(col => col.style.display = 'none');
         actionsCols.forEach(col => col.style.display = 'table-cell');
         this.innerHTML = '<i data-lucide="arrow-up-down"></i> Réorganiser';

@@ -699,6 +699,76 @@ p {
     color: var(--text-main);
 }
 
+/* ==================================
+   MODAL BONNES PRATIQUES (New Design)
+   ================================== */
+.modal-content-bp {
+    padding: 0.5rem;
+}
+
+.bp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.bp-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.bp-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.bp-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(0, 243, 255, 0.1);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bp-card:hover .bp-icon {
+    background: var(--primary);
+    color: #000;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.bp-info h4 {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.bp-info p {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .bp-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
 /* Panneau de Notifications */
 .notifications-panel {
     position: fixed;
@@ -1391,12 +1461,8 @@ body {
 }
 
 .admin-table tbody tr {
-    background: rgba(12, 12, 16, 0.6);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
     transition: all 0.3s ease;
-    /* Astuce pour border-radius sur tr */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Suppression des propriétés conflictuelles sur tr */
 }
 
 .admin-table td {
@@ -1404,31 +1470,59 @@ body {
     color: var(--text-main);
     vertical-align: middle;
     font-size: 0.95rem;
+    
+    /* Définition complète des bordures et du fond sur les cellules pour l'effet carte */
     border-top: 1px solid var(--glass-border);
     border-bottom: 1px solid var(--glass-border);
-    background: rgba(12, 12, 16, 0.4);
-    backdrop-filter: blur(12px);
+    background: rgba(12, 12, 16, 0.6); /* Unifié ici */
+    /* backdrop-filter: blur(12px); Supprimé pour éviter les artefacts visuels entre cellules */
 }
 
 .admin-table td:first-child {
     border-left: 1px solid var(--glass-border);
-    border-radius: 12px 0 0 12px;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+/* Pour les tables avec une colonne masquée (ex: Cours) */
+/* Cas normal : 1ère col masquée, donc on arrondit la 2ème */
+.admin-table.has-hidden-col tbody:not(.reorder-active) td:first-child {
+    border-left: none;
+    border-radius: 0;
+}
+.admin-table.has-hidden-col tbody:not(.reorder-active) td:nth-child(2) {
+    border-left: 1px solid var(--glass-border);
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+/* Cas réorganisation : 1ère col visible, on revient au standard */
+.admin-table.has-hidden-col tbody.reorder-active td:first-child {
+    border-left: 1px solid var(--glass-border);
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+.admin-table.has-hidden-col tbody.reorder-active td:nth-child(2) {
+    border-left: none;
+    border-radius: 0;
 }
 
 .admin-table td:last-child {
     border-right: 1px solid var(--glass-border);
-    border-radius: 0 12px 12px 0;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 .admin-table tr:hover td {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 28, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
     color: #fff;
 }
 
 .admin-table tr:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    /* L'ombre doit être appliquée sur les cellules ou simulée car box-shadow sur tr est parfois capricieux */
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
 }
 
 /* Badges Admin */
@@ -1492,6 +1586,104 @@ body {
     text-transform: uppercase;
     font-size: 1.2rem;
     letter-spacing: 0.1em;
+}
+
+.w-100 { width: 100%; }
+.text-center { text-align: center; }
+.text-end { text-align: right; }
+
+.admin-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Grille de sélection de rôle */
+.role-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.role-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.role-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-muted);
+    transform: translateY(-3px);
+}
+
+.role-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    /* top: 0; left: 0; ? Non le label wrap tout. */
+    inset: 0;
+    z-index: 5;
+}
+
+/* État sélectionné via une classe JS ou le sélecteur :checked + div... 
+   Mais ici structure plus simple : input inside label. 
+   On va utiliser :has si supporté, ou ajouter une classe JS. 
+   Pour simplifier sans JS complexe, on utilise le sélecteur voisin siblings.
+*/
+
+.role-card:has(input:checked),
+.role-card.active {
+    background: rgba(0, 243, 255, 0.08);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.15) inset;
+}
+
+.role-card-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.role-card:has(input:checked) .role-card-icon,
+.role-card.active .role-card-icon {
+    background: var(--primary);
+    color: #000;
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.role-card-title {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.role-card-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.3;
 }
 
 /* Cartes Statistiques Admin */
@@ -1715,7 +1907,7 @@ body {
 .course-card:hover .card-icon {
     background: var(--primary);
     color: #000;
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+    box-shadow: 0 0 20px var(--primary-glow);
     transform: scale(1.05) rotate(-3deg);
     border-color: var(--primary);
 }

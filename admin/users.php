@@ -371,7 +371,7 @@ foreach ($users as $u) {
                                         <i data-lucide="shield"></i>
                                     </button>
                                     <?php endif; ?>
-                                    <a href="users.php?delete=<?php echo $u['id']; ?>" class="btn-icon delete" <?php echo $canDelete ? '' : 'style="pointer-events:none; opacity:0.3;"'; ?> onclick="return confirm('Supprimer cet utilisateur ?')">
+                                    <a href="users.php?delete=<?php echo $u['id']; ?>" class="btn-icon delete" <?php echo $canDelete ? '' : 'style="pointer-events:none; opacity:0.3;"'; ?> onclick="return confirmAction(event, 'Supprimer cet utilisateur ?')">
                                         <i data-lucide="trash-2"></i>
                                     </a>
                                 </div>
@@ -494,18 +494,24 @@ foreach ($users as $u) {
                 
                 <p style="margin-bottom: 1.5rem;">Utilisateur : <strong id="role_username" class="text-primary">User</strong></p>
                 
-                <div class="quiz-options">
-                    <label class="quiz-option role-option">
-                        <input type="radio" name="new_role" value="user" style="margin-right: 1rem;">
-                        <strong>Utilisateur</strong> - Accès standard
+                <div class="role-grid">
+                    <label class="role-card">
+                        <input type="radio" name="new_role" value="user">
+                        <div class="role-card-icon"><i data-lucide="user"></i></div>
+                        <div class="role-card-title">Utilisateur</div>
+                        <div class="role-card-desc">Accès standard aux cours</div>
                     </label>
-                    <label class="quiz-option role-option">
-                        <input type="radio" name="new_role" value="creator" style="margin-right: 1rem;">
-                        <strong>Créateur</strong> - Gestion contenu
+                    <label class="role-card">
+                        <input type="radio" name="new_role" value="creator">
+                        <div class="role-card-icon"><i data-lucide="pen-tool"></i></div>
+                        <div class="role-card-title">Créateur</div>
+                        <div class="role-card-desc">Gestion des contenus</div>
                     </label>
-                    <label class="quiz-option role-option">
-                        <input type="radio" name="new_role" value="admin" style="margin-right: 1rem;">
-                        <strong>Admin</strong> - Gestion utilisateurs
+                    <label class="role-card">
+                        <input type="radio" name="new_role" value="admin">
+                        <div class="role-card-icon"><i data-lucide="shield-alert"></i></div>
+                        <div class="role-card-title">Admin</div>
+                        <div class="role-card-desc">Contrôle total</div>
                     </label>
                 </div>
 
