@@ -18,59 +18,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 try {
     $newsList = $pdo->query("SELECT * FROM news ORDER BY event_date DESC, created_at DESC")->fetchAll();
 } catch (PDOException $e) {
-    if ($e->getCode() == '42S02') { // Table not found
-        // Création automatique de la table si elle manque
-        $sql = "CREATE TABLE IF NOT EXISTS news (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            description TEXT,
-            event_date DATE NOT NULL,
-            source VARCHAR(100),
-            link VARCHAR(255) DEFAULT '#',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
-        $pdo->exec($sql);
-
-        // Insertion des données par défaut
-        $major_incidents = [
-            ['title' => 'Kiabi', 'description' => 'Fuite des IBAN de 20 000 clients via une attaque par Credential Stuffing.', 'date' => '2026-01-07', 'source' => 'Fuite Bancaire', 'link' => 'https://www.kiabi.com'],
-            ['title' => 'Mondial Relay', 'description' => 'Vol de données personnelles et détails de livraison touchant des millions de clients.', 'date' => '2025-12-23', 'source' => 'Vol de Données', 'link' => '#'],
-            ['title' => 'La Poste & Banque Postale', 'description' => 'Attaque DDoS massive rendant les services inaccessibles juste avant Noël.', 'date' => '2025-12-22', 'source' => 'Paralysie', 'link' => '#'],
-            ['title' => 'Pass\'Sport / Ministère des Sports', 'description' => 'Exfiltration de données de 3,5 millions de foyers (Identités, Sécu, IBAN).', 'date' => '2025-12-19', 'source' => 'Fuite Massive', 'link' => '#'],
-            ['title' => 'Ministère de l\'Intérieur', 'description' => 'Intrusion serveurs messagerie, accès fichiers police sensibles (TAJ, FPR).', 'date' => '2025-12-11', 'source' => 'Intrusion Critique', 'link' => '#'],
-            ['title' => 'MédecinDirect', 'description' => 'Violation de données de santé très sensibles (motifs consultation, échanges médicaux).', 'date' => '2025-12-05', 'source' => 'Données Santé', 'link' => '#'],
-            ['title' => 'Missions Locales', 'description' => 'Fuite impactant 1,6 million de jeunes suivis par le réseau.', 'date' => '2025-12-01', 'source' => 'Données Sociales', 'link' => '#'],
-            ['title' => 'Fédération Française de Football', 'description' => 'Troisième cyberattaque en deux ans, touchant les données des licenciés.', 'date' => '2025-11-26', 'source' => 'Piratage', 'link' => '#'],
-            ['title' => 'Colis Privé', 'description' => 'Compromission des données de contact de millions de clients (risque phishing).', 'date' => '2025-11-21', 'source' => 'Fuite Clients', 'link' => '#'],
-            ['title' => 'Pajemploi / URSSAF', 'description' => 'Vol de données touchant 1,2 million d\'usagers (employeurs/salariés).', 'date' => '2025-11-14', 'source' => 'Fuite Admin', 'link' => '#'],
-            ['title' => 'Eurofiber France', 'description' => 'Attaque critique infrastructure, données de 3600 organisations exposées (SNCF, Airbus...).', 'date' => '2025-11-13', 'source' => 'Infrastructure', 'link' => '#'],
-            ['title' => 'France Travail', 'description' => 'Nouvelle compromission ciblant 31 000 comptes via infostealers.', 'date' => '2025-10-27', 'source' => 'Piratage Compte', 'link' => '#'],
-            ['title' => 'Lycées publics Hauts-de-France', 'description' => 'Ransomware Qilin paralysant 60 000 ordinateurs (80% des lycées) et vol données.', 'date' => '2025-10-10', 'source' => 'Rançongiciel', 'link' => '#'],
-            ['title' => 'Hôpitaux publics Hauts-de-France', 'description' => 'Attaque visant les serveurs d\'identité des patients, retour au papier.', 'date' => '2025-09-08', 'source' => 'Hôpital', 'link' => '#'],
-            ['title' => 'Auchan', 'description' => 'Cyberattaque ciblant les comptes de fidélité (cagnottes, historiques d\'achat).', 'date' => '2025-08-21', 'source' => 'Commerce', 'link' => '#'],
-            ['title' => 'Bouygues Telecom', 'description' => 'Fuite massive 6,4 millions de clients (État civil, IBAN, Coordonnées).', 'date' => '2025-08-06', 'source' => 'Fuite Massive', 'link' => '#'],
-            ['title' => 'Air France-KLM', 'description' => 'Fuite de données via prestataire Salesforce, membres Flying Blue touchés.', 'date' => '2025-08-06', 'source' => 'Supply Chain', 'link' => '#'],
-            ['title' => 'Sorbonne Université', 'description' => 'Vol de données de 32 000 étudiants et employés.', 'date' => '2025-06-16', 'source' => 'Université', 'link' => '#'],
-            ['title' => 'Disneyland Paris', 'description' => 'Revendication de vol de 64 Go de données confidentielles par le groupe Anubis.', 'date' => '2025-06-20', 'source' => 'Vol de Données', 'link' => '#'],
-            ['title' => 'Reduction-Impots.fr', 'description' => 'Vente sur dark web de données fiscales de 2 millions de Français.', 'date' => '2025-05-14', 'source' => 'Dark Web', 'link' => '#']
-        ];
-
-        $stmt = $pdo->prepare("INSERT INTO news (title, description, event_date, source, link) VALUES (:title, :description, :date, :source, :link)");
-        foreach ($major_incidents as $inc) {
-            $stmt->execute([
-                ':title' => $inc['title'],
-                ':description' => $inc['description'],
-                ':date' => $inc['date'],
-                ':source' => $inc['source'],
-                ':link' => $inc['link']
-            ]);
-        }
-        
-        // Re-tenter la requête d'affichage
-        $newsList = $pdo->query("SELECT * FROM news ORDER BY event_date DESC, created_at DESC")->fetchAll();
-    } else {
-        die("Erreur base de données : " . $e->getMessage());
-    }
+    die("Erreur base de données : " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>

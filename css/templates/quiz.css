@@ -57,7 +57,7 @@
 }
 
 .status-read {
-    background: rgba(0, 243, 255, 0.15);
+    background: rgba(59, 130, 246, 0.15);
     color: var(--primary-color);
-    border: 1px solid rgba(0, 243, 255, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.3);
 }

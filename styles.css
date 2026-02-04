@@ -1,46 +1,59 @@
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* -- PALETTE : Espace Profond -- */
-    --bg-deep: #030305;
-    --bg-page: #050508;
-    --bg-panel: rgba(12, 12, 16, 0.65);
-    --bg-panel-hover: rgba(20, 20, 28, 0.75);
+    /* -- PALETTE : Black & Electric Blue -- */
+    --bg-deep: #000000;
+    /* Pure Black */
+    --bg-page: #000000;
+    /* Pure Black - Was #050508 */
+    --bg-panel: rgba(5, 5, 5, 0.9);
+    /* Dark Neutral - Was rgba(10, 10, 15, 0.8) */
+    --bg-panel-hover: rgba(20, 20, 20, 0.95);
+    /* Dark Neutral - Was rgba(20, 20, 35, 0.9) */
 
-    /* -- ACCENTS : Néon Cyber -- */
-    --primary: #00f3ff;
-    /* Cyan Électrique */
-    --primary-dim: #008f96;
-    --primary-glow: rgba(0, 243, 255, 0.4);
+    /* -- ACCENTS : Deep Neon Blue -- */
+    --primary: #0055ff;
+    /* Electric Royal Blue */
+    --primary-color: var(--primary);
+    --accent-primary: var(--primary);
+    --primary-dim: #0033cc;
+    --primary-glow: rgba(0, 85, 255, 0.2); 
+    /* Reduced Glow */
 
-    --secondary: #ff0055;
-    /* Rose Chaud */
-    --secondary-dim: #990033;
-    --secondary-glow: rgba(255, 0, 85, 0.4);
+    --secondary: #4d00ff;
+    /* Deep Violet Blue */
+    --secondary-dim: #3300aa;
+    --secondary-glow: rgba(77, 0, 255, 0.4);
 
-    --accent: #bc13fe;
-    /* Violet Électrique */
-    --success: #0aff60;
-    /* Vert Matrix */
-    --warning: #ffcc00;
-    /* Jaune Cyber */
-    --danger: #ff003c;
-    /* Alerte Rouge */
+    --accent: #00ddff;
+    /* Cyan Highlight */
+    --accent-color: var(--accent);
+    --success: #00ff88;
+    /* Neon Green */
+    --warning: #ffaa00;
+    /* Neon Orange */
+    --danger: #ff0044;
+    /* Neon Red */
 
     /* -- TEXTE -- */
     --text-main: #ffffff;
-    --text-muted: #8b9bb4;
-    --text-dim: #4a5568;
+    --text-muted: #999999; 
+    /* Neutral Grey - Was #8899aa */
+    --text-dim: #666666;
+    /* Darker Grey - Was #556677 */
 
     /* -- BORDURES ET VERRE -- */
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-border-hover: rgba(0, 243, 255, 0.3);
-    --glass-highlight: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1); 
+    /* White/Grey Border - Was rgba(0, 85, 255, 0.2) */
+    --glass-border-hover: rgba(255, 255, 255, 0.3); 
+    /* Brighter White Border - Was rgba(0, 85, 255, 0.6) */
+    --glass-highlight: rgba(255, 255, 255, 0.1);
     --backdrop-blur: 16px;
 
     /* -- OMBRES -- */
-    --shadow-glow: 0 0 20px rgba(0, 243, 255, 0.15);
-    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 30px rgba(0, 0, 0, 0.8);
+    /* Black Shadow - Was rgba(0, 85, 255, 0.25) */
+    --shadow-card: 0 10px 50px rgba(0, 0, 0, 0.95);
 
     /* -- TYPOGRAPHIE -- */
     --font-heading: 'Exo 2', sans-serif;
@@ -102,8 +115,8 @@ body::before {
     right: 0;
     height: 100vh;
     background:
-        radial-gradient(circle at 10% 20%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(188, 19, 254, 0.08) 0%, transparent 40%);
+        radial-gradient(circle at 10% 20%, rgba(0, 85, 255, 0.02) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(77, 0, 255, 0.02) 0%, transparent 40%);
     pointer-events: none;
     z-index: -2;
 }
@@ -147,7 +160,7 @@ h1 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
-    filter: drop-shadow(0 0 20px rgba(0, 243, 255, 0.4));
+    filter: drop-shadow(0 0 20px rgba(0, 85, 255, 0.15));
     letter-spacing: -0.02em;
 }
 
@@ -2498,3 +2511,96 @@ input, textarea, select {
     height: 16px;
     font-size: 10px;
 }
+
+/* ============================================
+   CONTENU DES COURS (Rendu Riche)
+   ============================================ */
+.course-content {
+    color: var(--text-main);
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.course-content h1,
+.course-content h2,
+.course-content h3,
+.course-content h4 {
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    color: var(--text-main);
+}
+
+.course-content p {
+    margin-bottom: 1em;
+}
+
+.course-content ul,
+.course-content ol {
+    margin-bottom: 1em;
+    padding-left: 2em; /* Restore indentation */
+    list-style-position: outside;
+}
+
+.course-content ul {
+    list-style-type: disc;
+}
+
+.course-content ol {
+    list-style-type: decimal;
+}
+
+.course-content li {
+    margin-bottom: 0.5em;
+    padding-left: 0.5em; 
+}
+
+.course-content blockquote {
+    border-left: 4px solid var(--primary);
+    padding-left: 1rem;
+    margin-left: 0;
+    margin-bottom: 1em;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.course-content pre {
+    background: #0f0f12;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1em;
+    border: 1px solid var(--glass-border);
+}
+
+.course-content code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: rgba(255,255,255,0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+}
+
+.course-content pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.course-content a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.course-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1em 0;
+    border: 1px solid var(--glass-border);
+}
+
+.course-content strong {
+    color: #fff;
+    font-weight: 700;
+}
+

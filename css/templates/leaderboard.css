@@ -125,7 +125,7 @@
 
 .podium-username {
     font-weight: 700;
-    color: white;
+    color: var(--text-main);
     margin-bottom: 0.25rem;
     white-space: nowrap;
     overflow: hidden;
@@ -135,9 +135,9 @@
 
 .podium-xp {
     font-family: monospace;
-    color: #00f3ff;
+    color: var(--primary);
     font-size: 0.85rem;
-    background: rgba(0, 243, 255, 0.1);
+    background: rgba(59, 130, 246, 0.1);
     padding: 0.2rem 0.6rem;
     border-radius: 20px;
     display: inline-block;
@@ -188,24 +188,24 @@
 }
 .ranking-table th {
     padding: 1.25rem 1rem;
-    color: #888;
+    color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.1em;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid var(--glass-border);
 }
 .ranking-table td {
     padding: 1rem;
     vertical-align: middle;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    color: #eee;
+    border-bottom: 1px solid var(--glass-border);
+    color: var(--text-main);
 }
 .ranking-table tr:last-child td {
     border-bottom: none;
 }
 .ranking-table tr:hover td {
-    background: rgba(255,255,255,0.02);
+    background: var(--glass-highlight);
 }
 
 .rank-text {
@@ -239,9 +239,9 @@
     font-weight: 600;
 }
 .current-user-row td {
-    background: rgba(0, 243, 255, 0.05);
-    border-color: rgba(0, 243, 255, 0.2);
+    background: rgba(59, 130, 246, 0.05);
+    border-color: rgba(59, 130, 246, 0.2);
 }
 .current-user-row:hover td {
-    background: rgba(0, 243, 255, 0.08);
+    background: rgba(59, 130, 246, 0.08);
 }

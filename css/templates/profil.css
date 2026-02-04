@@ -113,7 +113,7 @@
 }
 
 .certificate-item {
-    background: linear-gradient(135deg, var(--card-bg, rgba(255, 255, 255, 0.05)), rgba(0, 243, 255, 0.05));
+    background: linear-gradient(135deg, var(--card-bg, rgba(255, 255, 255, 0.05)), rgba(59, 130, 246, 0.05));
     border-radius: 12px;
     padding: 1.5rem;
     border: 1px solid var(--primary-color, #00f3ff);
