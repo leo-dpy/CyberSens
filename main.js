@@ -1005,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const itemsHTML = fullList.map(item => `
                         <div class="ticker-item">
                             <span style="font-weight:600; margin-right:5px;">${new Date(item.date * 1000).toLocaleDateString('fr-FR')} : </span>
-                            <a href="${item.link}" target="_blank" style="color:inherit; text-decoration:none; border-bottom:1px dotted var(--text-muted);">${item.title}</a>
+                            <span style="color:inherit; border-bottom:1px dotted var(--text-muted);">${item.title}</span>
                         </div>
                     `).join('');
                     tickerContainer.innerHTML = `<div class="ticker-track">${itemsHTML}</div>`;
@@ -1024,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if(item.source.includes('Piratage')) { icon = 'skull'; colorStyle="color: #ef4444;"; }
 
                         newsHTML += `
-                            <a href="${item.link}" target="_blank" class="news-card type-external" style="text-decoration:none; border-color: rgba(220,38,38,0.3);">
+                            <div class="news-card type-external" style="border-color: rgba(220,38,38,0.3);">
                                 <div class="news-header">
                                     <div class="news-icon" style="background: rgba(220, 38, 38, 0.1); ${colorStyle}">
                                         <i data-lucide="${icon}"></i>
@@ -1039,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <i data-lucide="calendar" style="width:12px; height:12px; display:inline-block; vertical-align:middle;"></i>
                                     ${formatDate(item.date)}
                                 </div>
-                            </a>
+                            </div>
                         `;
                     });
                     newsFeed.innerHTML = newsHTML;
@@ -1056,7 +1056,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="log-entry">
                                 <span class="log-date">${formatLogDate(item.date)}</span>
                                 <span class="log-source ${sourceClass}">${item.source}</span><br>
-                                <a href="${item.link}" target="_blank" class="log-link">> ${item.title}</a>
+                                <span class="log-link">> ${item.title}</span>
                             </div>
                         `;
                     });
