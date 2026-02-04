@@ -5,30 +5,113 @@
     margin-bottom: 3rem;
 }
 
+/* -- NOUVEAU DESIGN DES CARTES STATS (Style "Cyber-Flat") -- */
 .home-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
     margin-bottom: 2.5rem;
 }
 
-.stat-icon-users {
-    background: rgba(59, 130, 246, 0.12);
-    color: var(--accent-primary-light);
+.home-stats-grid .stat-card {
+    background: #050508;
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Bordure subtile */
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: none; /* Désactive l'effet de flou global */
+    box-shadow: none; /* Style plat sans ombre portée excessive */
+    transition: all 0.3s ease;
+    height: 100%;
 }
 
-.stat-icon-modules {
-    background: rgba(139, 92, 246, 0.12);
+.home-stats-grid .stat-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: #0a0a0e;
+    transform: translateY(-2px);
+}
+
+/* Désactiver l'effet brillant du style global */
+.home-stats-grid .stat-card::after {
+    display: none; 
+}
+
+/* Barre d'icône colorée en haut */
+.home-stats-grid .stat-icon {
+    width: 65%; /* Largeur partielle */
+    height: 36px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    /* Reset des styles par défaut */
+    justify-content: flex-start;
+    box-shadow: none;
+}
+
+.home-stats-grid .stat-icon i {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5px;
+}
+
+/* Couleurs spécifiques pour chaque stat */
+.home-stats-grid .stat-icon-users {
+    /* Bleu Nuit */
+    background: rgba(59, 130, 246, 0.1); 
+    color: #60a5fa;
+    border-left: 3px solid #3b82f6; /* Barre accent */
+}
+
+.home-stats-grid .stat-icon-modules {
+    /* Violet Profond */
+    background: rgba(139, 92, 246, 0.1);
     color: #a78bfa;
+    border-left: 3px solid #8b5cf6;
 }
 
-.stat-icon-success {
-    background: rgba(16, 185, 129, 0.12);
-    color: var(--success);
+.home-stats-grid .stat-icon-success {
+    /* Vert Cyber */
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border-left: 3px solid #10b981;
 }
 
-.stat-icon-awards {
-    background: rgba(245, 158, 11, 0.12);
-    color: var(--warning);
+.home-stats-grid .stat-icon-awards {
+    /* Jaune Or */
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    border-left: 3px solid #f59e0b;
 }
 
+/* Valeur chiffrée */
+.home-stats-grid .stat-value {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+/* Libellé en bas */
+.home-stats-grid .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #6b7280;
+    font-weight: 600;
+    margin-top: auto;
+}
+
+/* -- RESTE DU FICHIER -- */
 .why-cybersens-container {
     margin-top: 3rem;
 }

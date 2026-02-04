@@ -987,9 +987,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch(`${API_URL}/news.php`);
             const data = await response.json();
 
-            // Optim: Si les données n'ont pas changé, on ne touche pas au DOM (évite reset des animations)
+            // Optim: Si les données n'ont pas changé ET que le ticker est déjà affiché, on ne touche pas au DOM
             const currentDataStr = JSON.stringify(data.news);
-            if (window.lastNewsData === currentDataStr) return;
+            // Vérifier si le ticker est déjà rendu (contient la classe ticker-track)
+            const isTickerRendered = tickerContainer && tickerContainer.querySelector('.ticker-track');
+
+            if (window.lastNewsData === currentDataStr && isTickerRendered) return;
             window.lastNewsData = currentDataStr;
 
             if (data.success && data.news.length > 0) {
