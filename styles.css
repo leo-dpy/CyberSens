@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* -- PALETTE : Noir & Blanc (Monochrome Precision) -- */
+    /* PALETTE : Noir & Blanc (Monochrome Precision) */
     --bg-deep: #000000; /* Pure Black */
     --bg-page: #050505; /* Black */
     
     --bg-panel: rgba(20, 20, 20, 0.9); /* Dark Grey Glass */
     --bg-panel-hover: rgba(40, 40, 40, 0.95);
 
-    /* -- ACCENTS : Monochrome -- */
+    /* ACCENTS : Monochrome */
     --primary: #ffffff; /* Pure White */
     --primary-color: var(--primary);
     --accent-primary: var(--primary);
@@ -26,7 +26,7 @@
     --warning: #dddddd; /* Very Light Grey */
     --danger: #ef4444; /* Red for alerts */
 
-    /* -- VIBRANT ACCENTS -- */
+    /* VIBRANT ACCENTS */
     --accent-cyan: #06b6d4;
     --accent-cyan-glow: rgba(6, 182, 212, 0.15);
     
@@ -42,42 +42,40 @@
     --accent-purple: #8b5cf6;
     --accent-purple-glow: rgba(139, 92, 246, 0.15);
 
-    /* -- TEXT -- */
+    /* TEXT */
     --text-main: #ffffff;
     --text-muted: #999999;
     --text-dim: #666666;
 
-    /* -- BORDERS & GLASS -- */
+    /* BORDERS & GLASS */
     --glass-border: rgba(255, 255, 255, 0.15); 
     --glass-border-hover: rgba(255, 255, 255, 0.3); 
     --glass-highlight: rgba(255, 255, 255, 0.08);
     --backdrop-blur: 12px;
 
-    /* -- SHADOWS -- */
+    /* SHADOWS */
     --shadow-glow: 0 0 30px rgba(255, 255, 255, 0.1);
     --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.9);
 
-    /* -- TYPOGRAPHY -- */
+    /* TYPOGRAPHY */
     --font-heading: 'Exo 2', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    /* -- LAYOUT -- */
+    /* LAYOUT */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 16px;
     --radius-xl: 24px;
     --sidebar-width: 280px;
 
-    /* -- TRANSITIONS -- */
+    /* TRANSITIONS */
     --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
     --transition-fast: 0.2s ease;
     --transition-smooth: 0.4s var(--ease-out-expo);
 }
 
-/* ============================================
-   RESET ET BASE
-   ============================================ */
+/* RESET ET BASE */
 *,
 *::before,
 *::after {
@@ -139,9 +137,7 @@ body::before {
     -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
 }
 
-/* ============================================
-   TYPOGRAPHIE
-   ============================================ */
+/* TYPOGRAPHIE */
 h1,
 h2,
 h3,
@@ -184,9 +180,7 @@ p {
     margin-bottom: 1rem;
 }
 
-/* ============================================
-   CONTENEUR DE MISE EN PAGE
-   ============================================ */
+/* CONTENEUR DE MISE EN PAGE */
 .app-container {
     display: flex;
     min-height: 100vh;
@@ -204,12 +198,8 @@ p {
     padding-left: calc(var(--sidebar-width) + 3rem);
 }
 
-/* ============================================
-   BARRE LATÉRALE (Panneau Futuriste)
-   ============================================ */
-/* ============================================
-   BARRE LATÉRALE (Panneau Flottant Futuriste)
-   ============================================ */
+/* BARRE LATÉRALE (Panneau Futuriste) */
+/* BARRE LATÉRALE (Panneau Flottant Futuriste) */
 .sidebar {
     position: fixed;
     top: 0;
@@ -292,7 +282,7 @@ p {
     font-weight: 500;
     letter-spacing: 0.02em;
     position: relative;
-    /* overflow: hidden; Removed to prevent clipping of hover effects */
+    
 }
 
 .nav-item i {
@@ -377,9 +367,7 @@ p {
     color: var(--text-muted);
 }
 
-/* ============================================
-   COMPOSANTS UI (Cartes, Boutons)
-   ============================================ */
+/* COMPOSANTS UI (Cartes, Boutons) */
 
 /* Cartes en Verre Premium */
 .card,
@@ -584,9 +572,7 @@ p {
     font-size: 0.9rem;
 }
 
-/* ============================================
-   PAGES SPÉCIFIQUES (Grille Bento, etc)
-   ============================================ */
+/* PAGES SPÉCIFIQUES (Grille Bento, etc) */
 
 /* Accueil / Tableau de bord */
 .bento-grid {
@@ -736,9 +722,7 @@ p {
     color: var(--text-main);
 }
 
-/* ==================================
-   MODAL BONNES PRATIQUES (New Design)
-   ================================== */
+/* MODAL BONNES PRATIQUES (New Design) */
 .modal-content-bp {
     padding: 0.5rem;
 }
@@ -804,7 +788,6 @@ p {
         grid-template-columns: 1fr;
     }
 }
-
 
 /* Panneau de Notifications */
 .notifications-panel {
@@ -937,7 +920,6 @@ p {
         transform: scale(1.1);
     }
 
-
     .stats-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -957,9 +939,7 @@ p {
     }
 }
 
-/* ============================================
-   UTILITAIRES ET COMPATIBILITÉ
-   ============================================ */
+/* UTILITAIRES ET COMPATIBILITÉ */
 .text-muted {
     color: var(--text-muted) !important;
 }
@@ -1070,7 +1050,6 @@ p {
     border: 1px solid rgba(139, 92, 246, 0.3);
 }
 
-
 .w-full {
     width: 100%;
 }
@@ -1083,9 +1062,7 @@ p {
     margin-bottom: 1rem;
 }
 
-/* ============================================
-   STYLES D'AUTHENTIFICATION (PREMIUM)
-   ============================================ */
+/* STYLES D'AUTHENTIFICATION (PREMIUM) */
 #auth-container {
     display: flex;
     align-items: center;
@@ -1192,9 +1169,7 @@ p {
     text-shadow: 0 0 5px var(--primary);
 }
 
-/* ============================================
-   STYLES CLASSEMENT AMÉLIORÉS
-   ============================================ */
+/* STYLES CLASSEMENT AMÉLIORÉS */
 .table-responsive {
     overflow-x: auto;
     border-radius: var(--radius-lg);
@@ -1263,9 +1238,7 @@ table.ranking-table tr:hover td {
     flex-shrink: 0;
 }
 
-/* ============================================
-   STYLES SIMULATION PHISHING (REFONTE NEON VERRE)
-   ============================================ */
+/* STYLES SIMULATION PHISHING (REFONTE NEON VERRE) */
 #scenariosGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -1359,9 +1332,7 @@ table.ranking-table tr:hover td {
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
 }
 
-/* ============================================
-   STYLES RESSOURCES (DESIGN BASE DE DONNÉES)
-   ============================================ */
+/* STYLES RESSOURCES (DESIGN BASE DE DONNÉES) */
 .resources-section {
     margin-bottom: 4rem;
 }
@@ -1410,10 +1381,6 @@ table.ranking-table tr:hover td {
     /* Supprimer l'effet brillant obsolète */
 }
 
-
-
-
-
 .resource-card .card-header {
     display: flex;
     align-items: flex-start;
@@ -1435,7 +1402,6 @@ table.ranking-table tr:hover td {
     margin-right: 1rem;
     flex-shrink: 0;
 }
-
 
 .resource-card:hover .icon-wrapper {
     background: var(--primary);
@@ -1485,10 +1451,7 @@ table.ranking-table tr:hover td {
     text-shadow: 0 0 10px var(--primary-glow);
 }
 
-/* ============================================
-   CYBERSENS - CENTRE DE COMMANDE ADMIN
-   Thème : Extension de Ultra Future v4.0
-   ============================================ */
+/* CYBERSENS - CENTRE DE COMMANDE ADMIN Thème : Extension de Ultra Future v4.0 */
 
 /* Surcharges du conteneur */
 .admin-container {
@@ -1726,11 +1689,7 @@ body {
     z-index: 5;
 }
 
-/* État sélectionné via une classe JS ou le sélecteur :checked + div... 
-   Mais ici structure plus simple : input inside label. 
-   On va utiliser :has si supporté, ou ajouter une classe JS. 
-   Pour simplifier sans JS complexe, on utilise le sélecteur voisin siblings.
-*/
+/* État sélectionné via une classe JS ou le sélecteur :checked + div... Mais ici structure plus simple : input inside label. On va utiliser :has si supporté, ou ajouter une classe JS. Pour simplifier sans JS complexe, on utilise le sélecteur voisin siblings. */
 
 .role-card:has(input:checked),
 .role-card.active {
@@ -1862,9 +1821,7 @@ body {
     }
 }
 
-/* ============================================
-   AMÉLIORATIONS PANNEAU NOTIFICATIONS
-   ============================================ */
+/* AMÉLIORATIONS PANNEAU NOTIFICATIONS */
 .notifications-header {
     display: flex;
     align-items: center;
@@ -1946,10 +1903,7 @@ body {
     background: rgba(255, 255, 255, 0.2);
 }
 
-
-/* ============================================
-   REFONTE CARTES DE COURS
-   ============================================ */
+/* REFONTE CARTES DE COURS */
 .course-card {
     display: flex;
     flex-direction: column;
@@ -2090,9 +2044,7 @@ body {
     transition: 0.3s;
 }
 
-/* ============================================
-   ACTIONS ADMIN ET CORRECTIONS D'ALIGNEMENT
-   ============================================ */
+/* ACTIONS ADMIN ET CORRECTIONS D'ALIGNEMENT */
 .admin-actions {
     display: flex;
     align-items: center;
@@ -2151,7 +2103,6 @@ body {
     /* largeur fixe pour les actions */
 }
 
-
 /* Correction pour le texte invisible dans les dropdowns */
 select.form-input option,
 select option {
@@ -2166,10 +2117,7 @@ select:focus {
     border-color: var(--primary);
 }
 
-
-/* ============================================
-   ÉDITEUR ADMIN ET CORRECTIONS FORMULAIRES
-   ============================================ */
+/* ÉDITEUR ADMIN ET CORRECTIONS FORMULAIRES */
 
 /* Correction Visibilité Éditeur Quill en Mode Sombre */
 .ql-toolbar.ql-snow {
@@ -2235,7 +2183,6 @@ input[type=number]:focus {
     border-color: var(--primary);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
-
 
 .difficulty-badge.intermediaire,
 .difficulty-badge.interm�diaire {
@@ -2442,9 +2389,7 @@ input[type=number]:focus {
     border-color: rgba(239, 68, 68, 0.3);
     color: var(--accent-red);
 }
-/* ============================================
-   ELEMENTS D'INTERFACE ADMIN (Boutons, Forms)
-   ============================================ */
+/* ELEMENTS D'INTERFACE ADMIN (Boutons, Forms) */
 
 /* BOUTONS */
 .btn {
@@ -2559,9 +2504,7 @@ input, textarea, select {
     font-size: 10px;
 }
 
-/* ============================================
-   CONTENU DES COURS (Rendu Riche)
-   ============================================ */
+/* CONTENU DES COURS (Rendu Riche) */
 .course-content {
     color: var(--text-main);
     line-height: 1.7;

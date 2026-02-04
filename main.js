@@ -1,6 +1,4 @@
-// ==========================================
 // CLIENT API (Remplace la DB LocalStorage)
-// ==========================================
 const API_URL = 'backend';
 
 // Fonction utilitaire pour convertir le niveau numérique en texte
@@ -145,9 +143,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API COURS
-    // ==========================================
     async getCourses(userId = null, userRole = null) {
         try {
             let url = `${API_URL}/courses.php`;
@@ -215,9 +211,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API QUESTIONS
-    // ==========================================
     async getQuestions(courseId = null) {
         try {
             let url = `${API_URL}/questions.php`;
@@ -270,9 +264,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API STATS
-    // ==========================================
     async getStats() {
         try {
             const response = await fetch(`${API_URL}/stats.php`);
@@ -284,9 +276,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API ADMINISTRATION UTILISATEURS
-    // ==========================================
     async toggleUserAdmin(id) {
         try {
             const response = await fetch(`${API_URL}/users.php`, {
@@ -300,9 +290,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API PROGRESSION
-    // ==========================================
     async saveProgression(userId, courseId, completed, score = null) {
         try {
             const data = { user_id: userId, course_id: courseId, completed };
@@ -330,9 +318,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API BADGES
-    // ==========================================
     async getBadges(userId) {
         try {
             const response = await fetch(`${API_URL}/badges.php?user_id=${userId}`);
@@ -356,9 +342,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API CERTIFICATS
-    // ==========================================
     async getCertificates(userId) {
         try {
             const response = await fetch(`${API_URL}/certificates.php?user_id=${userId}`);
@@ -391,9 +375,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API PHISHING
-    // ==========================================
     async getPhishingScenarios(userId = null) {
         try {
             let url = `${API_URL}/phishing.php`;
@@ -449,9 +431,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API RESSOURCES
-    // ==========================================
     async getResources(category = null, difficulty = null) {
         try {
             let url = `${API_URL}/resources.php`;
@@ -478,9 +458,7 @@ class ApiClient {
         }
     }
 
-    // ==========================================
     // API NOTIFICATIONS
-    // ==========================================
     async getNotifications(userId, unreadOnly = false) {
         try {
             let url = `${API_URL}/notifications.php?user_id=${userId}`;
@@ -532,9 +510,7 @@ class ApiClient {
 
 const api = new ApiClient();
 
-// ==========================================
 // SYSTÈME DE NOTIFICATIONS TOAST
-// ==========================================
 function showToast(title, message, type = 'success', duration = 5000) {
     // Créer le container s'il n'existe pas
     let container = document.getElementById('toast-container');
@@ -658,9 +634,7 @@ toastStyles.textContent = `
 `;
 document.head.appendChild(toastStyles);
 
-// ==========================================
 // SYSTÈME DE PANNEAU DE NOTIFICATIONS
-// ==========================================
 let notificationsOpen = false;
 
 async function loadNotifications() {
@@ -820,9 +794,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// ==========================================
 // LOGIQUE VUE QUIZ
-// ==========================================
 async function initQuizView() {
     const grid = document.getElementById('quizCoursesGrid');
     if (!grid) return;
@@ -914,9 +886,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const contentArea = document.getElementById('content-area');
     const navItems = document.querySelectorAll('.nav-item');
 
-    // ==========================================
     // NAVIGATION ET CHARGEMENT DES TEMPLATES
-    // ==========================================
 
     let statsInterval = null; // Variable pour stocker l'intervalle de rafraichissement
 
@@ -1171,9 +1141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadTemplate('home');
 
 
-    // ==========================================
     // MISE À JOUR UTILISATEUR BARRE LATÉRALE
-    // ==========================================
 
     function updateSidebarUser(user) {
         const sidebarUser = document.getElementById('sidebar-user');
@@ -1207,9 +1175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.updateSidebarUser = updateSidebarUser;
 
 
-    // ==========================================
     // UI EFFECTS
-    // ==========================================
 
     function initTiltEffect() {
         const cards = document.querySelectorAll('.card');
@@ -1234,14 +1200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Old modal logic removed (replaced by improved version at end of file)
 
-
-
-    // ==========================================
     // AUTHENTICATION LOGIC
-    // ==========================================
-
     function initAuth() {
         const authContainer = document.getElementById('auth-container');
         const userDashboard = document.getElementById('user-dashboard');
@@ -1508,9 +1468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ==========================================
     // LEADERBOARD LOGIC
-    // ==========================================
 
     async function loadLeaderboards() {
         const data = await api.getLeaderboard();
@@ -1626,9 +1584,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     }
 
-    // ==========================================
     // LOGIQUE PANNEAU ADMIN
-    // ==========================================
 
     async function initAdminPanel() {
         // Vérifier si l'utilisateur est admin
@@ -1815,9 +1771,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     }
 
-    // ==========================================
     // COURSES VIEW (Public)
-    // ==========================================
     async function loadCoursesView() {
         // Récupérer l'utilisateur connecté pour le verrouillage
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -2406,9 +2360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Rendre loadTemplate accessible globalement pour les handlers onclick
     window.loadTemplate = loadTemplate;
 
-    // ==========================================
     // VUE SIMULATION PHISHING
-    // ==========================================
     async function initPhishingView() {
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
@@ -2654,9 +2606,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('scenarioModal').style.display = 'none';
     };
 
-    // ==========================================
     // VUE RESSOURCES
-    // ==========================================
     async function initResourcesView() {
         await loadResources();
     }
@@ -2746,9 +2696,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (modal) modal.style.display = 'none';
     };
 
-    // ==========================================
     // BEST PRACTICES MODAL LOGIC
-    // ==========================================
     const modalBp = document.getElementById('modal-bp');
     const openBpBtn = document.getElementById('open-bp-btn');
     const closeBpBtn = document.getElementById('close-modal-btn');
@@ -2768,9 +2716,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ==========================================
     // CONFIRM MODAL LOGIC
-    // ==========================================
     window.showConfirmModal = function (title, message, submessage = '') {
         return new Promise((resolve) => {
             const modal = document.getElementById('confirm-modal');

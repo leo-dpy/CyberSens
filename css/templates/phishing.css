@@ -202,9 +202,7 @@
     text-shadow: 0 0 15px var(--accent-red-glow);
 }
 
-/* =========================================
-   APERCU SCENARIO - REALISTIC MOCKUPS
-   ========================================= */
+/* APERCU SCENARIO - REALISTIC MOCKUPS */
 
 /* Layout Global Modale */
 .scenario-layout {
@@ -223,7 +221,7 @@
     border-radius: 0 8px 8px 0;
 }
 
-/* --- MOCKUP COMMUN --- */
+/* MOCKUP COMMUN */
 .email-mockup, .browser-mockup {
     background: #fff;
     border-radius: 12px;
@@ -233,7 +231,7 @@
     color: #333;
 }
 
-/* --- EMAIL MOCKUP --- */
+/* EMAIL MOCKUP */
 .email-header-top {
     background: #f3f4f6;
     padding: 0.75rem;
@@ -329,7 +327,7 @@
     font-size: 0.9rem;
 }
 
-/* --- SMS MOCKUP --- */
+/* SMS MOCKUP */
 .phone-mockup {
     background: #000;
     border-radius: 30px;
@@ -403,7 +401,7 @@
     text-align: right;
 }
 
-/* --- BROWSER MOCKUP --- */
+/* BROWSER MOCKUP */
 .browser-header {
     background: #f3f4f6;
     padding: 0.75rem;
@@ -470,8 +468,7 @@
     cursor: default; /* C'est une image */
 }
 
-
-/* --- BOUTONS REPONSE --- */
+/* BOUTONS REPONSE */
 .scenario-decision {
     text-align: center;
 }

@@ -37,7 +37,7 @@
     padding: 0;
 }
 
-/* --- PODIUM DESIGN --- */
+/* PODIUM DESIGN */
 .podium-container {
     display: flex;
     justify-content: center;
@@ -181,7 +181,7 @@
     -webkit-text-fill-color: transparent;
 }
 
-/* --- LISTE SUITE --- */
+/* LISTE SUITE */
 .ranking-table {
     border-spacing: 0;
     width: 100%;

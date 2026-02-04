@@ -1,8 +1,6 @@
 <?php
-/**
- * API Questions - Compatible avec cybersens_v4.sql
- * Structure: question, option_a/b/c/d, correct_answer (A/B/C/D), explanation, points
- */
+// API Questions - Compatible avec cybersens_v4.sql
+// Structure: question, option_a/b/c/d, correct_answer (A/B/C/D), explanation, points
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');

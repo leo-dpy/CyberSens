@@ -1,4 +1,4 @@
-/* Gestion Utilisateurs */
+// Gestion Utilisateurs
 function openEditModal(user, isSuperAdmin) {
     document.getElementById('edit_user_id').value = user.id;
     document.getElementById('edit_username').value = user.username;

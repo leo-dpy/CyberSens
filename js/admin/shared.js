@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     injectConfirmModal();
 });
 
-/* Logique Modale Confirmation */
+// Logique Modale Confirmation
 function injectConfirmModal() {
     const modalHtml = `
     <div id="admin-confirm-modal" class="modal" style="z-index: 9999;">
@@ -87,7 +87,7 @@ window.addEventListener('click', function(event) {
 });
 
 
-/* Logique Modale Standard */
+// Logique Modale Standard
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
