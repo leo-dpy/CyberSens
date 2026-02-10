@@ -41,9 +41,9 @@ try {
                     FROM courses c";
                 
                 // Filtrer les cours cachés pour les utilisateurs normaux
-                if ($user_role === 'user' || empty($user_role)) {
-                    $sql .= " WHERE (c.is_hidden = 0 OR c.is_hidden IS NULL)";
-                }
+                // if ($user_role === 'user' || empty($user_role)) {
+                //    $sql .= " WHERE (c.is_hidden = 0 OR c.is_hidden IS NULL)";
+                // }
                 
                 $sql .= " ORDER BY c.display_order ASC, c.id ASC";
                 $stmt = $pdo->query($sql);

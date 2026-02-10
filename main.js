@@ -2558,13 +2558,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.submitPhishingAnswer = async function (scenarioId, isPhishing) {
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        if (!sessionUser) {
-            alert('Connectez-vous pour sauvegarder vos résultats');
-            return;
-        }
+        // if (!sessionUser) {
+        //    alert('Connectez-vous pour sauvegarder vos résultats');
+        //    return;
+        // }
+        const userId = sessionUser ? sessionUser.id : 0;
 
         const timeTaken = Math.round((Date.now() - currentScenarioStartTime) / 1000);
-        const result = await api.submitPhishingAnswer(sessionUser.id, scenarioId, isPhishing, timeTaken);
+        const result = await api.submitPhishingAnswer(userId, scenarioId, isPhishing, timeTaken);
 
         const contentDiv = document.getElementById('scenarioContent');
         const resultDiv = document.getElementById('scenarioResult');

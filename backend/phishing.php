@@ -20,7 +20,8 @@ try {
             $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
             
             // Action stats : retourner uniquement les statistiques
-            if ($action === 'stats' && $user_id) {
+            // if ($action === 'stats' && $user_id) {
+            if ($action === 'stats') {
                 $stmt = $pdo->prepare("SELECT 
                     COUNT(*) as total,
                     SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct,
@@ -93,8 +94,8 @@ try {
                 'scenarios' => $scenarios,
                 'stats' => [
                     'total' => (int)$total_scenarios,
-                    'completed' => $user_id ? (int)$user_stats['completed'] : 0,
-                    'correct' => $user_id ? (int)$user_stats['correct'] : 0
+                    'completed' => ($user_id && isset($user_stats)) ? (int)$user_stats['completed'] : 0,
+                    'correct' => ($user_id && isset($user_stats)) ? (int)$user_stats['correct'] : 0
                 ]
             ]);
             break;
@@ -128,15 +129,18 @@ try {
                 $user_answer = (bool)($data['is_phishing'] ?? false);
                 $time_taken = (int)($data['time_taken'] ?? 0);
                 
-                if (!$user_id || !$scenario_id) {
-                    echo json_encode(['success' => false, 'message' => 'Paramètres manquants']);
+                if (!$scenario_id) {
+                    echo json_encode(['success' => false, 'message' => 'Paramètre scenario_id manquant']);
                     exit;
                 }
                 
-                // Vérifier si l'utilisateur a déjà répondu à ce scénario
-                $stmt = $pdo->prepare("SELECT id FROM phishing_results WHERE user_id = ? AND scenario_id = ?");
-                $stmt->execute([$user_id, $scenario_id]);
-                $existingResult = $stmt->fetch();
+                // Vérifier si l'utilisateur a déjà répondu à ce scénario (seulement si connecté)
+                $existingResult = false;
+                if ($user_id) {
+                    $stmt = $pdo->prepare("SELECT id FROM phishing_results WHERE user_id = ? AND scenario_id = ?");
+                    $stmt->execute([$user_id, $scenario_id]);
+                    $existingResult = $stmt->fetch();
+                }
                 
                 // Récupérer la bonne réponse et les XP du scénario
                 $stmt = $pdo->prepare("SELECT is_phishing, indicators, explanation, xp_reward FROM phishing_scenarios WHERE id = ?");
@@ -152,8 +156,8 @@ try {
                 $xp_reward = (int)($scenario['xp_reward'] ?? 15);
                 $xp_earned = 0;
                 
-                // Donner XP seulement si bonne réponse et première fois
-                if ($is_correct && !$existingResult) {
+                // Donner XP seulement si bonne réponse et première fois (et connecté)
+                if ($is_correct && !$existingResult && $user_id) {
                     $xp_earned = $xp_reward;
                     
                     // Mettre à jour les XP de l'utilisateur
@@ -161,11 +165,13 @@ try {
                     $stmt->execute([$xp_earned, $user_id]);
                 }
                 
-                // Enregistrer le résultat (remplacer si déjà existant)
-                $stmt = $pdo->prepare("INSERT INTO phishing_results (user_id, scenario_id, user_answer, is_correct, time_taken, xp_earned) 
-                    VALUES (?, ?, ?, ?, ?, ?) 
-                    ON DUPLICATE KEY UPDATE user_answer = VALUES(user_answer), is_correct = VALUES(is_correct), time_taken = VALUES(time_taken)");
-                $stmt->execute([$user_id, $scenario_id, $user_answer, $is_correct, $time_taken, $xp_earned]);
+                // Enregistrer le résultat (seulement si connecté)
+                if ($user_id) {
+                    $stmt = $pdo->prepare("INSERT INTO phishing_results (user_id, scenario_id, user_answer, is_correct, time_taken, xp_earned) 
+                        VALUES (?, ?, ?, ?, ?, ?) 
+                        ON DUPLICATE KEY UPDATE user_answer = VALUES(user_answer), is_correct = VALUES(is_correct), time_taken = VALUES(time_taken)");
+                    $stmt->execute([$user_id, $scenario_id, $user_answer, $is_correct, $time_taken, $xp_earned]);
+                }
                 
                 echo json_encode([
                     'success' => true,
