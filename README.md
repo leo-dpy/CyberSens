@@ -129,12 +129,13 @@ cybersens/
 
 ## Licence
 
-Ce projet est diffusé sous une **licence propriétaire**.
+⚠️ **TOUS DROITS RÉSERVÉS (ALL RIGHTS RESERVED)**
 
-Toute copie, redistribution, publication ou modification du code est interdite sans autorisation écrite préalable du titulaire des droits.
+Ce projet est sous **licence propriétaire exclusive**.
+Il est **strictement interdit** de copier, modifier, distribuer ou vendre ce projet, en tout ou partie.
 
-Usage autorisé sans autorisation préalable : consultation et usage interne pour tests, démonstrations ou maquettes au sein de votre organisation uniquement.
+**Aucune reprise du projet (fork, hébergement public/privé, réutilisation du code) n'est autorisée** sans l'accord écrit explicite de l'auteur.
 
-Consultez le fichier `LICENSE` pour les conditions complètes.
+Consultez le fichier `LICENSE` pour les détails légaux complets.
 
 

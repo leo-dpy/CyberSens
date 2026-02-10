@@ -1,32 +1,28 @@
-Cybersens — Licence propriétaire
+PROPRIETARY LICENSE AGREEMENT
 
-Copyright © 2025 Cybersens03. Tous droits réservés.
+Copyright (c) 2026 Cybersens03. All Rights Reserved.
 
-1. Objet
-Le présent logiciel, y compris son code source, ses fichiers associés et sa documentation (le « Logiciel »), est mis à disposition selon les termes de cette licence propriétaire.
+IMPORTANT : VEUILLEZ LIRE ATTENTIVEMENT CE DOCUMENT AVANT D'UTILISER CE LOGICIEL.
 
-2. Droits concédés
-Sous réserve du respect intégral des présentes, une licence limitée, non exclusive et non transférable est accordée pour :
-- consulter et utiliser le Logiciel en interne, à des fins de test, de démonstration ou de maquettage au sein de votre organisation uniquement.
+1. OBJET
+Le présent logiciel "CyberSens" (incluant son code source, ses bases de données, ses interfaces graphiques, sa documentation et tout fichier associé) est la propriété exclusive de Cybersens03. Il n'est PAS un logiciel libre ni Open Source.
 
-3. Restrictions
-Sauf autorisation écrite et préalable du titulaire des droits, il est strictement interdit de :
-- copier, reproduire, distribuer, publier ou mettre le Logiciel à disposition de tiers ;
-- modifier, traduire, adapter, décompiler, désassembler, effectuer de l’ingénierie inverse ou créer des œuvres dérivées du Logiciel ;
-- utiliser le Logiciel en production, dans un cadre commercial, ou pour fournir des services à des tiers ;
-- supprimer ou altérer les mentions de droits d’auteur, marques ou avis légaux.
+2. INTERDICTIONS STRICTES
+Sauf autorisation écrite, expresse et préalable de l'auteur, il est STRICTEMENT INTERDIT de :
+- Copier, reproduire ou dupliquer tout ou partie du projet.
+- Modifier, adapter, traduire ou créer des œuvres dérivées basées sur ce projet.
+- Redistribuer, publier, sous-licencier, vendre, louer ou transférer le logiciel à des tiers.
+- Héberger ce code sur un dépôt public ou privé accessible à des tiers (fork inclus).
+- Utiliser ce code à des fins commerciales.
+- Faire de l'ingénierie inverse, décompiler ou désassembler le logiciel.
 
-4. Propriété
-Le Logiciel est la propriété exclusive de Cybersens03 et/ou de ses concédants. Aucun droit de propriété intellectuelle n’est transféré au titre des présentes.
+3. AUTORISATION LIMITÉE
+L'accès à ce dépôt est accordé uniquement à des fins de consultation privée. Toute autre utilisation requiert un accord formel.
 
-5. Résiliation
-La licence est automatiquement résiliée en cas de non-respect des présentes. À la résiliation, vous devez cesser toute utilisation du Logiciel et en détruire toutes les copies.
+4. ABSENCE DE GARANTIE
+CE LOGICIEL EST FOURNI "TEL QUEL", SANS AUCUNE GARANTIE EXPRESSE OU IMPLICITE. L'AUTEUR DÉCLINE TOUTE RESPONSABILITÉ EN CAS DE DOMMAGES RÉSULTANT DE SON UTILISATION.
 
-6. Absence de garantie
-LE LOGICIEL EST FOURNI « EN L’ÉTAT », SANS AUCUNE GARANTIE EXPRESSE OU IMPLICITE, Y COMPRIS, SANS LIMITATION, LES GARANTIES DE QUALITÉ MARCHANDE, D’ADÉQUATION À UN USAGE PARTICULIER ET D’ABSENCE DE CONTREFAÇON. L’UTILISATION DU LOGICIEL SE FAIT À VOS SEULS RISQUES.
+5. VIOLATION
+Tout manquement aux termes de cette licence pourra faire l'objet de poursuites judiciaires conformément aux lois en vigueur sur la propriété intellectuelle.
 
-7. Limitation de responsabilité
-Dans la mesure maximale permise par la loi, Cybersens03 ne pourra être tenue responsable de tout dommage direct, indirect, accessoire, spécial, punitif ou consécutif résultant de l’utilisation ou de l’impossibilité d’utiliser le Logiciel.
-
-8. Contact
-Pour toute demande d’autorisation ou question relative à cette licence, veuillez contacter le propriétaire du dépôt via GitHub (Issues) ou le canal de contact indiqué dans la documentation.
+Pour toute demande d'utilisation, veuillez contacter le propriétaire du dépôt.
