@@ -27,25 +27,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $content = $_POST['content'];
     $difficulty = $_POST['difficulty'];
     $is_hidden = isset($_POST['is_hidden']) ? 1 : 0;
-    
+
     if (empty($title) || empty($description) || empty($content)) {
         $error = "Veuillez remplir tous les champs obligatoires.";
-    } else {
+    }
+    else {
         try {
             $columns = $pdo->query("DESCRIBE courses")->fetchAll(PDO::FETCH_COLUMN);
-            
+
             if (in_array('is_hidden', $columns)) {
                 $stmt = $pdo->prepare("UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ?, is_hidden = ? WHERE id = ?");
                 $stmt->execute([$title, $description, $content, $difficulty, $is_hidden, $id]);
-            } else {
+            }
+            else {
                 $stmt = $pdo->prepare("UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ? WHERE id = ?");
                 $stmt->execute([$title, $description, $content, $difficulty, $id]);
             }
-            
+
             header("Location: cours.php?msg=updated");
             exit;
-            
-        } catch (PDOException $e) {
+
+        }
+        catch (PDOException $e) {
             $error = "Erreur : " . $e->getMessage();
         }
     }
@@ -77,9 +80,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="cours.php" class="nav-item active"><i data-lucide="book-open"></i><span>Gestion Cours</span></a>
                 <a href="questions.php" class="nav-item"><i data-lucide="help-circle"></i><span>Banque Questions</span></a>
                 
-                <?php if(hasPermission('manage_content')): ?>
+                <?php if (hasPermission('manage_content')): ?>
                 <a href="news.php" class="nav-item"><i data-lucide="rss"></i><span>Actualités</span></a>
-                <?php endif; ?>
+                <?php
+endif; ?>
                 
                 <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
                 <div class="nav-divider"></div>
@@ -108,11 +112,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
 
-            <?php if($error): ?>
+            <?php if ($error): ?>
             <div class="alert alert-danger">
                 <i data-lucide="alert-circle"></i> <?php echo $error; ?>
             </div>
-            <?php endif; ?>
+            <?php
+endif; ?>
 
             <form method="POST" id="courseForm">
                 <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 2rem;">
@@ -141,29 +146,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- Paramètres latéraux -->
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <div class="card" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                            <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 0;">Paramètres</h3>
+                        <div class="card settings-card">
+                            <div class="card-header">
+                                <h3><i data-lucide="sliders"></i> Paramètres</h3>
+                            </div>
                             
                             <div class="form-group">
-                                <label class="form-label">Difficulté</label>
+                                <label class="form-label">Niveau de difficulté</label>
                                 <input type="hidden" name="difficulty" id="difficultyInput" value="<?php echo $course['difficulty']; ?>">
-                                <div style="display: flex; gap: 0.5rem; flex-direction: column;">
-                                    <div class="difficulty-pill <?php echo $course['difficulty'] == 'Facile' ? 'selected' : ''; ?>" onclick="selectDifficulty('Facile', this)">Facile</div>
-                                    <div class="difficulty-pill <?php echo $course['difficulty'] == 'Intermédiaire' ? 'selected' : ''; ?>" onclick="selectDifficulty('Intermédiaire', this)">Intermédiaire</div>
-                                    <div class="difficulty-pill <?php echo $course['difficulty'] == 'Difficile' ? 'selected' : ''; ?>" onclick="selectDifficulty('Difficile', this)">Difficile</div>
+                                <div class="difficulty-selector">
+                                    <div class="difficulty-option <?php echo $course['difficulty'] == 'Facile' ? 'selected' : ''; ?>" 
+                                         onclick="selectDifficulty('Facile', this)" data-value="Facile">
+                                        <div class="diff-icon"><i data-lucide="zap"></i></div>
+                                        <span>Facile</span>
+                                    </div>
+                                    <div class="difficulty-option <?php echo $course['difficulty'] == 'Intermédiaire' ? 'selected' : ''; ?>" 
+                                         onclick="selectDifficulty('Intermédiaire', this)" data-value="Intermédiaire">
+                                        <div class="diff-icon"><i data-lucide="activity"></i></div>
+                                        <span>Intermédiaire</span>
+                                    </div>
+                                    <div class="difficulty-option <?php echo $course['difficulty'] == 'Difficile' ? 'selected' : ''; ?>" 
+                                         onclick="selectDifficulty('Difficile', this)" data-value="Difficile">
+                                        <div class="diff-icon"><i data-lucide="skull"></i></div>
+                                        <span>Difficile</span>
+                                    </div>
                                 </div>
                             </div>
 
+                            <div class="separator"></div>
+
                             <div class="form-group">
-                                <label style="display: flex; items-align: center; gap: 0.5rem; cursor: pointer;">
-                                    <input type="checkbox" name="is_hidden" <?php echo (!empty($course['is_hidden']) && $course['is_hidden'] == 1) ? 'checked' : ''; ?> style="width: 16px; height: 16px; accent-color: var(--accent-primary);">
-                                    <span style="color: var(--text-secondary);">Caché (Brouillon)</span>
+                                <label class="cyber-toggle-label">
+                                    <div class="toggle-info">
+                                        <span class="toggle-title">Mode Brouillon</span>
+                                        <span class="toggle-desc">Visibilité du cours</span>
+                                    </div>
+                                    <div class="cyber-toggle-wrapper">
+                                        <input type="checkbox" name="is_hidden" id="isHiddenCheckbox" <?php echo(!empty($course['is_hidden']) && $course['is_hidden'] == 1) ? 'checked' : ''; ?>>
+                                        <span class="toggle-slider"></span>
+                                    </div>
                                 </label>
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label">Info</label>
-                                <p class="text-muted" style="font-size: 0.8rem;">Créé le <?php echo date('d/m/Y', strtotime($course['created_at'])); ?></p>
+                            <div class="separator"></div>
+
+                            <div class="meta-info">
+                                <div class="meta-item">
+                                    <i data-lucide="calendar"></i>
+                                    <span>Créé le <?php echo date('d/m/Y', strtotime($course['created_at'])); ?></span>
+                                </div>
                             </div>
                         </div>
 
