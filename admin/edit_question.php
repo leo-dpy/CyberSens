@@ -33,18 +33,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $explanation = trim($_POST['explanation'] ?? '');
     $difficulty = $_POST['difficulty'] ?? 'Facile';
     $xp_reward = (int)($_POST['xp_reward'] ?? 10);
-    
+
     if (empty($course_id) || empty($question_text) || empty($option_a) || empty($option_b) || empty($option_c)) {
         $error = "Veuillez remplir tous les champs obligatoires.";
-    } else {
+    }
+    else {
         try {
             $stmt = $pdo->prepare("UPDATE questions SET course_id = ?, question = ?, option_a = ?, option_b = ?, option_c = ?, option_d = ?, correct_answer = ?, explanation = ?, difficulty = ?, xp_reward = ? WHERE id = ?");
             $stmt->execute([$course_id, $question_text, $option_a, $option_b, $option_c, $option_d, $correct_answer, $explanation, $difficulty, $xp_reward, $id]);
-            
+
             header("Location: questions.php?course_id=" . $course_id . "&msg=updated");
             exit;
-            
-        } catch (PDOException $e) {
+
+        }
+        catch (PDOException $e) {
             $error = "Erreur : " . $e->getMessage();
         }
     }
@@ -75,9 +77,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="cours.php" class="nav-item"><i data-lucide="book-open"></i><span>Gestion Cours</span></a>
                 <a href="questions.php" class="nav-item active"><i data-lucide="help-circle"></i><span>Banque Questions</span></a>
                 
-                <?php if(hasPermission('manage_content')): ?>
+                <?php if (hasPermission('manage_content')): ?>
                 <a href="news.php" class="nav-item"><i data-lucide="rss"></i><span>Actualités</span></a>
-                <?php endif; ?>
+                <?php
+endif; ?>
 
                 <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
                 <div class="nav-divider"></div>
@@ -101,24 +104,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="questions.php" class="btn btn-outline"><i data-lucide="arrow-left"></i> Retour</a>
             </div>
 
-            <?php if($error): ?>
+            <?php if ($error): ?>
             <div class="alert alert-danger">
                 <i data-lucide="alert-circle"></i> <?php echo $error; ?>
             </div>
-            <?php endif; ?>
+            <?php
+endif; ?>
 
             <form method="POST">
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
                     
-                    <div class="card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="card static-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
                         <div class="form-group">
                             <label class="form-label">Cours associé</label>
                             <select name="course_id" class="form-input" required>
-                                <?php foreach($all_courses as $c): ?>
+                                <?php foreach ($all_courses as $c): ?>
                                 <option value="<?php echo $c['id']; ?>" <?php echo $question['course_id'] == $c['id'] ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($c['title']); ?>
                                 </option>
-                                <?php endforeach; ?>
+                                <?php
+endforeach; ?>
                             </select>
                         </div>
 
@@ -161,15 +166,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <div class="card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div class="card static-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
                             <h3>Détails</h3>
                             
                             <div class="form-group">
                                 <label class="form-label">Difficulté</label>
                                 <select name="difficulty" class="form-input">
-                                    <option value="Facile" <?php echo ($question['difficulty'] ?? 'Facile') == 'Facile' ? 'selected' : ''; ?>>Facile (10 XP)</option>
-                                    <option value="Intermédiaire" <?php echo ($question['difficulty'] ?? '') == 'Intermédiaire' ? 'selected' : ''; ?>>Intermédiaire (15 XP)</option>
-                                    <option value="Difficile" <?php echo ($question['difficulty'] ?? '') == 'Difficile' ? 'selected' : ''; ?>>Difficile (30 XP)</option>
+                                    <option value="Facile" <?php echo($question['difficulty'] ?? 'Facile') == 'Facile' ? 'selected' : ''; ?>>Facile (10 XP)</option>
+                                    <option value="Intermédiaire" <?php echo($question['difficulty'] ?? '') == 'Intermédiaire' ? 'selected' : ''; ?>>Intermédiaire (15 XP)</option>
+                                    <option value="Difficile" <?php echo($question['difficulty'] ?? '') == 'Difficile' ? 'selected' : ''; ?>>Difficile (30 XP)</option>
                                 </select>
                             </div>
 

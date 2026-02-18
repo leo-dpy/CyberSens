@@ -23,3 +23,13 @@
 .option-input {
     flex: 1;
 }
+
+/* Force static cards for Edit Question page */
+.card.static-card,
+.card.static-card:hover {
+    transform: none !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+    border-color: var(--glass-border) !important;
+    background: #000000 !important;
+    cursor: default !important;
+}
