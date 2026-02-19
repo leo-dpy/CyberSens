@@ -4,6 +4,36 @@ checkCoursesAccess();
 
 $currentUser = getCurrentUser();
 
+// Récupérer les icônes disponibles
+$icons = [
+    'shield' => '🛡️ Sécurité',
+    'lock' => '🔒 Mot de passe',
+    'key' => '🔑 Authentification',
+    'bug' => '🐛 Malware',
+    'wifi' => '📶 Réseau',
+    'mail' => '📧 Email',
+    'globe' => '🌐 Web',
+    'smartphone' => '📱 Mobile',
+    'database' => '🗄️ Données',
+    'cloud' => '☁️ Cloud',
+    'code' => '💻 Code',
+    'terminal' => '⌨️ Terminal',
+    'alert-triangle' => '⚠️ Menaces',
+    'eye' => '👁️ Surveillance',
+    'users' => '👥 Social Engineering'
+];
+
+// Thèmes de couleurs pour les cours
+$themes = [
+    'blue' => ['name' => 'Bleu Cyber', 'primary' => '#3b82f6', 'gradient' => 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'],
+    'purple' => ['name' => 'Violet', 'primary' => '#8b5cf6', 'gradient' => 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)'],
+    'green' => ['name' => 'Vert Sécurité', 'primary' => '#10b981', 'gradient' => 'linear-gradient(135deg, #10b981 0%, #059669 100%)'],
+    'red' => ['name' => 'Rouge Alerte', 'primary' => '#ef4444', 'gradient' => 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'],
+    'orange' => ['name' => 'Orange', 'primary' => '#f59e0b', 'gradient' => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'],
+    'cyan' => ['name' => 'Cyan Tech', 'primary' => '#06b6d4', 'gradient' => 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'],
+    'pink' => ['name' => 'Rose', 'primary' => '#ec4899', 'gradient' => 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)']
+];
+
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: cours.php");
     exit;
@@ -26,6 +56,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = trim($_POST['description']);
     $content = $_POST['content'];
     $difficulty = $_POST['difficulty'];
+    $icon = $_POST['icon'] ?? 'shield';
+    $theme = $_POST['theme'] ?? 'blue';
+    $xp_reward = (int)$_POST['xp_reward'] ?? 25;
+    $estimated_time = (int)$_POST['estimated_time'] ?? 15;
     $is_hidden = isset($_POST['is_hidden']) ? 1 : 0;
 
     if (empty($title) || empty($description) || empty($content)) {
@@ -35,14 +69,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
             $columns = $pdo->query("DESCRIBE courses")->fetchAll(PDO::FETCH_COLUMN);
 
+            $sql = "UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ?";
+            $params = [$title, $description, $content, $difficulty];
+
+            if (in_array('icon', $columns)) {
+                $sql .= ", icon = ?";
+                $params[] = $icon;
+            }
+            if (in_array('theme', $columns)) {
+                $sql .= ", theme = ?";
+                $params[] = $theme;
+            }
+            if (in_array('xp_reward', $columns)) {
+                $sql .= ", xp_reward = ?";
+                $params[] = $xp_reward;
+            }
+            if (in_array('estimated_time', $columns)) {
+                $sql .= ", estimated_time = ?";
+                $params[] = $estimated_time;
+            }
             if (in_array('is_hidden', $columns)) {
-                $stmt = $pdo->prepare("UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ?, is_hidden = ? WHERE id = ?");
-                $stmt->execute([$title, $description, $content, $difficulty, $is_hidden, $id]);
+                $sql .= ", is_hidden = ?";
+                $params[] = $is_hidden;
             }
-            else {
-                $stmt = $pdo->prepare("UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ? WHERE id = ?");
-                $stmt->execute([$title, $description, $content, $difficulty, $id]);
-            }
+
+            $sql .= " WHERE id = ?";
+            $params[] = $id;
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
 
             header("Location: cours.php?msg=updated");
             exit;
@@ -163,13 +218,64 @@ endif; ?>
                                     <div class="difficulty-option <?php echo $course['difficulty'] == 'Intermédiaire' ? 'selected' : ''; ?>" 
                                          onclick="selectDifficulty('Intermédiaire', this)" data-value="Intermédiaire">
                                         <div class="diff-icon"><i data-lucide="activity"></i></div>
-                                        <span>Intermédiaire</span>
+                                        <span>Moyen</span>
                                     </div>
                                     <div class="difficulty-option <?php echo $course['difficulty'] == 'Difficile' ? 'selected' : ''; ?>" 
                                          onclick="selectDifficulty('Difficile', this)" data-value="Difficile">
                                         <div class="diff-icon"><i data-lucide="skull"></i></div>
                                         <span>Difficile</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="separator"></div>
+
+                            <!-- Icône -->
+                            <div class="form-group">
+                                <label class="form-label">Icône</label>
+                                <input type="hidden" name="icon" id="iconInput" value="<?php echo htmlspecialchars($course['icon'] ?? 'shield'); ?>">
+                                <div class="icon-grid">
+                                    <?php foreach ($icons as $value => $label):
+    $emoji = explode(' ', $label)[0];
+    $selected = ($course['icon'] ?? 'shield') === $value ? 'selected' : '';
+?>
+                                    <div class="icon-option <?php echo $selected; ?>" onclick="selectIcon('<?php echo $value; ?>', this)">
+                                        <?php echo $emoji; ?>
+                                    </div>
+                                    <?php
+endforeach; ?>
+                                </div>
+                            </div>
+
+                            <div class="separator"></div>
+
+                            <!-- Thème -->
+                            <div class="form-group">
+                                <label class="form-label">Thème</label>
+                                <input type="hidden" name="theme" id="themeInput" value="<?php echo htmlspecialchars($course['theme'] ?? 'blue'); ?>">
+                                <div class="theme-grid">
+                                    <?php foreach ($themes as $key => $theme):
+    $selected = ($course['theme'] ?? 'blue') === $key ? 'selected' : '';
+?>
+                                    <div class="theme-option <?php echo $selected; ?>" 
+                                         style="background: <?php echo $theme['gradient']; ?>"
+                                         onclick="selectTheme('<?php echo $key; ?>', this)"></div>
+                                    <?php
+endforeach; ?>
+                                </div>
+                            </div>
+
+                            <div class="separator"></div>
+
+                            <!-- Statistiques -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">XP Récompense</label>
+                                    <input type="number" name="xp_reward" value="<?php echo $course['xp_reward'] ?? 25; ?>" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Durée (min)</label>
+                                    <input type="number" name="estimated_time" value="<?php echo $course['estimated_time'] ?? 15; ?>" class="form-input">
                                 </div>
                             </div>
 

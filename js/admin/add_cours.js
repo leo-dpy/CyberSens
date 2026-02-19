@@ -25,7 +25,7 @@ document.getElementById('courseForm').onsubmit = function () {
 // Aides à la sélection
 function selectDifficulty(diff, el) {
     document.getElementById('difficultyInput').value = diff;
-    document.querySelectorAll('.difficulty-pill').forEach(e => e.classList.remove('selected'));
+    document.querySelectorAll('.difficulty-option').forEach(e => e.classList.remove('selected'));
     el.classList.add('selected');
 }
 

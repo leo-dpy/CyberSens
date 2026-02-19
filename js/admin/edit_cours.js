@@ -25,3 +25,15 @@ function selectDifficulty(diff, el) {
     document.querySelectorAll('.difficulty-option').forEach(e => e.classList.remove('selected'));
     el.classList.add('selected');
 }
+
+function selectIcon(icon, el) {
+    document.getElementById('iconInput').value = icon;
+    document.querySelectorAll('.icon-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function selectTheme(theme, el) {
+    document.getElementById('themeInput').value = theme;
+    document.querySelectorAll('.theme-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+}
