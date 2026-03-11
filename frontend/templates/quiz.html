@@ -3,13 +3,13 @@
 
 <div class="quiz-intro-grid"
     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-    <div class="card" style="border-left: 4px solid var(--primary-color);">
+    <div class="card" style="border-left: 4px solid var(--primary-color); cursor: pointer;" onclick="startRandomQuiz('unlocked')">
         <div class="card-icon"><i data-lucide="brain-circuit"></i></div>
         <h3>Quiz par Cours</h3>
         <p>Testez vos connaissances sur un cours spécifique. Obtenez 70% minimum pour valider le cours et recevoir un
             certificat.</p>
     </div>
-    <div class="card" style="border-left: 4px solid var(--secondary-color);">
+    <div class="card" style="border-left: 4px solid var(--secondary-color); cursor: pointer;" onclick="startRandomQuiz('all')">
         <div class="card-icon"><i data-lucide="award"></i></div>
         <h3>Gagnez des Récompenses</h3>
         <p>Chaque quiz réussi vous rapporte des XP, débloque des badges et génère un certificat vérifiable.</p>

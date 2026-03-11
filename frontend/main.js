@@ -2302,6 +2302,268 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     }
 
+    window.startRandomQuiz = async function (type) {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        const userId = currentUser ? currentUser.id : null;
+        const userRole = currentUser ? currentUser.role : null;
+
+        if (!userId) {
+            showToast('Erreur', 'Veuillez vous connecter pour jouer', 'warning');
+            return;
+        }
+
+        let allQuestions = await api.getQuestions();
+        let questions = [];
+
+        if (type === 'unlocked') {
+            const courses = await api.getCourses(userId, userRole);
+            const unlockedCourses = courses.filter(c => !c.is_locked || c.is_locked === 0 || c.is_locked === false);
+            const unlockedCourseIds = unlockedCourses.map(c => c.id);
+            
+            questions = allQuestions.filter(q => unlockedCourseIds.includes(q.course_id));
+            if (questions.length === 0) {
+                showToast('Info', 'Aucune question disponible pour vos modules débloqués.', 'info');
+                return;
+            }
+        } else {
+            questions = [...allQuestions];
+            if (questions.length === 0) {
+                showToast('Info', 'Aucune question dans la base de données.', 'info');
+                return;
+            }
+        }
+
+        // Randomize and pick 10
+        questions.sort(() => Math.random() - 0.5);
+        questions = questions.slice(0, 10);
+
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            const questionText = q.question || q.question_text;
+            const correctAnswer = (q.correct_answer || q.correct_option || '').toUpperCase();
+            const explanation = q.explanation || '';
+            const difficulty = q.difficulty || 'Facile';
+            const xpReward = q.xp_reward || 10;
+            const contentArea = document.getElementById('content-area');
+            const previousAnswer = userAnswers[currentQuestion];
+            const hasAnswered = previousAnswer !== null;
+
+            const difficultyBadge = difficulty === 'Facile'
+                ? '<span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">🟢 Facile • ' + xpReward + ' XP</span>'
+                : difficulty === 'Intermédiaire'
+                    ? '<span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">🟠 Intermédiaire • ' + xpReward + ' XP</span>'
+                    : '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">🔴 Difficile • ' + xpReward + ' XP</span>';
+
+            const buildOption = (letter, text) => {
+                let style = 'text-align: left; padding: 1rem;';
+                if (hasAnswered) {
+                    if (letter === correctAnswer) {
+                        style += ' border-color: var(--success, #10b981); background: rgba(16, 185, 129, 0.2);';
+                    } else if (letter === previousAnswer && previousAnswer !== correctAnswer) {
+                        style += ' border-color: var(--danger, #ef4444); background: rgba(239, 68, 68, 0.2);';
+                    }
+                }
+                return `<button class="btn btn-outline quiz-option" data-option="${letter}" style="${style}" ${hasAnswered ? 'disabled' : ''}>
+                    <strong>${letter}.</strong> ${text}
+                </button>`;
+            };
+
+            let optionsHtml = buildOption('A', q.option_a) + buildOption('B', q.option_b) + buildOption('C', q.option_c);
+            if (q.option_d && q.option_d.trim()) {
+                optionsHtml += buildOption('D', q.option_d);
+            }
+
+            const isLastQuestion = currentQuestion === questions.length - 1;
+            const isFirstQuestion = currentQuestion === 0;
+
+            contentArea.innerHTML = `
+                <h1>Quiz Aléatoire <span class="text-gradient">${currentQuestion + 1}/${questions.length}</span></h1>
+                
+                <div style="max-width: 800px; margin: 0 auto 1rem;">
+                    <div style="display: flex; gap: 4px;">
+                        ${questions.map((_, i) => `
+                            <div style="flex: 1; height: 6px; border-radius: 3px; background: ${userAnswers[i] !== null
+                    ? (userAnswers[i] === (questions[i].correct_answer || questions[i].correct_option || '').toUpperCase() ? 'var(--success, #10b981)' : 'var(--danger, #ef4444)')
+                    : i === currentQuestion ? 'var(--primary-color)' : 'rgba(255,255,255,0.1)'
+                };"></div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="card" style="max-width: 800px; margin: 1rem auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0;">${questionText}</h3>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">${difficultyBadge}</div>
+                    <div class="quiz-options" style="display: flex; flex-direction: column; gap: 1rem;">
+                        ${optionsHtml}
+                    </div>
+                    <div id="explanation-box" style="${hasAnswered ? 'display: block;' : 'display: none;'} margin-top: 1.5rem; padding: 1rem; border-radius: 8px; ${hasAnswered
+                    ? (previousAnswer === correctAnswer
+                        ? 'background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);'
+                        : 'background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);')
+                    : ''
+                }">
+                        ${hasAnswered && explanation ? `
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="font-size: 1.2rem;">${previousAnswer === correctAnswer ? '✅' : '❌'}</span>
+                                <strong style="color: ${previousAnswer === correctAnswer ? '#10b981' : '#ef4444'};">
+                                    ${previousAnswer === correctAnswer ? 'Bonne réponse !' : 'Mauvaise réponse'}
+                                </strong>
+                            </div>
+                            <p style="margin: 0; color: #ccc;"><strong>💡 Explication :</strong> ${explanation}</p>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <button class="btn btn-outline" id="prevBtn" ${isFirstQuestion ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>
+                            ← Précédent
+                        </button>
+                        <div style="display: flex; gap: 1rem;">
+                            ${hasAnswered ? (isLastQuestion
+                    ? `<button class="btn btn-primary" id="finishBtn">Terminer le quiz 🏁</button>`
+                    : `<button class="btn btn-primary" id="nextBtn">Suivant →</button>`
+                ) : '<span style="color: #666; font-size: 0.9rem; align-self: center;">Sélectionnez une réponse</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('prevBtn')?.addEventListener('click', () => {
+                if (currentQuestion > 0) { currentQuestion--; renderQuestion(); }
+            });
+            document.getElementById('nextBtn')?.addEventListener('click', () => {
+                if (currentQuestion < questions.length - 1) { currentQuestion++; renderQuestion(); }
+            });
+            document.getElementById('finishBtn')?.addEventListener('click', () => {
+                let finalScore = 0;
+                questions.forEach((q, i) => {
+                    const correct = (q.correct_answer || q.correct_option || '').toUpperCase();
+                    if (userAnswers[i] === correct) finalScore++;
+                });
+                showRandomQuizResults(type, finalScore, questions.length);
+            });
+
+            if (!hasAnswered) {
+                document.querySelectorAll('.quiz-option').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const selected = e.currentTarget.dataset.option.toUpperCase();
+                        const correct = correctAnswer;
+                        const isCorrect = selected === correct;
+                        userAnswers[currentQuestion] = selected;
+                        
+                        document.querySelectorAll('.quiz-option').forEach(b => {
+                            b.disabled = true;
+                            if (b.dataset.option.toUpperCase() === correct) {
+                                b.style.borderColor = 'var(--success, #10b981)';
+                                b.style.background = 'rgba(16, 185, 129, 0.2)';
+                            }
+                            if (b.dataset.option.toUpperCase() === selected && selected !== correct) {
+                                b.style.borderColor = 'var(--danger, #ef4444)';
+                                b.style.background = 'rgba(239, 68, 68, 0.2)';
+                            }
+                        });
+
+                        const explanationBox = document.getElementById('explanation-box');
+                        if (explanation) {
+                            explanationBox.style.display = 'block';
+                            explanationBox.style.background = isCorrect ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+                            explanationBox.style.border = isCorrect ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)';
+                            explanationBox.innerHTML = `
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <span style="font-size: 1.2rem;">${isCorrect ? '✅' : '❌'}</span>
+                                    <strong style="color: ${isCorrect ? '#10b981' : '#ef4444'};">
+                                        ${isCorrect ? 'Bonne réponse !' : 'Mauvaise réponse'}
+                                    </strong>
+                                </div>
+                                <p style="margin: 0; color: #ccc;"><strong>💡 Explication :</strong> ${explanation}</p>
+                            `;
+                        }
+                        renderQuestion();
+                    });
+                });
+            }
+        }
+        renderQuestion();
+    };
+
+    async function showRandomQuizResults(type, score, total) {
+        const percentage = Math.round((score / total) * 100);
+        const contentArea = document.getElementById('content-area');
+        const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        let xpGained = 0;
+        let leveledUp = false;
+
+        if (sessionUser) {
+            xpGained = Math.round(score * 10 * (percentage / 100)); 
+            if (percentage >= 70) xpGained += 20; 
+            if (percentage === 100) xpGained += 30; 
+
+            if (percentage >= 70) {
+                const xpResult = await api.addXp(sessionUser.id, xpGained);
+                if (xpResult.success) {
+                    leveledUp = xpResult.leveled_up;
+                    sessionUser.xp = xpResult.new_xp;
+                    sessionUser.level = xpResult.new_level;
+                    sessionStorage.setItem('currentUser', JSON.stringify(sessionUser));
+                    showToast('XP Gagné !', `+${xpGained} XP ajoutés à votre profil`, 'success', 4000);
+                    if (leveledUp) {
+                        setTimeout(() => {
+                            showToast('Niveau Supérieur !', `Félicitations ! Vous êtes maintenant ${getLevelName(xpResult.new_level)}`, 'levelup', 6000);
+                        }, 500);
+                    }
+                }
+                
+                const badgeResult = await api.checkBadges(sessionUser.id);
+                if (badgeResult.new_badges && badgeResult.new_badges.length > 0) {
+                    let delay = 2000;
+                    badgeResult.new_badges.forEach(badge => {
+                        setTimeout(() => {
+                            showToast(`🏅 Badge Débloqué !`, `"${badge.name}" - ${badge.description}`, 'achievement', 6000);
+                        }, delay);
+                        delay += 800;
+                    });
+                }
+            }
+        }
+
+        contentArea.innerHTML = `
+            <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+                <h1>Quiz <span class="text-gradient">Terminé!</span></h1>
+                <div class="card" style="margin-top: 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">
+                        ${percentage >= 70 ? '🎉' : percentage >= 50 ? '👍' : '📚'}
+                    </div>
+                    <h2>${score} / ${total}</h2>
+                    <p style="color: var(--primary-color); font-size: 1.5rem; margin: 1rem 0;">
+                        ${percentage}%
+                    </p>
+                    <p style="color: #666;">
+                        ${percentage >= 70 ? 'Excellent travail !' : percentage >= 50 ? 'Pas mal, continuez !' : 'Révisez et réessayez !'}
+                    </p>
+                    ${percentage >= 70 && xpGained > 0 ? `
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0, 255, 136, 0.1); border-radius: 8px;">
+                            <p style="color: var(--accent-color); font-weight: 600;">
+                                +${xpGained} XP ${leveledUp ? '🎊 Niveau supérieur!' : ''}
+                            </p>
+                        </div>
+                    ` : percentage < 70 ? '<div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;"><p style="color: var(--danger); font-weight: 600;">Obtenez 70% minimum pour gagner des récompenses.</p></div>' : ''}
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <button class="btn btn-primary" onclick="startRandomQuiz('${type}')">
+                        <i data-lucide="refresh-cw"></i> Recommencer
+                    </button>
+                    <button class="btn btn-outline" onclick="loadTemplate('quiz')">
+                        <i data-lucide="arrow-left"></i> Retour
+                    </button>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
     // Gérer la soumission du formulaire de cours
     document.addEventListener('submit', async (e) => {
         if (e.target.id === 'course-form') {
