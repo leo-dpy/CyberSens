@@ -1,5 +1,5 @@
 // CLIENT API (Remplace la DB LocalStorage)
-const API_URL = 'backend';
+const API_URL = '../backend/api';
 
 // Fonction utilitaire pour convertir le niveau numérique en texte
 function getLevelName(level) {

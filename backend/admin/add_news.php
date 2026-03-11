@@ -4,21 +4,6 @@ checkAdmin();
 
 $currentUser = getCurrentUser();
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: news.php");
-    exit;
-}
-
-$id = (int)$_GET['id'];
-$stmt = $pdo->prepare("SELECT * FROM news WHERE id = ?");
-$stmt->execute([$id]);
-$newsItem = $stmt->fetch();
-
-if (!$newsItem) {
-    header("Location: news.php?error=notfound");
-    exit;
-}
-
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -34,13 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($link)) $link = '#';
 
         try {
-            $stmt = $pdo->prepare("UPDATE news SET title = ?, description = ?, event_date = ?, source = ?, link = ? WHERE id = ?");
-            $stmt->execute([$title, $description, $event_date, $source, $link, $id]);
+            $stmt = $pdo->prepare("INSERT INTO news (title, description, event_date, source, link) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$title, $description, $event_date, $source, $link]);
             
-            header("Location: news.php?msg=updated");
+            header("Location: news.php?msg=created");
             exit;
         } catch (PDOException $e) {
-            $error = "Erreur lors de la modification : " . $e->getMessage();
+            $error = "Erreur lors de l'ajout : " . $e->getMessage();
         }
     }
 }
@@ -50,10 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier Actualité - Admin CyberSens</title>
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="../styles.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="../css/admin/news.css?v=<?php echo time(); ?>">
+    <title>Ajouter une Actualité - Admin CyberSens</title>
+    <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
+    <link rel="stylesheet" href="../../frontend/styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../../frontend/css/admin/news.css?v=<?php echo time(); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -98,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="nav-divider"></div>
 
-                <a href="../index.html" class="nav-item">
+                <a href="../../frontend/index.html" class="nav-item">
                     <i data-lucide="arrow-left"></i>
                     <span>Retour au site</span>
                 </a>
@@ -109,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <main class="main-content">
             <div class="content-wrapper">
                 <div class="page-header-content">
-                    <h1>Modifier l'Actualité</h1>
-                    <p class="text-muted"><?php echo htmlspecialchars($newsItem['title']); ?></p>
+                    <h1>Nouvelle Actualité</h1>
+                    <p class="text-muted">Ajouter un nouveau hack ou incident à la liste.</p>
                 </div>
 
                 <?php if ($error): ?>
@@ -123,12 +108,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form method="POST" action="" class="admin-form">
                         <div class="form-group">
                             <label for="title">Titre / Cible <span class="required">*</span></label>
-                            <input type="text" id="title" name="title" required value="<?php echo htmlspecialchars($newsItem['title']); ?>">
+                            <input type="text" id="title" name="title" required placeholder="Ex: Entreprise X, Ministère Y...">
                         </div>
 
                         <div class="form-group">
                             <label for="source">Type d'incident (Source) <span class="required">*</span></label>
-                            <input type="text" id="source" name="source" required value="<?php echo htmlspecialchars($newsItem['source']); ?>" list="sources-list">
+                            <input type="text" id="source" name="source" required placeholder="Ex: Rançongiciel, Fuite de données, Phishing..." list="sources-list">
                             <datalist id="sources-list">
                                 <option value="Rançongiciel">
                                 <option value="Fuite de Données">
@@ -141,23 +126,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="form-group">
                             <label for="event_date">Date de l'incident <span class="required">*</span></label>
-                            <input type="date" id="event_date" name="event_date" required value="<?php echo htmlspecialchars($newsItem['event_date']); ?>">
+                            <input type="date" id="event_date" name="event_date" required value="<?php echo date('Y-m-d'); ?>">
                         </div>
 
                         <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="4"><?php echo htmlspecialchars($newsItem['description']); ?></textarea>
+                            <textarea id="description" name="description" rows="4" placeholder="Détails de l'attaque, impact, conséquences..."></textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="link">Lien (Optionnel)</label>
-                            <input type="url" id="link" name="link" value="<?php echo htmlspecialchars($newsItem['link'] === '#' ? '' : $newsItem['link']); ?>" placeholder="https://...">
+                            <input type="url" id="link" name="link" placeholder="https://...">
+                            <small style="color: var(--text-muted); display: block; margin-top: 5px;">Laissez vide si aucun lien public.</small>
                         </div>
 
                         <div class="form-actions">
                             <a href="news.php" class="btn btn-outline">Annuler</a>
                             <button type="submit" class="btn btn-primary">
-                                <i data-lucide="save"></i> Mettre à jour
+                                <i data-lucide="save"></i> Enregistrer
                             </button>
                         </div>
                     </form>

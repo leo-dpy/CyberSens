@@ -1,7 +1,7 @@
 <?php
 // Fichier d'authentification admin avec système de rôles
 session_start();
-require_once '../backend/db.php';
+require_once '../api/db.php';
 
 // Définition des rôles et permissions
 define('ROLE_USER', 'user');
@@ -175,12 +175,12 @@ function canChangeRole($targetUserId, $newRole) {
 // Vérifier l'accès admin (créateur, admin ou superadmin)
 function checkAdmin() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: ../index.html?evt=session_expired");
+        header("Location: ../../frontend/index.html?evt=session_expired");
         exit;
     }
     
     if (!hasMinimumRole(ROLE_CREATOR)) {
-        header("Location: ../index.html?evt=forbidden");
+        header("Location: ../../frontend/index.html?evt=forbidden");
         exit;
     }
 }

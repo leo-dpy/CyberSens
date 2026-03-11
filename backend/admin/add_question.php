@@ -50,11 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter Question - Admin CyberSens</title>
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="../../frontend/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="../css/admin/add_question.css">
+    <link rel="stylesheet" href="../../frontend/css/admin/add_question.css">
 </head>
 <body>
     <div class="bg-grid"></div>
@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
                 <div class="nav-divider"></div>
-                <a href="../index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
+                <a href="../../frontend/index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
             </div>
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar"><?php echo strtoupper(substr($currentUser['username'], 0, 1)); ?></div>
@@ -192,6 +192,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
         </main>
     </div>
-    <script src="../js/admin/shared.js"></script>
+    <script src="../../frontend/js/admin/shared.js"></script>
 </body>
 </html>

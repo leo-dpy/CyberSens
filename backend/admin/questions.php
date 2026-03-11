@@ -42,8 +42,8 @@ if ($course_filter) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Questions - Admin CyberSens</title>
-    <link rel="stylesheet" href="../styles.css?v=<?php echo time(); ?>">
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="../../frontend/styles.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -90,7 +90,7 @@ if ($course_filter) {
 
                 <div class="nav-divider"></div>
 
-                <a href="../index.html" class="nav-item">
+                <a href="../../frontend/index.html" class="nav-item">
                     <i data-lucide="arrow-left"></i>
                     <span>Retour au site</span>
                 </a>
@@ -246,6 +246,6 @@ if ($course_filter) {
         </main>
     </div>
 
-    <script src="../js/admin/shared.js"></script>
+    <script src="../../frontend/js/admin/shared.js"></script>
 </body>
 </html>

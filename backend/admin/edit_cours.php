@@ -115,12 +115,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Cours - Admin CyberSens</title>
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="stylesheet" href="../../frontend/styles.css">
+    <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/admin/edit_cours.css">
+    <link rel="stylesheet" href="../../frontend/css/admin/edit_cours.css">
 </head>
 <body>
     <div class="bg-grid"></div>
@@ -142,7 +142,7 @@ endif; ?>
                 
                 <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
                 <div class="nav-divider"></div>
-                <a href="../index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
+                <a href="../../frontend/index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
             </div>
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar"><?php echo strtoupper(substr($currentUser['username'], 0, 1)); ?></div>
@@ -316,7 +316,7 @@ endforeach; ?>
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <!-- Module de redimensionnement d'image Quill -->
     <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
-    <script src="../js/admin/shared.js"></script>
-    <script src="../js/admin/edit_cours.js"></script>
+    <script src="../../frontend/js/admin/shared.js"></script>
+    <script src="../../frontend/js/admin/edit_cours.js"></script>
 </body>
 </html>

@@ -6,11 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// CONFIGURATION BASE DE DONNÉES
-$host = 'localhost';
-$dbname = 'cybersens';  // Nom de votre base de données
-$user = 'root';
-$pass = '';
+// CONFIGURATION BASE DE DONNÉES (Support des variables d'environnement pour Coolify/AWS)
+$host = getenv('DB_HOST') ? getenv('DB_HOST') : 'localhost';
+$dbname = getenv('DB_NAME') ? getenv('DB_NAME') : 'cybersens';
+$user = getenv('DB_USER') ? getenv('DB_USER') : 'root';
+$pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
 
 // CONNEXION PDO
 try {

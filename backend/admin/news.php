@@ -27,9 +27,9 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Actualités - Admin CyberSens</title>
-    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <link rel="stylesheet" href="../styles.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="../css/admin/news.css?v=<?php echo time(); ?>">
+    <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
+    <link rel="stylesheet" href="../../frontend/styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../../frontend/css/admin/news.css?v=<?php echo time(); ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -74,7 +74,7 @@ try {
 
                 <div class="nav-divider"></div>
 
-                <a href="../index.html" class="nav-item">
+                <a href="../../frontend/index.html" class="nav-item">
                     <i data-lucide="arrow-left"></i>
                     <span>Retour au site</span>
                 </a>
@@ -180,7 +180,7 @@ try {
         </main>
     </div>
 
-    <script src="../js/admin/shared.js"></script>
+    <script src="../../frontend/js/admin/shared.js"></script>
     <script>
         lucide.createIcons();
     </script>
