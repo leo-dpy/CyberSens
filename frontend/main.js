@@ -931,10 +931,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (tickerContainer) {
                     const fullList = [...data.news, ...data.news];
                     const itemsHTML = fullList.map(item => `
-                        <div class="ticker-item">
+                        <a href="${item.link || '#'}" target="_blank" class="ticker-item" style="text-decoration: none; color: inherit; display: inline-block;">
                             <span style="font-weight:600; margin-right:5px;">${new Date(item.date * 1000).toLocaleDateString('fr-FR')} : </span>
                             <span style="color:inherit; border-bottom:1px dotted var(--text-muted);">${item.title}</span>
-                        </div>
+                        </a>
                     `).join('');
                     tickerContainer.innerHTML = `<div class="ticker-track">${itemsHTML}</div>`;
                 }
@@ -952,7 +952,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (item.source.includes('Piratage')) { icon = 'skull'; colorStyle = "color: #ef4444;"; }
 
                         newsHTML += `
-                            <div class="news-card type-external" style="border-color: rgba(220,38,38,0.3);">
+                            <a href="${item.link || '#'}" target="_blank" class="news-card type-external" style="border-color: rgba(220,38,38,0.3); text-decoration: none; color: inherit; display: block; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(220,38,38,0.2)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
                                 <div class="news-header">
                                     <div class="news-icon" style="background: rgba(220, 38, 38, 0.1); ${colorStyle}">
                                         <i data-lucide="${icon}"></i>
@@ -961,13 +961,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 </div>
                                 <div class="news-content">
                                     <h3 style="font-size:1rem; line-height:1.4;">${item.title}</h3>
-                                    <p style="font-size:0.9rem; opacity:0.8;">${item.description}</p>
+                                    <p style="font-size:0.9rem; opacity:0.8; margin-top: 0.5rem;">${item.description}</p>
                                 </div>
-                                <div class="news-time">
+                                <div class="news-time" style="margin-top: 1rem;">
                                     <i data-lucide="calendar" style="width:12px; height:12px; display:inline-block; vertical-align:middle;"></i>
                                     ${formatDate(item.date)}
                                 </div>
-                            </div>
+                            </a>
                         `;
                     });
                     newsFeed.innerHTML = newsHTML;
@@ -984,7 +984,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <div class="log-entry">
                                 <span class="log-date">${formatLogDate(item.date)}</span>
                                 <span class="log-source ${sourceClass}">${item.source}</span><br>
-                                <span class="log-link">> ${item.title}</span>
+                                <a href="${item.link || '#'}" target="_blank" class="log-link" style="color: var(--primary-color); text-decoration: none;">> ${item.title}</a>
                             </div>
                         `;
                     });
