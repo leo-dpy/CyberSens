@@ -207,6 +207,24 @@ p {
     margin: 0 auto;
     width: 100%;
     padding-left: calc(var(--sidebar-width) + 3rem);
+    transition: all 0.4s var(--ease-out-expo);
+}
+
+/* AUTHENTICATION STATE STYLES */
+body.auth-restricted .sidebar {
+    transform: translateX(-150%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.auth-restricted .main-content {
+    margin-left: 0;
+    padding-left: 3rem;
+    max-width: 800px; /* Centrer la vue profil */
+}
+
+body.auth-restricted .floating-actions {
+    display: none;
 }
 
 /* BARRE LATÉRALE (Panneau Futuriste) */

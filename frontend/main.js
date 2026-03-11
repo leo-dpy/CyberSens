@@ -1008,6 +1008,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             statsInterval = null;
         }
 
+        const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        
+        // Restriction d'accès : Si non connecté et essaie d'accéder à autre chose que profil (où se trouve l'auth)
+        if (!sessionUser && viewId !== 'profil') {
+            viewId = 'profil';
+        }
+
         try {
             const response = await fetch(`frontend/templates/${viewId}.html?t=${Date.now()}`);
             if (!response.ok) throw new Error('Template not found');
@@ -1080,6 +1087,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Vérifier si l'utilisateur est déjà connecté et afficher la nav admin si applicable
     const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
     if (sessionUser) {
+        document.body.classList.remove('auth-restricted');
         // Afficher la nav admin pour les rôles admin
         if (['admin', 'superadmin', 'creator'].includes(sessionUser.role)) {
             const adminNavItem = document.querySelector('.nav-item.admin-only');
@@ -1090,10 +1098,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Mettre à jour les infos utilisateur de la barre latérale
         updateSidebarUser(sessionUser);
+        
+        // Charger l'accueil par défaut pour les connectés
+        loadTemplate('home');
+    } else {
+        // Non connecté : restreindre et forcer profil
+        document.body.classList.add('auth-restricted');
+        loadTemplate('profil');
     }
-
-    // Charger l'accueil par défaut
-    loadTemplate('home');
 
 
     // MISE À JOUR UTILISATEUR BARRE LATÉRALE
@@ -1239,14 +1251,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof window.updateSidebarUser === 'function') {
                 window.updateSidebarUser(null);
             }
+            document.body.classList.add('auth-restricted');
             loadTemplate('profil'); // Recharger la vue profil pour réinitialiser
         });
 
         function loginUser(user) {
             sessionStorage.setItem('currentUser', JSON.stringify(user));
+            document.body.classList.remove('auth-restricted');
             updateUI(user);
             // Charger les notifications
             loadNotifications();
+            // Rediriger vers l'accueil après connexion
+            loadTemplate('home');
         }
 
         async function updateUI(user) {
