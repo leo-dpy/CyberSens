@@ -7,10 +7,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // CONFIGURATION BASE DE DONNÉES (Support des variables d'environnement pour Coolify/AWS)
-$host = getenv('DB_HOST') ? getenv('DB_HOST') : 'localhost';
-$dbname = getenv('DB_NAME') ? getenv('DB_NAME') : 'cybersens';
-$user = getenv('DB_USER') ? getenv('DB_USER') : 'root';
-$pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
+$host = getenv('DB_HOST') ?: $_SERVER['DB_HOST'] ?? 'localhost';
+$dbname = getenv('DB_NAME') ?: $_SERVER['DB_NAME'] ?? 'cybersens';
+$user = getenv('DB_USER') ?: $_SERVER['DB_USER'] ?? 'root';
+$pass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : ($_SERVER['DB_PASS'] ?? '');
 
 // CONNEXION PDO
 try {
@@ -25,12 +25,13 @@ try {
         ]
     );
 } catch (PDOException $e) {
-    // Gestion d'erreur formatée JSON
+    // Gestion d'erreur formatée JSON (Affichage du detail temporaire pour AWS)
     header('Content-Type: application/json');
     http_response_code(500);
     echo json_encode([
         'success' => false, 
-        'message' => "Erreur de connexion à la base de données"
+        'message' => "Erreur DB: " . $e->getMessage(),
+        'host' => $host // Pour vérifier que la variable est bien lue
     ]);
     exit;
 }
