@@ -19,9 +19,18 @@ try {
             // Récupérer un cours spécifique ou tous les cours
             if (isset($_GET['id'])) {
                 $id = (int)$_GET['id'];
-                $stmt = $pdo->prepare("SELECT c.*, 
+                $user_role = isset($_GET['role']) ? $_GET['role'] : 'user';
+                
+                $sql = "SELECT c.*, 
                     (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions 
-                    FROM courses c WHERE c.id = ?");
+                    FROM courses c WHERE c.id = ?";
+                
+                // Bloquer l'accès aux cours cachés pour les non-admins
+                if ($user_role !== 'admin' && $user_role !== 'superadmin') {
+                    $sql .= " AND c.is_hidden = 0";
+                }
+                
+                $stmt = $pdo->prepare($sql);
                 $stmt->execute([$id]);
                 $course = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -42,7 +51,10 @@ try {
                     (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions 
                     FROM courses c";
 
-
+                // Filtrer les cours cachés pour les utilisateurs normaux
+                if ($user_role !== 'admin' && $user_role !== 'superadmin') {
+                    $sql .= " WHERE c.is_hidden = 0";
+                }
 
                 $sql .= " ORDER BY c.display_order ASC, c.id ASC";
                 $stmt = $pdo->query($sql);
