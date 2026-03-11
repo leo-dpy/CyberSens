@@ -12,11 +12,11 @@ try {
     // Nombre d'utilisateurs
     $stats['users'] = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
     
-    // Nombre de cours
-    $stats['courses'] = $pdo->query("SELECT COUNT(*) FROM courses")->fetchColumn();
+    // Nombre de cours (exclure les cours cachés)
+    $stats['courses'] = $pdo->query("SELECT COUNT(*) FROM courses WHERE is_hidden = 0")->fetchColumn();
     
-    // Nombre de questions
-    $stats['questions'] = $pdo->query("SELECT COUNT(*) FROM questions")->fetchColumn();
+    // Nombre de questions (exclure celles des cours cachés)
+    $stats['questions'] = $pdo->query("SELECT COUNT(*) FROM questions q JOIN courses c ON q.course_id = c.id WHERE c.is_hidden = 0")->fetchColumn();
     
     // Nombre de certificats
     $stats['certificates'] = $pdo->query("SELECT COUNT(*) FROM certificates")->fetchColumn();

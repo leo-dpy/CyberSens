@@ -19,18 +19,11 @@ try {
             // Récupérer un cours spécifique ou tous les cours
             if (isset($_GET['id'])) {
                 $id = (int)$_GET['id'];
-                $user_role = isset($_GET['role']) ? $_GET['role'] : 'user';
                 
-                $sql = "SELECT c.*, 
+                // Toujours exclure les cours cachés (l'admin utilise ses propres pages PHP)
+                $stmt = $pdo->prepare("SELECT c.*, 
                     (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions 
-                    FROM courses c WHERE c.id = ?";
-                
-                // Bloquer l'accès aux cours cachés pour les non-admins
-                if ($user_role !== 'admin' && $user_role !== 'superadmin') {
-                    $sql .= " AND c.is_hidden = 0";
-                }
-                
-                $stmt = $pdo->prepare($sql);
+                    FROM courses c WHERE c.id = ? AND c.is_hidden = 0");
                 $stmt->execute([$id]);
                 $course = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -46,17 +39,11 @@ try {
                 $user_id = isset($_GET['user_id']) ? (int)$_GET['user_id'] : null;
                 $user_role = isset($_GET['role']) ? $_GET['role'] : 'user';
 
-                // Requête de base - tous les cours triés par ordre d'affichage
+                // Toujours exclure les cours cachés (l'admin utilise ses propres pages PHP)
                 $sql = "SELECT c.*, 
                     (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions 
-                    FROM courses c";
-
-                // Filtrer les cours cachés pour les utilisateurs normaux
-                if ($user_role !== 'admin' && $user_role !== 'superadmin') {
-                    $sql .= " WHERE c.is_hidden = 0";
-                }
-
-                $sql .= " ORDER BY c.display_order ASC, c.id ASC";
+                    FROM courses c WHERE c.is_hidden = 0
+                    ORDER BY c.display_order ASC, c.id ASC";
                 $stmt = $pdo->query($sql);
                 $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

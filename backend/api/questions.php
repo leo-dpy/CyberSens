@@ -19,12 +19,12 @@ try {
     switch ($method) {
         case 'GET':
             if (isset($_GET['course_id'])) {
-                // Questions d'un cours spécifique
+                // Questions d'un cours spécifique (vérifier que le cours n'est pas caché)
                 $course_id = (int)$_GET['course_id'];
                 $stmt = $pdo->prepare("SELECT q.*, c.title as course_title 
                     FROM questions q 
                     JOIN courses c ON q.course_id = c.id 
-                    WHERE q.course_id = ? 
+                    WHERE q.course_id = ? AND c.is_hidden = 0
                     ORDER BY q.id");
                 $stmt->execute([$course_id]);
                 $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
