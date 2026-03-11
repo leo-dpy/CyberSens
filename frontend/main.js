@@ -796,61 +796,16 @@ document.addEventListener('click', (e) => {
 
 // LOGIQUE VUE QUIZ
 async function initQuizView() {
-    const grid = document.getElementById('quizCoursesGrid');
-    if (!grid) return;
+    const startBtn = document.getElementById('start-sudden-death-btn');
+    if (!startBtn) return;
 
-    // Récupérer l'utilisateur connecté
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-    const userId = currentUser ? currentUser.id : null;
-    const userRole = currentUser ? currentUser.role : null;
-
-    // Charger les cours
-    const courses = await api.getCourses(userId, userRole);
-
-    if (!courses || courses.length === 0) {
-        grid.innerHTML = `
-            <div style="grid-column: span 3; text-align: center; padding: 3rem;">
-                <i data-lucide="folder-open" style="width: 48px; height: 48px; color: #666; margin-bottom: 1rem;"></i>
-                <p style="color: #666;">Aucun cours disponible pour le moment.</p>
-            </div>
-        `;
-        lucide.createIcons();
-        return;
-    }
-
-    // Générer le HTML
-    grid.innerHTML = courses.map(c => {
-        const isLocked = c.is_locked === true || c.is_locked === 1;
-        const isCompleted = c.is_completed === true || c.is_completed === 1;
-        const isRead = c.is_read === true || c.is_read === 1;
-
-        // Déterminer l'icône selon la difficulté
-        const icon = c.difficulty === 'Facile' ? 'shield' :
-            c.difficulty === 'Intermédiaire' ? 'shield-alert' : 'skull';
-
-        return `
-        <div class="card ${isLocked ? 'card-locked' : ''} ${isCompleted ? 'card-completed' : ''} ${isRead ? 'card-read' : ''}" 
-             ${isLocked ? '' : `onclick="startQuiz(${c.id})"`}>
-            
-            ${isLocked ? '<div class="lock-overlay"><i data-lucide="lock" class="lock-icon"></i><span>Terminez le module précédent</span></div>' : ''}
-            ${isCompleted ? '<div class="completed-badge" title="Cours terminé"><i data-lucide="check-circle"></i></div>' : ''}
-            ${isRead && !isCompleted ? '<div class="read-badge" title="Cours lu"><i data-lucide="book-open"></i></div>' : ''}
-            
-            <div class="card-icon"><i data-lucide="${icon}"></i></div>
-            <h3>${c.title}</h3>
-            <p>${c.description}</p>
-            
-            <span class="difficulty-badge difficulty-${c.difficulty?.toLowerCase()}">${c.difficulty}</span>
-            <span class="questions-count">${c.nb_questions || '?'} questions</span>
-            
-            ${isCompleted ? '<span class="status-badge status-completed"><i data-lucide="trophy" style="width:14px;height:14px;"></i> Terminé</span>' : ''}
-            ${isRead && !isCompleted ? '<span class="status-badge status-read"><i data-lucide="book-open" style="width:14px;height:14px;"></i> Lu</span>' : ''}
-            ${isLocked ? '<span class="status-badge status-locked"><i data-lucide="lock" style="width:14px;height:14px;"></i> Verrouillé</span>' : ''}
-        </div>
-    `}).join('');
-
-    // Initialiser les icônes
-    lucide.createIcons();
+    startBtn.addEventListener('click', () => {
+        if (typeof window.startSuddenDeathQuiz === 'function') {
+            window.startSuddenDeathQuiz();
+        } else {
+            console.error("La fonction startSuddenDeathQuiz n'est pas définie");
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1994,6 +1949,211 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
         lucide.createIcons();
+    };
+
+    window.startSuddenDeathQuiz = async function() {
+        // Fetch all questions
+        const questions = await api.getQuestions();
+        if (!questions || questions.length === 0) {
+            alert('Aucune question disponible en base de données.');
+            return;
+        }
+
+        // Shuffle questions
+        const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let gameOver = false;
+
+        function renderQuestion() {
+            const q = shuffledQuestions[currentQuestion];
+            const questionText = q.question || q.question_text;
+            const correctAnswer = (q.correct_answer || q.correct_option || '').toUpperCase();
+            const explanation = q.explanation || '';
+            const difficulty = q.difficulty || 'Facile';
+            const xpReward = q.xp_reward || 10;
+            const contentArea = document.getElementById('content-area');
+
+            // Badge de difficulté avec couleur
+            const difficultyBadge = difficulty === 'Facile'
+                ? '<span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">🟢 Facile • ' + xpReward + ' XP</span>'
+                : difficulty === 'Intermédiaire'
+                    ? '<span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">🟠 Intermédiaire • ' + xpReward + ' XP</span>'
+                    : '<span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem;">🔴 Difficile • ' + xpReward + ' XP</span>';
+
+            const buildOption = (letter, text) => {
+                return `<button class="btn btn-outline sd-quiz-option" data-option="${letter}" style="text-align: left; padding: 1rem; transition: all 0.2s;" ${gameOver ? 'disabled' : ''}>
+                    <strong>${letter}.</strong> ${text}
+                </button>`;
+            };
+
+            let optionsHtml = buildOption('A', q.option_a) + buildOption('B', q.option_b) + buildOption('C', q.option_c);
+            if (q.option_d && q.option_d.trim()) {
+                optionsHtml += buildOption('D', q.option_d);
+            }
+
+            contentArea.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h1>Mort <span style="color: var(--danger, #ff003c);">Subite</span></h1>
+                    <div style="font-size: 1.5rem; font-weight: bold; background: rgba(255, 255, 255, 0.1); padding: 0.5rem 1.5rem; border-radius: 50px;">
+                        Score: <span id="sd-score-display" style="color: var(--primary-color);">${score}</span>
+                    </div>
+                </div>
+                
+                <div class="card" style="max-width: 800px; margin: 1rem auto; ${gameOver ? 'border-color: var(--danger, #ff003c); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);' : ''}">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0; font-size: 1.25rem; line-height: 1.5;">Question ${currentQuestion + 1}</h3>
+                        <p style="font-size: 1.1rem; margin-top: 1rem;">${questionText}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">${difficultyBadge}</div>
+                    
+                    <div class="sd-quiz-options" style="display: flex; flex-direction: column; gap: 1rem;">
+                        ${optionsHtml}
+                    </div>
+
+                    <div id="sd-explanation-box" style="display: none; margin-top: 1.5rem; padding: 1.5rem; border-radius: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                    </div>
+                    
+                    <div id="sd-action-container" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: right;">
+                        <button class="btn btn-primary" id="sd-next-btn" style="padding: 0.75rem 2rem; font-size: 1.1rem;">
+                            Question suivante <i data-lucide="arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div id="sd-gameover-container" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                        <h2 style="color: var(--danger, #ef4444); margin-bottom: 1rem; font-size: 2rem;">Game Over !</h2>
+                        <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Vous avez survécu à <strong>${score}</strong> question(s).</p>
+                        <button class="btn" id="sd-quit-btn" style="background: var(--bg-lighter); color: var(--text-main);">Retour à l'accueil Quiz</button>
+                        <button class="btn btn-primary" id="sd-retry-btn" style="margin-left: 1rem; background: linear-gradient(45deg, var(--danger, #ff003c), #ff4b2b); border: none;">Réessayer</button>
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
+
+            // Event listeners
+            if (!gameOver) {
+                document.querySelectorAll('.sd-quiz-option').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        if (gameOver) return;
+                        
+                        const selected = e.currentTarget.dataset.option.toUpperCase();
+                        const isCorrect = selected === correctAnswer;
+
+                        // Disable all buttons
+                        document.querySelectorAll('.sd-quiz-option').forEach(b => {
+                            b.disabled = true;
+                            b.style.opacity = '0.7';
+                            
+                            // Highlight correct answer
+                            if (b.dataset.option.toUpperCase() === correctAnswer) {
+                                b.style.borderColor = 'var(--success, #10b981)';
+                                b.style.background = 'rgba(16, 185, 129, 0.2)';
+                                b.style.opacity = '1';
+                            }
+                            
+                            // Highlight wrong selected answer
+                            if (b.dataset.option.toUpperCase() === selected && !isCorrect) {
+                                b.style.borderColor = 'var(--danger, #ef4444)';
+                                b.style.background = 'rgba(239, 68, 68, 0.2)';
+                                b.style.opacity = '1';
+                            }
+                        });
+
+                        if (isCorrect) {
+                            score++;
+                            document.getElementById('sd-score-display').textContent = score;
+                            
+                            // Show explanation and next button
+                            const explBox = document.getElementById('sd-explanation-box');
+                            explBox.style.display = 'block';
+                            explBox.style.background = 'rgba(16, 185, 129, 0.1)';
+                            explBox.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                            explBox.innerHTML = `<h4 style="color: var(--success, #10b981); margin-top: 0; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="check-circle" style="width: 20px; height: 20px;"></i> Bonne réponse !</h4>` + (explanation ? `<p style="margin-bottom: 0;">${explanation}</p>` : '');
+                            
+                            lucide.createIcons();
+                            
+                            if (currentQuestion < shuffledQuestions.length - 1) {
+                                document.getElementById('sd-action-container').style.display = 'block';
+                            } else {
+                                // Gagner le jeu (toutes les questions)
+                                gameOver = true;
+                                document.getElementById('sd-gameover-container').style.display = 'block';
+                                document.getElementById('sd-gameover-container').querySelector('h2').textContent = 'Félicitations !';
+                                document.getElementById('sd-gameover-container').querySelector('h2').style.color = 'var(--success, #10b981)';
+                                document.getElementById('sd-gameover-container').querySelector('p').innerHTML = `Vous avez répondu correctement à <strong>toutes les questions</strong> !`;
+                                sdSaveScoreAndXp(score);
+                            }
+                        } else {
+                            // Mauvaise réponse -> Game Over
+                            gameOver = true;
+                            
+                            const explBox = document.getElementById('sd-explanation-box');
+                            explBox.style.display = 'block';
+                            explBox.innerHTML = `<h4 style="color: var(--danger, #ef4444); margin-top: 0; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="x-circle" style="width: 20px; height: 20px;"></i> Mauvaise réponse</h4><p style="margin-bottom: 0.5rem;">La bonne réponse était: <strong>${correctAnswer}</strong></p>` + (explanation ? `<p style="margin-bottom: 0;">${explanation}</p>` : '');
+                            
+                            lucide.createIcons();
+                            
+                            document.getElementById('sd-gameover-container').style.display = 'block';
+                            sdSaveScoreAndXp(score);
+                        }
+                    });
+                });
+            }
+
+            document.getElementById('sd-next-btn')?.addEventListener('click', () => {
+                currentQuestion++;
+                renderQuestion();
+            });
+
+            document.getElementById('sd-retry-btn')?.addEventListener('click', () => {
+                window.startSuddenDeathQuiz();
+            });
+            
+            document.getElementById('sd-quit-btn')?.addEventListener('click', () => {
+                // Return to quiz home (just triggers navigation)
+                document.querySelector('.nav-item[data-view="quiz"]')?.click();
+            });
+        }
+        
+        async function sdSaveScoreAndXp(finalScore) {
+            const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!sessionUser || finalScore === 0) return;
+            
+            // Calculer l'XP : 15 XP par bonne réponse consécutive
+            const xpGained = finalScore * 15;
+            
+            const xpResult = await api.addXp(sessionUser.id, xpGained);
+            if (xpResult.success) {
+                // Update session
+                sessionUser.xp = xpResult.new_xp;
+                if (xpResult.leveled_up) {
+                    sessionUser.level = xpResult.new_level;
+                    showToast('Niveau Supérieur !', `Vous avez atteint le niveau ${xpResult.new_level} !`, 'levelup', 6000);
+                }
+                sessionStorage.setItem('currentUser', JSON.stringify(sessionUser));
+                
+                // Show notification for XP gained
+                showToast('XP Gagnée', `+${xpGained} XP pour votre performance en Mort Subite !`, 'achievement', 5000);
+                
+                // Check badges
+                const badgesResult = await api.checkBadges(sessionUser.id);
+                if (badgesResult.success && badgesResult.new_badges.length > 0) {
+                    badgesResult.new_badges.forEach(badge => {
+                        showToast('Badge Débloqué !', `Vous avez obtenu le badge : ${badge.name}`, 'unlock', 6000);
+                    });
+                }
+                
+                // Refresh sidebar
+                if (typeof window.updateSidebarUser === 'function') {
+                    window.updateSidebarUser(sessionUser);
+                }
+            }
+        }
+
+        renderQuestion();
     };
 
     window.startQuiz = async function (courseId) {

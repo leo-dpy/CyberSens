@@ -1,21 +1,22 @@
 <h1>Zone de <span class="text-gradient">Quiz</span></h1>
 <p class="subtitle">Évaluez vos compétences en temps réel. Chaque erreur est une leçon.</p>
 
-<div class="quiz-intro-grid"
-    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-    <div class="card" style="border-left: 4px solid var(--primary-color);">
-        <div class="card-icon"><i data-lucide="brain-circuit"></i></div>
-        <h3>Quiz par Cours</h3>
-        <p>Testez vos connaissances sur un cours spécifique. Obtenez 70% minimum pour valider le cours et recevoir un
-            certificat.</p>
+<div class="quiz-sudden-death-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; background: var(--bg-panel); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-top: 2rem;">
+    <div class="icon-pulse-container" style="color: var(--danger, #ff003c); margin-bottom: 2rem;">
+        <i data-lucide="skull" style="width: 64px; height: 64px; filter: drop-shadow(0 0 10px rgba(255, 0, 60, 0.5));"></i>
     </div>
-    <div class="card" style="border-left: 4px solid var(--secondary-color);">
-        <div class="card-icon"><i data-lucide="award"></i></div>
-        <h3>Gagnez des Récompenses</h3>
-        <p>Chaque quiz réussi vous rapporte des XP, débloque des badges et génère un certificat vérifiable.</p>
-    </div>
+    
+    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; text-align: center; color: var(--text-main);">Mode <span style="color: var(--danger, #ff003c);">Mort Subite</span></h2>
+    
+    <p style="text-align: center; color: var(--text-muted); max-width: 600px; font-size: 1.1rem; margin-bottom: 2.5rem; line-height: 1.6;">
+        Toutes les questions en base de données, mélangées aléatoirement.<br>
+        <strong>Une seule erreur et c'est la fin.</strong><br>
+        Jusqu'où irez-vous ?
+    </p>
+
+    <button id="start-sudden-death-btn" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2.5rem; border-radius: 50px; background: linear-gradient(45deg, var(--danger, #ff003c), #ff4b2b); border: none; box-shadow: 0 4px 15px rgba(255, 0, 60, 0.4); display: flex; align-items: center; gap: 0.75rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+        <i data-lucide="play-circle"></i> Lancer la Mort Subite
+    </button>
 </div>
-
-
 
 <link rel="stylesheet" href="frontend/css/templates/quiz.css">
