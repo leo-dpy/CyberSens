@@ -400,7 +400,6 @@ body.auth-restricted .floating-actions {
 .card,
 .stat-card,
 .scenario-card,
-.resource-card,
 .badge-item {
     background: #000000;
     /* Fond noir */
@@ -428,8 +427,7 @@ body.auth-restricted .floating-actions {
 
 /* Effet de brillance au survol - DESACTIVE pour les cartes statiques */
 .card::after,
-.scenario-card::after,
-.resource-card::after {
+.scenario-card::after {
     display: none;
 }
 
@@ -437,8 +435,7 @@ body.auth-restricted .floating-actions {
 a.card:hover,
 button.card:hover,
 .card.interactive:hover,
-.scenario-card.interactive:hover,
-.resource-card.interactive:hover {
+.scenario-card.interactive:hover {
     border-color: var(--glass-border-hover);
     background: rgba(20, 20, 26, 0.6);
     transform: translateY(-2px);
@@ -448,8 +445,7 @@ button.card:hover,
 /* Contenu au-dessus de l'effet */
 .card>*,
 .stat-card>*,
-.scenario-card>*,
-.resource-card>* {
+.scenario-card>* {
     position: relative;
     z-index: 2;
 }
@@ -1332,109 +1328,7 @@ table.ranking-table tr:hover td {
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
 }
 
-/* STYLES RESSOURCES (DESIGN BASE DE DONNÉES) */
-.resources-section {
-    margin-bottom: 4rem;
-}
 
-.resources-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    border-left: 4px solid var(--primary);
-}
-
-.resources-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.resource-card {
-    background: rgba(20, 20, 25, 0.8);
-    border: 1px solid var(--secondary);
-    border-radius: 16px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-}
-
-/* .resource-card:hover supprimé - statique sauf si .interactive */
-
-.resource-card::before {
-    display: none;
-    /* Supprimer l'effet brillant obsolète */
-}
-
-.resource-card .card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.resource-card .icon-wrapper {
-    width: 54px;
-    height: 54px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--text-muted);
-    transition: 0.3s;
-    margin-right: 1rem;
-    flex-shrink: 0;
-}
-
-/* .resource-card:hover .icon-wrapper supprimé */
-
-.resource-card h3 {
-    font-size: 1.1rem;
-    margin: 0;
-    line-height: 1.4;
-    font-weight: 600;
-}
-
-.resource-card p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    flex-grow: 1;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-}
-
-.resource-card .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.resource-card .action-hint {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--primary);
-    opacity: 0.8;
-    transition: 0.3s;
-}
-
-/* .resource-card:hover .action-hint supprimé */
 
 /* CYBERSENS - CENTRE DE COMMANDE ADMIN Thème : Extension de Ultra Future v4.0 */
 
@@ -2094,6 +1988,20 @@ body {
     box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
 }
 
+.btn-icon.xp:hover {
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--warning);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+
+.btn-icon.manage:hover {
+    color: var(--accent-primary);
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
 .btn-icon i {
     width: 18px;
     height: 18px;
@@ -2272,41 +2180,7 @@ input[type=number]:focus {
     text-align: right;
 }
 
-.actions-cell {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-}
 
-.action-btn {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-muted);
-    transition: all 0.2s;
-}
-
-.action-btn:hover {
-    background: var(--primary);
-    color: black;
-    /* Meilleur contraste sur le primaire */
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 0 15px var(--primary-glow);
-}
-
-.action-btn.delete:hover {
-    background: var(--danger);
-    color: white;
-    border-color: var(--danger);
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-}
 
 /* Gestion de la description */
 .admin-table td:nth-child(4) {

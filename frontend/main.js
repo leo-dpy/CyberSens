@@ -143,6 +143,32 @@ class ApiClient {
         }
     }
 
+    async updateProfile(userId, username, email) {
+        try {
+            const response = await fetch(`${API_URL}/users.php`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: userId, username, email })
+            });
+            return await response.json();
+        } catch (e) {
+            return { success: false, message: "Erreur serveur" };
+        }
+    }
+
+    async updatePassword(userId, newPassword) {
+        try {
+            const response = await fetch(`${API_URL}/users.php`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: userId, action: 'update_password', password: newPassword })
+            });
+            return await response.json();
+        } catch (e) {
+            return { success: false, message: "Erreur serveur" };
+        }
+    }
+
     // API COURS
     async getCourses(userId = null, userRole = null) {
         try {
@@ -431,32 +457,7 @@ class ApiClient {
         }
     }
 
-    // API RESSOURCES
-    async getResources(category = null, difficulty = null) {
-        try {
-            let url = `${API_URL}/resources.php`;
-            const params = [];
-            if (category) params.push(`category=${category}`);
-            if (difficulty) params.push(`difficulty=${difficulty}`);
-            if (params.length) url += '?' + params.join('&');
 
-            const response = await fetch(url);
-            const data = await response.json();
-            return data.success ? data : { resources: [], grouped: {} };
-        } catch (e) {
-            return { resources: [], grouped: {} };
-        }
-    }
-
-    async getResource(id) {
-        try {
-            const response = await fetch(`${API_URL}/resources.php?id=${id}`);
-            const data = await response.json();
-            return data.success ? data.resource : null;
-        } catch (e) {
-            return null;
-        }
-    }
 
     // API NOTIFICATIONS
     async getNotifications(userId, unreadOnly = false) {
@@ -1047,7 +1048,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (viewId === 'quiz') initQuizView();
 
             if (viewId === 'phishing') initPhishingView();
-            if (viewId === 'ressources') initResourcesView();
+
+            if (viewId === 'parametres') initParametresView();
 
             // Mettre à jour l'état actif dans la barre latérale
             navItems.forEach(item => {
@@ -1081,6 +1083,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadTemplate(viewId);
             }
         });
+    });
+
+    // ÉCOUTEUR GLOBAL POUR LE BOUTON DÉCONNEXION (DELEGATION)
+    window.customLogout = function(e) {
+        if (e) e.preventDefault();
+        sessionStorage.removeItem('currentUser');
+        const adminNavItem = document.querySelector('.nav-item.admin-only');
+        if (adminNavItem) adminNavItem.style.display = 'none';
+        if (typeof window.updateSidebarUser === 'function') {
+            window.updateSidebarUser(null);
+        }
+        document.body.classList.add('auth-restricted');
+        if (typeof window.loadTemplate === 'function') {
+            window.loadTemplate('profil');
+        } else if (typeof loadTemplate === 'function') {
+            loadTemplate('profil');
+        }
+    };
+
+    document.addEventListener('click', (e) => {
+        // Gérer le clic sur le bouton lui-même ou sur l'icône enfant
+        const logoutBtn = e.target.closest('#logout-btn');
+        if (logoutBtn) {
+            window.customLogout(e);
+        }
     });
 
     // Vérifier si l'utilisateur est déjà connecté et afficher la nav admin si applicable
@@ -1242,16 +1269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Gérer la déconnexion
         document.getElementById('logout-btn')?.addEventListener('click', () => {
-            sessionStorage.removeItem('currentUser');
-            // Masquer la nav admin
-            const adminNavItem = document.querySelector('.nav-item.admin-only');
-            if (adminNavItem) adminNavItem.style.display = 'none';
-            // Masquer l'utilisateur de la barre latérale
-            if (typeof window.updateSidebarUser === 'function') {
-                window.updateSidebarUser(null);
-            }
-            document.body.classList.add('auth-restricted');
-            loadTemplate('profil'); // Recharger la vue profil pour réinitialiser
+             // (Le handler de profil)
         });
 
         function loginUser(user) {
@@ -2539,6 +2557,85 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Rendre loadTemplate accessible globalement pour les handlers onclick
     window.loadTemplate = loadTemplate;
 
+    // VUE PARAMETRES
+    function initParametresView() {
+        const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!sessionUser) {
+            loadTemplate('profil');
+            return;
+        }
+
+        // Pre-remplir les données actuelles
+        const usernameInput = document.getElementById('param-username');
+        const emailInput = document.getElementById('param-email');
+        if (usernameInput) usernameInput.value = sessionUser.username;
+        if (emailInput) emailInput.value = sessionUser.email;
+
+        // Formulaire profil
+        document.getElementById('update-profile-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = usernameInput.value;
+            const email = emailInput.value;
+            const msgEl = document.getElementById('profile-update-msg');
+            
+            msgEl.textContent = 'Enregistrement...';
+            msgEl.style.color = '#fff';
+            msgEl.style.display = 'inline-block';
+
+            const result = await api.updateProfile(sessionUser.id, username, email);
+            if (result.success) {
+                msgEl.textContent = 'Profil mis à jour !';
+                msgEl.style.color = 'var(--accent-color)';
+                // Mettre à jour la session
+                sessionUser.username = username;
+                sessionUser.email = email;
+                sessionStorage.setItem('currentUser', JSON.stringify(sessionUser));
+                updateSidebarUser(sessionUser);
+            } else {
+                msgEl.textContent = 'Erreur : ' + result.message;
+                msgEl.style.color = 'var(--danger)';
+            }
+            setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+        });
+
+        // Formulaire sécurité
+        document.getElementById('update-password-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('param-password').value;
+            const confirm = document.getElementById('param-password-confirm').value;
+            const msgEl = document.getElementById('password-update-msg');
+            
+            if (password !== confirm) {
+                msgEl.textContent = 'Les mots de passe ne correspondent pas';
+                msgEl.style.color = 'var(--danger)';
+                msgEl.style.display = 'inline-block';
+                return;
+            }
+
+            if (password.length < 17) {
+                msgEl.textContent = 'Le mot de passe doit faire 17 caractères minimum';
+                msgEl.style.color = 'var(--danger)';
+                msgEl.style.display = 'inline-block';
+                return;
+            }
+
+            msgEl.textContent = 'Mise à jour...';
+            msgEl.style.color = '#fff';
+            msgEl.style.display = 'inline-block';
+
+            const result = await api.updatePassword(sessionUser.id, password);
+            if (result.success) {
+                msgEl.textContent = 'Mot de passe modifié !';
+                msgEl.style.color = 'var(--accent-color)';
+                document.getElementById('update-password-form').reset();
+            } else {
+                msgEl.textContent = 'Erreur : ' + result.message;
+                msgEl.style.color = 'var(--danger)';
+            }
+            setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+        });
+    }
+
     // VUE SIMULATION PHISHING
     async function initPhishingView() {
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -2786,95 +2883,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('scenarioModal').style.display = 'none';
     };
 
-    // VUE RESSOURCES
-    async function initResourcesView() {
-        await loadResources();
-    }
 
-    async function loadResources(category = null, difficulty = null) {
-        const data = await api.getResources(category, difficulty);
-        const contentDiv = document.getElementById('resourcesContent');
-        if (!contentDiv) return;
-
-        const categoryNames = {
-            article: '📝 Articles',
-            video: '🎬 Vidéos',
-            tool: '🛠️ Outils',
-            documentation: '📚 Documentation',
-            external: '🔗 Liens externes'
-        };
-
-        let html = '';
-
-        if (data.grouped && Object.keys(data.grouped).length > 0) {
-            for (const [cat, resources] of Object.entries(data.grouped)) {
-                html += `
-                    <div class="resources-section">
-                        <h2>${categoryNames[cat] || cat}</h2>
-                        <div class="resources-grid">
-                            ${resources.map(r => `
-                                <div class="resource-card ${r.category}" data-resource-id="${r.id}" data-url="${r.url || ''}">
-                                    <div class="card-header">
-                                        <div class="icon-wrapper">
-                                            <i data-lucide="${r.icon || 'file-text'}"></i>
-                                        </div>
-                                        <div>
-                                            <h3>${r.title}</h3>
-                                            <span class="difficulty-badge ${r.difficulty}">${r.difficulty}</span>
-                                        </div>
-                                    </div>
-                                    <p>${r.description}</p>
-                                    <div class="card-footer">
-                                        <span class="action-hint">
-                                            ${r.url ? '<i data-lucide="external-link"></i> Ouvrir' : '<i data-lucide="book-open"></i> Lire'}
-                                        </span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-        } else {
-            html = `
-                <div class="no-resources">
-                    <i data-lucide="folder-open"></i>
-                    <p>Aucune ressource trouvée</p>
-                </div>
-            `;
-        }
-
-        contentDiv.innerHTML = html;
-
-        // Ajouter les écouteurs de clic aux cartes de ressources
-        contentDiv.querySelectorAll('.resource-card').forEach(card => {
-            card.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const url = this.getAttribute('data-url');
-                const resourceId = this.getAttribute('data-resource-id');
-
-                if (url) {
-                    window.open(url, '_blank');
-                } else if (resourceId) {
-                    openResource(parseInt(resourceId));
-                }
-            });
-        });
-
-        lucide.createIcons();
-    }
-
-    window.filterResources = function () {
-        const category = document.getElementById('resourceCategoryFilter').value;
-        const difficulty = document.getElementById('resourceDifficultyFilter').value;
-        loadResources(category || null, difficulty || null);
-    };
-
-    window.closeResourceModal = function () {
-        const modal = document.getElementById('resourceModal');
-        if (modal) modal.style.display = 'none';
-    };
 
     // LOGIQUE MODALE BONNES PRATIQUES
     const modalBp = document.getElementById('modal-bp');
@@ -2988,7 +2997,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('click', (e) => {
         const modals = [
             document.getElementById('modal-bp'),
-            document.getElementById('resourceModal'),
+
             document.getElementById('scenarioModal'),
             document.getElementById('course-modal'),
             document.getElementById('question-modal')
@@ -3022,61 +3031,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    window.openResource = async function (id) {
-        const resource = await api.getResource(id);
-        if (!resource) {
-            return;
-        }
 
-        const modalContent = document.getElementById('resourceModalContent');
-
-        const categoryColors = {
-            article: '#3b82f6',
-            video: '#ef4444',
-            tool: '#10b981',
-            documentation: '#f59e0b',
-            external: '#8b5cf6'
-        };
-
-        let contentHtml = '';
-
-        if (resource.content) {
-            // Convertir le contenu type markdown en HTML
-            contentHtml = resource.content
-                .replace(/## (.*)/g, '<h2>$1</h2>')
-                .replace(/### (.*)/g, '<h3>$1</h3>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n- (.*)/g, '\n<li>$1</li>')
-                .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-                .replace(/\n\d+\. (.*)/g, '\n<li>$1</li>')
-                .replace(/\n/g, '<br>');
-        }
-
-        modalContent.innerHTML = `
-            <div class="resource-modal-header">
-                <div class="icon-wrapper" style="background: ${categoryColors[resource.category]}20; color: ${categoryColors[resource.category]};">
-                    <i data-lucide="${resource.icon || 'file-text'}"></i>
-                </div>
-                <div>
-                    <h2>${resource.title}</h2>
-                    <span class="difficulty-badge ${resource.difficulty}">${resource.difficulty}</span>
-                </div>
-            </div>
-            <div class="resource-modal-content">
-                ${contentHtml || `<p>${resource.description}</p>`}
-            </div>
-            ${resource.url ? `
-                <a href="${resource.url}" target="_blank" class="external-link-btn">
-                    <i data-lucide="external-link"></i> Ouvrir le lien
-                </a>
-            ` : ''}
-        `;
-
-        const resourceModal = document.getElementById('resourceModal');
-        if (resourceModal) {
-            resourceModal.style.display = 'flex';
-        }
-        lucide.createIcons();
-    };
 
 });

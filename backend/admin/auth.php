@@ -20,9 +20,9 @@ $roleHierarchy = [
 // Permissions par rôle
 $rolePermissions = [
     ROLE_USER => [],
-    ROLE_CREATOR => ['manage_courses', 'manage_questions', 'view_dashboard', 'manage_content', 'manage_resources'],
-    ROLE_ADMIN => ['manage_users', 'view_dashboard', 'manage_content', 'manage_resources'],
-    ROLE_SUPERADMIN => ['manage_courses', 'manage_questions', 'manage_users', 'manage_roles', 'view_dashboard', 'delete_admins', 'manage_content', 'manage_resources']
+    ROLE_CREATOR => ['manage_courses', 'manage_questions', 'view_dashboard', 'manage_content'],
+    ROLE_ADMIN => ['manage_users', 'view_dashboard', 'manage_content'],
+    ROLE_SUPERADMIN => ['manage_courses', 'manage_questions', 'manage_users', 'manage_roles', 'view_dashboard', 'delete_admins', 'manage_content']
 ];
 
 // Récupérer le rôle de l'utilisateur connecté
@@ -221,14 +221,7 @@ function checkContentAccess() {
     }
 }
 
-// Vérifier l'accès aux ressources - créateur, admin ou superadmin
-function checkResourcesAccess() {
-    checkAdmin();
-    if (!hasPermission('manage_resources')) {
-        header("Location: index.php?error=no_permission");
-        exit;
-    }
-}
+
 
 // Obtenir le nom lisible d'un rôle
 function getRoleName($role) {

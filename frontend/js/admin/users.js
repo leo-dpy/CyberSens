@@ -29,28 +29,7 @@ function setXp(amount) {
     document.getElementById('add_xp').value = amount;
 }
 
-function openRoleModal(userId, username, currentRole) {
-    document.getElementById('role_user_id').value = userId;
-    document.getElementById('role_username').textContent = username;
 
-    // Sélectionner le rôle actuel
-    const radios = document.getElementsByName('new_role');
-    for (let r of radios) {
-        if (r.value === currentRole) r.click();
-    }
-
-    openModal('roleModal');
-}
-
-function selectRole(role) {
-    // Logique visuelle si nécessaire
-    document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'));
-    const input = document.querySelector(`input[name="new_role"][value="${role}"]`);
-    if (input) {
-        input.checked = true;
-        input.closest('.role-option').classList.add('selected');
-    }
-}
 
 function openCreateModal() {
     openModal('createModal');

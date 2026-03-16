@@ -192,12 +192,52 @@ if ($method === 'GET') {
         }
         exit;
     }
-    
-    // Mettre à jour les infos utilisateur
+    // Changement de mot de passe (depuis Paramètres)
+    if (isset($data['action']) && $data['action'] === 'update_password') {
+        $password = $data['password'] ?? '';
+        
+        if (!$id || empty($password)) {
+            echo json_encode(['success' => false, 'message' => 'Données manquantes']);
+            exit;
+        }
+        
+        if (strlen($password) < 17) {
+            echo json_encode(['success' => false, 'message' => 'Le mot de passe doit faire 17 caractères minimum']);
+            exit;
+        }
+        
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->execute([$passwordHash, $id]);
+        
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // Mettre à jour les infos utilisateur (depuis Paramètres)
     $username = trim($data['username'] ?? '');
     $email = trim($data['email'] ?? '');
     
     if ($id && ($username || $email)) {
+        // Vérifier d'abord s'ils n'existent pas déjà chez un AUTRE utilisateur
+        if ($email) {
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+            $stmt->execute([$email, $id]);
+            if ($stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Cet email est déjà pris']);
+                exit;
+            }
+        }
+        
+        if ($username) {
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+            $stmt->execute([$username, $id]);
+            if ($stmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Ce pseudo est déjà pris']);
+                exit;
+            }
+        }
+
         $updates = [];
         $params = [];
         

@@ -79,13 +79,6 @@ $cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_i
                 </a>
                 <?php endif; ?>
 
-                <?php if(hasPermission('manage_resources')): ?>
-                <a href="resources.php" class="nav-item">
-                    <i data-lucide="library"></i>
-                    <span>Ressources</span>
-                </a>
-                <?php endif; ?>
-
                 <?php if(hasPermission('manage_users')): ?>
                 <a href="users.php" class="nav-item">
                     <i data-lucide="users"></i>
@@ -213,7 +206,7 @@ $cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_i
                                     <a href="edit_cours.php?id=<?php echo $c['id']; ?>" class="btn-icon edit" title="Modifier">
                                         <i data-lucide="pencil"></i>
                                     </a>
-                                    <a href="questions.php?course_id=<?php echo $c['id']; ?>" class="btn-icon" style="color: var(--accent-primary);" title="Gérer les questions">
+                                    <a href="questions.php?course_id=<?php echo $c['id']; ?>" class="btn-icon manage" title="Gérer les questions">
                                         <i data-lucide="help-circle"></i>
                                     </a>
                                     <a href="cours.php?delete=<?php echo $c['id']; ?>" class="btn-icon delete" title="Supprimer" onclick="return confirmAction(event, 'Êtes-vous sûr de vouloir supprimer ce cours et toutes ses questions ?');">

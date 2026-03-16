@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'auth.php';
 checkAdmin();
 
@@ -59,13 +59,6 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                 <a href="news.php" class="nav-item">
                     <i data-lucide="rss"></i>
                     <span>Actualités</span>
-                </a>
-                <?php endif; ?>
-
-                <?php if(hasPermission('manage_resources')): ?>
-                <a href="resources.php" class="nav-item">
-                    <i data-lucide="library"></i>
-                    <span>Ressources</span>
                 </a>
                 <?php endif; ?>
                 

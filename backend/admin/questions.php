@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'auth.php';
 checkCoursesAccess();
 
@@ -78,13 +78,6 @@ if ($course_filter) {
                 <a href="news.php" class="nav-item">
                     <i data-lucide="rss"></i>
                     <span>Actualités</span>
-                </a>
-                <?php endif; ?>
-
-                <?php if(hasPermission('manage_resources')): ?>
-                <a href="resources.php" class="nav-item">
-                    <i data-lucide="library"></i>
-                    <span>Ressources</span>
                 </a>
                 <?php endif; ?>
                 
