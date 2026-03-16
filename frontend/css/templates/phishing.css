@@ -136,11 +136,29 @@
 .scenario-card {
     background: #000000;
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 20px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.scenario-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+    opacity: 1;
+    z-index: 0;
+}
+
+.scenario-card > * {
+    position: relative;
+    z-index: 2;
 }
 
 .scenario-card:hover {

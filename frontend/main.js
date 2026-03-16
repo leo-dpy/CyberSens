@@ -1977,7 +1977,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </button>
             </div>
 
-            <div class="card">
+            <div class="settings-card">
                 <div class="course-content">${course.content}</div>
             </div>
         `;
@@ -2034,7 +2034,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 
-                <div class="card" style="max-width: 800px; margin: 1rem auto; ${gameOver ? 'border-color: var(--danger, #ff003c); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);' : ''}">
+                <div class="settings-card" style="max-width: 800px; margin: 1rem auto; padding: 2rem; ${gameOver ? 'border-color: var(--danger, #ff003c); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);' : ''}">
                     <div style="margin-bottom: 1.5rem;">
                         <h3 style="margin: 0; font-size: 1.25rem; line-height: 1.5;">Question ${currentQuestion + 1}</h3>
                         <p style="font-size: 1.1rem; margin-top: 1rem;">${questionText}</p>
@@ -2255,7 +2255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
                 
-                <div class="card" style="max-width: 800px; margin: 1rem auto;">
+                <div class="settings-card" style="max-width: 800px; margin: 1rem auto; padding: 2rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                         <h3 style="margin: 0;">${questionText}</h3>
                     </div>

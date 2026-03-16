@@ -72,12 +72,12 @@
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
-    /* MISE EN PAGE */
+    /* MISE EN PAGE SCALABLE */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 16px;
     --radius-xl: 24px;
-    --sidebar-width: 280px;
+    --sidebar-width: clamp(220px, 18vw, 280px);
 
     /* TRANSITIONS */
     --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
@@ -97,9 +97,9 @@
 html {
     scroll-behavior: smooth;
     scrollbar-width: none;
-    /* Firefox */
     -ms-overflow-style: none;
-    /* IE/Edge */
+    /* Scaling dynamique global : rétrécit la police de base sur petits ordis/écrans compressés, sans media queries */
+    font-size: clamp(12px, min(1.2vw, 1.8vh), 16px);
 }
 
 /* Cacher la barre de défilement pour Chrome, Safari et Opera */
@@ -210,6 +210,46 @@ p {
     transition: all 0.4s var(--ease-out-expo);
 }
 
+/* CLASSES UTILITAIRES GLOBALES (Cartes) */
+
+/* Nouvelle carte standard unifiée (plus sombre, correspondant à home et phishing) */
+.settings-card {
+    background: #000000;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.settings-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+    opacity: 1;
+    z-index: 0;
+}
+
+.settings-card > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Conservé pour les éléments nécessitant un rendu "verre" */
+.glass-panel {
+    background: linear-gradient(145deg, rgba(10, 10, 14, 0.95), rgba(5, 5, 8, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+}
+
 /* AUTHENTICATION STATE STYLES */
 body.auth-restricted .nav-menu {
     opacity: 0.5;
@@ -238,7 +278,7 @@ body.auth-restricted .floating-actions {
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
-    padding: 2rem 1.25rem;
+    padding: clamp(1rem, 3vh, 2rem) 1.25rem;
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -251,7 +291,7 @@ body.auth-restricted .floating-actions {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: clamp(1rem, 4vh, 2.5rem);
     padding: 0 0.75rem;
 }
 
@@ -280,16 +320,12 @@ body.auth-restricted .floating-actions {
 .nav-menu {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: clamp(0.2rem, 1vh, 0.5rem);
     flex: 1;
     overflow-y: auto;
     overflow-x: visible;
-    /* Essayer de permettre le défilement horizontal */
     padding: 0 5px;
-    /* Ajouter un petit padding pour éviter la coupure */
     margin: 0 -5px;
-    /* Marge négative pour compenser le padding pour l'alignement */
-    /* Scrollbar invisible */
     scrollbar-width: none;
 }
 
@@ -301,7 +337,7 @@ body.auth-restricted .floating-actions {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1rem 1.25rem;
+    padding: clamp(0.5rem, 1.5vh, 1rem) 1.25rem;
     border-radius: 14px;
     color: var(--text-muted);
     text-decoration: none;
@@ -789,11 +825,6 @@ button.card:hover,
     margin: 0;
 }
 
-@media (max-width: 600px) {
-    .bp-grid {
-        grid-template-columns: 1fr;
-    }
-}
 
 /* Panneau de Notifications */
 .notifications-panel {
@@ -852,93 +883,6 @@ button.card:hover,
     }
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: calc(100% - 2rem);
-        height: auto;
-        bottom: 0;
-        top: auto;
-        left: 0;
-        margin: 0 1rem 1rem 1rem;
-        flex-direction: row;
-        justify-content: space-around;
-        padding: 0.75rem;
-        background: rgba(5, 5, 8, 0.9);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding-left: 1.5rem;
-        padding-bottom: 120px;
-        /* Espace pour le menu flottant */
-    }
-
-    .logo,
-    .sidebar-user,
-    .nav-divider {
-        display: none;
-    }
-
-    .nav-menu {
-        flex-direction: row;
-        justify-content: space-around;
-        overflow-y: visible;
-        width: 100%;
-    }
-
-    .nav-item {
-        flex-direction: column;
-        padding: 0.5rem;
-        gap: 0.25rem;
-        font-size: 0.7rem;
-        border: none;
-        border-radius: 12px;
-        background: transparent;
-        width: auto;
-        flex: 1;
-        justify-content: center;
-    }
-
-    .nav-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        transform: translateY(-2px);
-    }
-
-    .nav-item.active {
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        border: none;
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--primary);
-    }
-
-    .nav-item.active i {
-        transform: scale(1.1);
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 600px) {
-    .bento-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    h1 {
-        font-size: 1.8rem;
-    }
-}
 
 /* UTILITAIRES ET COMPATIBILITÉ */
 .text-muted {
@@ -1691,15 +1635,6 @@ body {
     border-color: var(--accent);
 }
 
-/* Admin Responsive */
-@media (max-width: 1024px) {
-    .admin-main {
-        margin-left: 0;
-        padding-left: 1.5rem;
-        padding-top: 1rem;
-        padding-bottom: 6rem;
-    }
-}
 
 /* AMÉLIORATIONS PANNEAU NOTIFICATIONS */
 .notifications-header {
@@ -2190,15 +2125,6 @@ input[type=number]:focus {
     text-overflow: ellipsis;
 }
 
-@media (max-width: 768px) {
-
-    .admin-table td:nth-child(2),
-    /* Source */
-    .admin-table td:nth-child(4) {
-        /* Description */
-        display: none;
-    }
-}
 
 /* Styles de formulaire */
 .form-container {

@@ -11,19 +11,10 @@
 /* Styles pour les cartes d'intro en haut de page - Design Hero Clean */
 .quiz-intro-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     width: 100%;
-    gap: 3rem;
-    /* Espace vertical important sur mobile */
+    gap: 6vw;
     margin-bottom: 4rem;
-}
-
-@media (min-width: 900px) {
-    .quiz-intro-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6vw;
-        /* Espace dynamique très large (environ 6% de la vue) */
-    }
 }
 
 .quiz-intro-grid .card {
