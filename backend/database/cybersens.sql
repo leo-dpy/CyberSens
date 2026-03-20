@@ -487,6 +487,28 @@ INSERT INTO `resources` (`id`, `title`, `description`, `category`, `url`, `conte
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `groups`
+--
+
+DROP TABLE IF EXISTS `groups`;
+CREATE TABLE IF NOT EXISTS `groups` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `groups` (`name`) VALUES
+('Blue Team'),
+('Purple Team'),
+('Red Team'),
+('Staff'),
+('VIP');
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `users`
 --
 
@@ -501,6 +523,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `xp` int DEFAULT '0',
   `level` int DEFAULT '1',
   `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_verified` tinyint(1) DEFAULT '0',
+  `verification_code` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `verification_expires` datetime DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -517,11 +542,11 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Déchargement des données de la table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `group_name`, `xp`, `level`, `avatar`, `last_login`, `created_at`, `updated_at`, `is_protected`) VALUES
-(1, 'admin', 'admin@cybersens.fr', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Aucun', 885, 4, NULL, '2026-01-08 12:52:11', '2026-01-07 12:12:36', '2026-01-08 11:52:11', 0),
-(5, 'louis', 'louis@gmail.prout', '$2y$10$NUwTI6i6y3.5UUr/DHMn7.cQyTUbaIZZUyCTT0lUHNm5zJtzMVeWu', 'user', 'Aucun', 1192, 5, NULL, '2026-01-08 16:31:43', '2026-01-07 14:44:56', '2026-01-08 15:34:56', 0),
-(9, 'superadmin', 'superadmin@cybersens.local', '$2y$10$65k4Cs5wUDzxsxwj3tjC9eVEPUqYhxVnjvL2t878bbX1opmmvT.pG', 'superadmin', 'Staff', 10211, 7, NULL, '2026-01-08 16:35:23', '2026-01-08 11:44:53', '2026-01-08 15:35:23', 1),
-(10, 'jules', 'jules@gmail.com', '$2y$10$srsEbDJVeq/zMZg4P6JXSOeOfptzYjFCGHzhA6.wXDt5xX91TwqbG', 'creator', 'Staff', 0, 1, NULL, NULL, '2026-01-08 11:57:33', '2026-01-08 11:57:33', 0);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `group_name`, `xp`, `level`, `avatar`, `email_verified`, `last_login`, `created_at`, `updated_at`, `is_protected`) VALUES
+(1, 'admin', 'admin@cybersens.fr', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Aucun', 885, 4, NULL, 1, '2026-01-08 12:52:11', '2026-01-07 12:12:36', '2026-01-08 11:52:11', 0),
+(5, 'louis', 'louis@gmail.prout', '$2y$10$NUwTI6i6y3.5UUr/DHMn7.cQyTUbaIZZUyCTT0lUHNm5zJtzMVeWu', 'user', 'Aucun', 1192, 5, NULL, 1, '2026-01-08 16:31:43', '2026-01-07 14:44:56', '2026-01-08 15:34:56', 0),
+(9, 'superadmin', 'superadmin@cybersens.local', '$2y$10$65k4Cs5wUDzxsxwj3tjC9eVEPUqYhxVnjvL2t878bbX1opmmvT.pG', 'superadmin', 'Staff', 10211, 7, NULL, 1, '2026-01-08 16:35:23', '2026-01-08 11:44:53', '2026-01-08 15:35:23', 1),
+(10, 'jules', 'jules@gmail.com', '$2y$10$srsEbDJVeq/zMZg4P6JXSOeOfptzYjFCGHzhA6.wXDt5xX91TwqbG', 'creator', 'Staff', 0, 1, NULL, 1, NULL, '2026-01-08 11:57:33', '2026-01-08 11:57:33', 0);
 
 -- --------------------------------------------------------
 

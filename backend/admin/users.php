@@ -8,8 +8,58 @@ $isSuperAdmin = $currentUser['role'] === ROLE_SUPERADMIN;
 $message = '';
 $messageType = '';
 
-// Groupes disponibles
-$availableGroups = ['Aucun', 'Red Team', 'Blue Team', 'Purple Team', 'Staff', 'VIP'];
+// Gestion des messages asynchrones (PRG / GET)
+if (isset($_SESSION['flash_message'])) {
+    $message = $_SESSION['flash_message'];
+    $messageType = $_SESSION['flash_type'] ?? 'info';
+    unset($_SESSION['flash_message'], $_SESSION['flash_type']);
+} elseif (isset($_GET['msg'])) {
+    if ($_GET['msg'] === 'deleted') {
+        $message = "Utilisateur supprimé avec succès.";
+        $messageType = "success";
+    } elseif ($_GET['msg'] === 'forbidden') {
+        $message = "Vous n'avez pas la permission d'effectuer cette action.";
+        $messageType = "danger";
+    }
+}
+
+// Groupes disponibles (depuis la BDD, avec auto-création si nécessaire)
+try {
+    // Vérifier si la table existe, sinon la créer
+    try {
+        $pdo->query("SELECT 1 FROM `groups` LIMIT 1");
+    } catch (PDOException $e) {
+        // Table n'existe pas, on la crée
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `groups` (
+            `id` int NOT NULL AUTO_INCREMENT,
+            `name` varchar(50) NOT NULL,
+            `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `name` (`name`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+
+    // Si la table est vide, insérer les groupes par défaut
+    $countStmt = $pdo->query("SELECT COUNT(*) FROM `groups`");
+    if ((int)$countStmt->fetchColumn() === 0) {
+        $defaultGroups = ['Red Team', 'Blue Team', 'Purple Team', 'Staff', 'VIP'];
+        $insertStmt = $pdo->prepare("INSERT IGNORE INTO `groups` (`name`) VALUES (?)");
+        foreach ($defaultGroups as $g) {
+            $insertStmt->execute([$g]);
+        }
+    }
+
+    $groupsStmt = $pdo->query("SELECT id, name FROM `groups` ORDER BY name ASC");
+    $dbGroups = $groupsStmt->fetchAll();
+    $availableGroups = ['Aucun'];
+    foreach ($dbGroups as $g) {
+        $availableGroups[] = $g['name'];
+    }
+} catch (PDOException $e) {
+    // Fallback ultime
+    $availableGroups = ['Aucun', 'Red Team', 'Blue Team', 'Purple Team', 'Staff', 'VIP'];
+    $dbGroups = [];
+}
 
 // Récupérer tous les utilisateurs
 $sql = "SELECT u.*, 
@@ -166,6 +216,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
     }
+
+    // Gestion des groupes
+    if ($_POST['action'] === 'create_group') {
+        $groupName = trim($_POST['group_name'] ?? '');
+        if (empty($groupName)) {
+            $message = "Le nom du groupe est requis.";
+            $messageType = "danger";
+        } elseif ($groupName === 'Aucun') {
+            $message = "\"Aucun\" est un nom réservé.";
+            $messageType = "danger";
+        } else {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO `groups` (`name`) VALUES (?)");
+                $stmt->execute([$groupName]);
+                $message = "Groupe \"$groupName\" créé avec succès !";
+                $messageType = "success";
+                // Rafraîchir la liste des groupes
+                $groupsStmt = $pdo->query("SELECT id, name FROM `groups` ORDER BY name ASC");
+                $dbGroups = $groupsStmt->fetchAll();
+                $availableGroups = ['Aucun'];
+                foreach ($dbGroups as $g) { $availableGroups[] = $g['name']; }
+            } catch (PDOException $e) {
+                if (strpos($e->getMessage(), 'Duplicate') !== false) {
+                    $message = "Ce groupe existe déjà.";
+                } else {
+                    $message = "Erreur : " . $e->getMessage();
+                }
+                $messageType = "danger";
+            }
+        }
+    }
+
+    if ($_POST['action'] === 'delete_group') {
+        $groupId = (int)$_POST['group_id'];
+        if ($groupId) {
+            // Récupérer le nom du groupe
+            $stmt = $pdo->prepare("SELECT name FROM `groups` WHERE id = ?");
+            $stmt->execute([$groupId]);
+            $grp = $stmt->fetch();
+            if ($grp) {
+                // Remettre les utilisateurs à "Aucun"
+                $pdo->prepare("UPDATE users SET group_name = 'Aucun' WHERE group_name = ?")->execute([$grp['name']]);
+                // Supprimer le groupe
+                $pdo->prepare("DELETE FROM `groups` WHERE id = ?")->execute([$groupId]);
+                $message = "Groupe \"" . htmlspecialchars($grp['name']) . "\" supprimé. Les utilisateurs ont été déplacés vers \"Aucun\".";
+                $messageType = "success";
+                // Rafraîchir
+                $groupsStmt = $pdo->query("SELECT id, name FROM `groups` ORDER BY name ASC");
+                $dbGroups = $groupsStmt->fetchAll();
+                $availableGroups = ['Aucun'];
+                foreach ($dbGroups as $g) { $availableGroups[] = $g['name']; }
+                $users = $pdo->query($sql)->fetchAll();
+            } else {
+                $message = "Groupe non trouvé.";
+                $messageType = "danger";
+            }
+        }
+    }
+
+    // Pattern PRG : redirection après traitement d'un POST pour éviter le renvoi du formulaire au F5
+    if ($message !== '') {
+        $_SESSION['flash_message'] = $message;
+        $_SESSION['flash_type'] = $messageType;
+    }
+    header("Location: users.php");
+    exit;
 }
 
 // Supprimer un utilisateur
@@ -397,6 +513,53 @@ endif; ?>
 endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Section Gestion des Groupes -->
+            <div style="margin-top: 3rem;">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2>Gestion des Groupes</h2>
+                        <p class="subtitle">Créer et supprimer des groupes d'utilisateurs.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; margin-top: 1.5rem;">
+                    <!-- Formulaire création -->
+                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="plus-circle" style="width: 20px; height: 20px;"></i> Nouveau Groupe</h3>
+                        <form method="POST">
+                            <input type="hidden" name="action" value="create_group">
+                            <div class="form-group">
+                                <input type="text" name="group_name" class="form-input" placeholder="Nom du groupe" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Créer le groupe</button>
+                        </form>
+                    </div>
+
+                    <!-- Liste des groupes -->
+                    <div style="background: var(--bg-secondary); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="layers" style="width: 20px; height: 20px;"></i> Groupes existants</h3>
+                        <?php if (!empty($dbGroups)): ?>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                            <?php foreach ($dbGroups as $grp): ?>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-tertiary); padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--glass-border);">
+                                <span style="font-weight: 500;"><?php echo htmlspecialchars($grp['name']); ?></span>
+                                <form method="POST" style="display: inline; margin: 0;" onsubmit="return confirmAction(event, 'Supprimer le groupe &quot;<?php echo htmlspecialchars($grp['name']); ?>&quot; ? Les utilisateurs seront remis à Aucun.')">
+                                    <input type="hidden" name="action" value="delete_group">
+                                    <input type="hidden" name="group_id" value="<?php echo $grp['id']; ?>">
+                                    <button type="submit" class="btn-icon delete" style="padding: 0.2rem;">
+                                        <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php else: ?>
+                        <p style="color: var(--text-muted);">Aucun groupe créé. Utilisez le formulaire pour en créer.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

@@ -134,14 +134,17 @@ class ApiClient {
         }
     }
 
-    async getLeaderboard() {
+    async getLeaderboard(groupName = null) {
         try {
-            const response = await fetch(`${API_URL}/leaderboard.php`);
+            let url = `${API_URL}/leaderboard.php`;
+            if (groupName && groupName !== 'Aucun') url += `?group_name=${encodeURIComponent(groupName)}`;
+            const response = await fetch(url);
             return await response.json();
         } catch (e) {
             return [];
         }
     }
+
 
     async updateProfile(userId, username, email) {
         try {
@@ -1267,11 +1270,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Gérer la déconnexion
-        document.getElementById('logout-btn')?.addEventListener('click', () => {
-             // (Le handler de profil)
-        });
-
         function loginUser(user) {
             sessionStorage.setItem('currentUser', JSON.stringify(user));
             document.body.classList.remove('auth-restricted');
@@ -1289,6 +1287,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             authContainer.style.display = 'none';
             userDashboard.style.display = 'block';
 
+            // Mise à jour des globales MÊME SI la page profil a disparu
+            if (user.role === 'admin' || user.role === 'creator' || user.role === 'superadmin') {
+                const adminNavItem = document.querySelector('.nav-item.admin-only');
+                if (adminNavItem) {
+                    adminNavItem.style.display = 'flex';
+                }
+            }
+
+            if (typeof window.updateSidebarUser === 'function') {
+                window.updateSidebarUser(user);
+            }
+
             // Rafraîchir les données depuis le serveur pour avoir l'XP exact à jour
             try {
                 const freshUser = await api.getUser(user.id);
@@ -1300,36 +1310,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.error("Erreur rafraîchissement profil:", e);
             }
 
-            // Mettre à jour les infos utilisateur
-            document.getElementById('user-name-display').textContent = user.username;
-            // Convertir le niveau numérique en texte
-            const levelNum = parseInt(user.level) || 1;
-            const xp = parseInt(user.xp) || 0;
-            document.getElementById('user-level-display').textContent = getLevelName(levelNum);
-            document.getElementById('user-xp-display').textContent = xp;
+            // Mettre à jour les infos utilisateur (avec vérification si on est sur la vue profil)
+            const userNameDisplay = document.getElementById('user-name-display');
+            if (userNameDisplay) {
+                userNameDisplay.textContent = user.username;
+                const levelNum = parseInt(user.level) || 1;
+                const xp = parseInt(user.xp) || 0;
+                
+                const userLevelDisplay = document.getElementById('user-level-display');
+                if (userLevelDisplay) userLevelDisplay.textContent = getLevelName(levelNum);
+                
+                const userXpDisplay = document.getElementById('user-xp-display');
+                if (userXpDisplay) userXpDisplay.textContent = xp;
 
-            // Mettre à jour la barre de progression XP
-            updateXpProgressBar(xp, levelNum);
+                // Mettre à jour la barre de progression XP
+                updateXpProgressBar(xp, levelNum);
 
-            // Charger les badges et certificats
-            loadUserBadges(user.id);
-            loadUserCertificates(user.id);
+                // Charger les badges et certificats
+                loadUserBadges(user.id);
+                loadUserCertificates(user.id);
+            }
 
-            // Charger les notifications
+            // Charger les notifications globals
             loadNotifications();
-
-            // Vérification Admin - Afficher le lien admin pour les rôles admin
-            if (user.role === 'admin' || user.role === 'creator' || user.role === 'superadmin') {
-                const adminNavItem = document.querySelector('.nav-item.admin-only');
-                if (adminNavItem) {
-                    adminNavItem.style.display = 'flex';
-                }
-            }
-
-            // Mettre à jour les infos utilisateur de la barre latérale
-            if (typeof window.updateSidebarUser === 'function') {
-                window.updateSidebarUser(user);
-            }
         }
 
         function updateXpProgressBar(xp, level) {
@@ -1459,7 +1462,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // LOGIQUE DU CLASSEMENT
 
     async function loadLeaderboards() {
-        const data = await api.getLeaderboard();
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        const userGroup = currentUser?.group_name || 'Aucun';
+        const data = await api.getLeaderboard(userGroup);
+
+        // Afficher le nom du groupe dans le titre
+        const groupNameEl = document.getElementById('lb-group-name');
+        if (groupNameEl) {
+            if (userGroup && userGroup !== 'Aucun') {
+                groupNameEl.textContent = ` — ${userGroup}`;
+            } else {
+                groupNameEl.textContent = ' — Classement Global';
+            }
+        }
 
         const groupTbody = document.getElementById('group-leaderboard-list');
         const podiumContainer = document.getElementById('podium-container');

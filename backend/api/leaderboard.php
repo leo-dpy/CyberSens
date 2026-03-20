@@ -9,6 +9,7 @@ require 'db.php';
 try {
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
     $limit = min($limit, 100); // Max 100 utilisateurs
+    $groupName = isset($_GET['group_name']) ? trim($_GET['group_name']) : '';
     
     // Vérifier quelle colonne existe (role ou is_admin)
     $columns = $pdo->query("SHOW COLUMNS FROM users")->fetchAll(PDO::FETCH_COLUMN);
@@ -18,9 +19,17 @@ try {
     
     // Construire le filtre admin
     if ($hasRole) {
-        $adminFilter = "role != 'admin'";
+        $adminFilter = "role != 'admin' AND role != 'superadmin'";
     } else {
         $adminFilter = "(is_admin IS NULL OR is_admin = 0)";
+    }
+
+    // Filtre par groupe
+    $groupFilter = "";
+    $groupParams = [];
+    if (!empty($groupName) && $groupName !== 'Aucun') {
+        $groupFilter = " AND group_name = ?";
+        $groupParams[] = $groupName;
     }
     
     // Construire la requête
@@ -35,11 +44,16 @@ try {
         (SELECT COUNT(*) FROM progression WHERE user_id = users.id AND is_completed = 1) as courses_completed,
         (SELECT COUNT(*) FROM user_badges WHERE user_id = users.id) as badges_count
     FROM users 
-    WHERE $adminFilter
+    WHERE $adminFilter $groupFilter
     ORDER BY xp DESC
     LIMIT $limit";
     
-    $stmt = $pdo->query($sql);
+    if (!empty($groupParams)) {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($groupParams);
+    } else {
+        $stmt = $pdo->query($sql);
+    }
     $leaderboard = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Ajouter le rang
@@ -52,15 +66,26 @@ try {
         $user['badges_count'] = (int)$user['badges_count'];
     }
     
-    // Stats globales
-    $total_users = $pdo->query("SELECT COUNT(*) FROM users WHERE $adminFilter")->fetchColumn();
-    $total_xp = $hasXp 
-        ? $pdo->query("SELECT COALESCE(SUM(xp), 0) FROM users")->fetchColumn()
-        : $pdo->query("SELECT COUNT(*) * 100 FROM progression WHERE is_completed = 1")->fetchColumn();
+    // Stats globales (filtrées par groupe si applicable)
+    if (!empty($groupParams)) {
+        $countStmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE $adminFilter $groupFilter");
+        $countStmt->execute($groupParams);
+        $total_users = $countStmt->fetchColumn();
+        
+        $xpStmt = $pdo->prepare("SELECT COALESCE(SUM(xp), 0) FROM users WHERE $adminFilter $groupFilter");
+        $xpStmt->execute($groupParams);
+        $total_xp = $xpStmt->fetchColumn();
+    } else {
+        $total_users = $pdo->query("SELECT COUNT(*) FROM users WHERE $adminFilter")->fetchColumn();
+        $total_xp = $hasXp 
+            ? $pdo->query("SELECT COALESCE(SUM(xp), 0) FROM users")->fetchColumn()
+            : $pdo->query("SELECT COUNT(*) * 100 FROM progression WHERE is_completed = 1")->fetchColumn();
+    }
     
     echo json_encode([
         'success' => true, 
         'leaderboard' => $leaderboard,
+        'group_name' => $groupName ?: 'Global',
         'stats' => [
             'total_users' => (int)$total_users,
             'total_xp' => (int)$total_xp
