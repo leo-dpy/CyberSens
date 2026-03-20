@@ -1470,9 +1470,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const groupNameEl = document.getElementById('lb-group-name');
         if (groupNameEl) {
             if (userGroup && userGroup !== 'Aucun') {
-                groupNameEl.textContent = ` — ${userGroup}`;
+                groupNameEl.textContent = userGroup;
             } else {
-                groupNameEl.textContent = ' — Classement Global';
+                groupNameEl.textContent = 'Global';
             }
         }
 
