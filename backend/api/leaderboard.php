@@ -30,6 +30,8 @@ try {
     if (!empty($groupName) && $groupName !== 'Aucun') {
         $groupFilter = " AND group_name = ?";
         $groupParams[] = $groupName;
+        // Afficher tout le monde (y compris les admins) lorsqu'on regarde un groupe spécifique
+        $adminFilter = "1=1";
     }
     
     // Construire la requête

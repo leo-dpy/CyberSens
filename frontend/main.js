@@ -145,6 +145,15 @@ class ApiClient {
         }
     }
 
+    async getGroups() {
+        try {
+            const response = await fetch(`${API_URL}/groups.php`);
+            return await response.json();
+        } catch (e) {
+            return { success: false, groups: [] };
+        }
+    }
+
 
     async updateProfile(userId, username, email) {
         try {
@@ -1089,11 +1098,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ÉCOUTEUR GLOBAL POUR LE BOUTON DÉCONNEXION (DELEGATION)
-    window.customLogout = function(e) {
+    window.customLogout = async function(e) {
         if (e) e.preventDefault();
+        
+        // 1. DÉTRUIRE LA SESSION PHP CÔTÉ SERVEUR (corrige l'accès admin après déco)
+        try {
+            await fetch(`${API_URL}/logout.php?ajax=1`, {
+                method: 'GET',
+                credentials: 'same-origin',  // Envoyer le cookie PHPSESSID
+                headers: { 'Accept': 'application/json' }
+            });
+        } catch (err) {
+            console.warn('Erreur lors de la déconnexion serveur:', err);
+        }
+        
+        // 2. Nettoyer le stockage côté client
         sessionStorage.removeItem('currentUser');
+        
+        // 3. Cacher le lien admin
         const adminNavItem = document.querySelector('.nav-item.admin-only');
         if (adminNavItem) adminNavItem.style.display = 'none';
+        
+        // 4. Mettre à jour l'UI
         if (typeof window.updateSidebarUser === 'function') {
             window.updateSidebarUser(null);
         }
@@ -1461,10 +1487,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // LOGIQUE DU CLASSEMENT
 
-    async function loadLeaderboards() {
+    async function loadLeaderboards(forceGroup = null) {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        const userGroup = currentUser?.group_name || 'Aucun';
+        let userGroup = null;
+        if (typeof forceGroup === 'string') {
+            userGroup = forceGroup;
+        } else {
+            userGroup = currentUser?.group_name || 'Aucun';
+        }
         const data = await api.getLeaderboard(userGroup);
+
+        const groupFilter = document.getElementById('lb-group-filter');
+        if (groupFilter && groupFilter.dataset.loaded !== 'true') {
+            groupFilter.dataset.loaded = 'true';
+            const groupsData = await api.getGroups();
+            if (groupsData.success) {
+                groupFilter.innerHTML = '<option value="Aucun">Global</option>';
+                groupsData.groups.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.name;
+                    opt.textContent = g.name;
+                    groupFilter.appendChild(opt);
+                });
+                
+                groupFilter.value = userGroup === 'Aucun' ? 'Aucun' : userGroup;
+                
+                groupFilter.addEventListener('change', (e) => {
+                    loadLeaderboards(e.target.value);
+                });
+            }
+        } else if (groupFilter) {
+            groupFilter.value = userGroup === 'Aucun' ? 'Aucun' : userGroup;
+        }
 
         // Afficher le nom du groupe dans le titre
         const groupNameEl = document.getElementById('lb-group-name');
@@ -1472,7 +1526,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (userGroup && userGroup !== 'Aucun') {
                 groupNameEl.textContent = userGroup;
             } else {
-                groupNameEl.textContent = 'Global';
+                groupNameEl.textContent = '';
             }
         }
 

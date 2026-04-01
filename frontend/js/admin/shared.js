@@ -63,16 +63,15 @@ window.closeAdminConfirm = function (result) {
 
 window.confirmAction = async function (event, message) {
     event.preventDefault();
-    // Support pour les liens (<a>) et les formulaires/boutons
-    const targetUrl = event.currentTarget.href;
+    const currentTarget = event.currentTarget;
+    const targetUrl = currentTarget.href;
 
     const confirmed = await showConfirmModal(message);
     if (confirmed) {
         if (targetUrl) {
             window.location.href = targetUrl;
-        } else {
-            // Si c'est un bouton dans un formulaire ou autre
-            // Mais ici on gère principalement les liens <a> href="..."
+        } else if (currentTarget && currentTarget.tagName === 'FORM') {
+            currentTarget.submit();
         }
     }
     return false;

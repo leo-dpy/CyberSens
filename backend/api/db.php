@@ -1,10 +1,16 @@
 <?php
 // Configuration de la base de données CyberSens. Inclus par les scripts backend.
 
-// Démarrer la session pour l'admin
+// Charger le module de sécurité (configure les cookies sécurisés AVANT session_start)
+require_once __DIR__ . '/security.php';
+
+// Démarrer la session de manière sécurisée
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Nettoyage occasionnel du rate limiting
+cleanupRateLimitFiles();
 
 // CONFIGURATION BASE DE DONNÉES (Support des variables d'environnement pour Coolify/AWS)
 $host = getenv('DB_HOST') ?: $_SERVER['DB_HOST'] ?? '127.0.0.1';
@@ -22,33 +28,36 @@ try {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::ATTR_TIMEOUT => 5 // Timeout rapide de 5 secondes pour éviter le crash fatal si le pare-feu AWS bloque
+            PDO::ATTR_TIMEOUT => 5
         ]
     );
 } catch (PDOException $e) {
     // Détection du contexte (API JSON vs Page HTML)
     $isApiRequest = (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) 
                  || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
-                 || (strpos($_SERVER['REQUEST_URI'], '/api/') !== false);
+                 || (strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') !== false);
+
+    // Ne JAMAIS exposer les détails d'erreur en production
+    $isProduction = getenv('APP_ENV') !== 'development' && getenv('APP_ENV') !== 'dev';
 
     if ($isApiRequest) {
-        // Gestion d'erreur formatée JSON (Affichage du detail temporaire pour AWS)
         header('Content-Type: application/json');
         http_response_code(500);
-        echo json_encode([
-            'success' => false, 
-            'message' => "Erreur DB: " . $e->getMessage(),
-            'host' => $host // Pour vérifier que la variable est bien lue
-        ]);
+        $errorResponse = ['success' => false, 'message' => 'Service temporairement indisponible.'];
+        if (!$isProduction) {
+            $errorResponse['debug'] = $e->getMessage();
+            $errorResponse['host'] = $host;
+        }
+        echo json_encode($errorResponse);
     } else {
-        // Affichage HTML pour l'admin ou le site
         http_response_code(500);
+        $debugInfo = $isProduction ? '' : '<p style="color: #666; font-size: 0.8em;">' . htmlspecialchars($e->getMessage()) . '</p>';
         die("
             <div style='font-family: sans-serif; text-align: center; padding: 2rem; color: #333;'>
                 <h1><span style='color: #ef4444;'>⚠</span> Erreur de connexion</h1>
-                <p>Impossible de se connecter à la base de données ($host).</p>
-                <p style='color: #666; font-size: 0.9em;'>Vérifiez vos identifiants ou si le serveur MySQL est démarré.</p>
-                <!-- Detail technique: " . htmlspecialchars($e->getMessage()) . " -->
+                <p>Impossible de se connecter à la base de données.</p>
+                <p style='color: #666; font-size: 0.9em;'>Vérifiez la configuration ou réessayez plus tard.</p>
+                $debugInfo
             </div>
         ");
     }
