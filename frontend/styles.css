@@ -250,10 +250,8 @@ p {
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
-/* AUTHENTICATION STATE STYLES */
-body.auth-restricted .nav-menu {
-    opacity: 0.5;
-    pointer-events: none;
+body.auth-restricted .nav-item[data-view]:not([data-view="home"]):not([data-view="profil"]) {
+    opacity: 0.25;
     filter: grayscale(100%);
 }
 

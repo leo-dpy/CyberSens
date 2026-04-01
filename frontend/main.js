@@ -1022,8 +1022,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
         
-        // Restriction d'accès : Si non connecté et essaie d'accéder à autre chose que profil (où se trouve l'auth)
-        if (!sessionUser && viewId !== 'profil') {
+        // Restriction d'accès : Si non connecté et essaie d'accéder à autre chose que profil ou home
+        if (!sessionUser && viewId !== 'profil' && viewId !== 'home') {
             viewId = 'profil';
         }
 
@@ -1125,9 +1125,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         document.body.classList.add('auth-restricted');
         if (typeof window.loadTemplate === 'function') {
-            window.loadTemplate('profil');
+            window.loadTemplate('home');
         } else if (typeof loadTemplate === 'function') {
-            loadTemplate('profil');
+            loadTemplate('home');
         }
     };
 
@@ -1157,9 +1157,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Charger l'accueil par défaut pour les connectés
         loadTemplate('home');
     } else {
-        // Non connecté : restreindre et forcer profil
+        // Non connecté : restreindre et afficher l'accueil par défaut
         document.body.classList.add('auth-restricted');
-        loadTemplate('profil');
+        loadTemplate('home');
     }
 
 
