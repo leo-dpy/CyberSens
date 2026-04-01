@@ -26,7 +26,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-// Vérifier si l'email existe déjà
+// Vérifier si l'email ou le username existe déjà
 $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
 $stmt->execute([$email]);
 if ($stmt->fetch()) {
@@ -34,7 +34,6 @@ if ($stmt->fetch()) {
     exit;
 }
 
-// Vérifier si le username existe déjà
 $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
 $stmt->execute([$username]);
 if ($stmt->fetch()) {
@@ -42,40 +41,31 @@ if ($stmt->fetch()) {
     exit;
 }
 
-// Création de l'utilisateur avec email vérifié directement
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
-$sql = "INSERT INTO users (username, email, password, xp, level, role, email_verified) VALUES (?, ?, ?, 0, 1, 'user', 1)";
-$stmt = $pdo->prepare($sql);
-
 try {
+    // Création de l'utilisateur
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, xp, level, role) VALUES (?, ?, ?, 0, 1, 'user')");
     $stmt->execute([$username, $email, $passwordHash]);
     $userId = $pdo->lastInsertId();
     
-    // Attribuer le badge "Bienvenue" (account_created)
-    $stmt = $pdo->prepare("SELECT id FROM badges WHERE requirement_type = 'account_created' LIMIT 1");
-    $stmt->execute();
-    $badge = $stmt->fetch();
-    
+    // Attribuer le badge "Bienvenue" si disponible
+    $badge = $pdo->query("SELECT id FROM badges WHERE requirement_type = 'account_created' LIMIT 1")->fetch();
     if ($badge) {
-        $stmt = $pdo->prepare("INSERT INTO user_badges (user_id, badge_id) VALUES (?, ?)");
-        $stmt->execute([$userId, $badge['id']]);
+        $pdo->prepare("INSERT INTO user_badges (user_id, badge_id) VALUES (?, ?)")->execute([$userId, $badge['id']]);
     }
     
-    // Créer une notification de bienvenue
-    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, 'success')");
-    $stmt->execute([$userId, 'Bienvenue sur CyberSens!', 'Votre compte a été créé avec succès. Commencez votre apprentissage de la cybersécurité!']);
+    // Notification de bienvenue
+    $pdo->prepare("INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, 'success')")
+        ->execute([$userId, 'Bienvenue sur CyberSens!', 'Votre compte a été créé avec succès.']);
     
-    // Récupérer l'utilisateur pour le connecter directement
+    // Récupérer l'utilisateur pour connexion automatique
     $stmt = $pdo->prepare("SELECT id, username, email, xp, level, role, avatar, group_name, created_at FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    echo json_encode([
-        'success' => true, 
-        'user' => $user,
-        'message' => 'Compte créé avec succès !'
-    ]);
+    echo json_encode(['success' => true, 'user' => $user, 'message' => 'Compte créé avec succès !']);
+    
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'inscription: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'inscription']);
 }
 ?>
