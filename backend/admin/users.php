@@ -187,8 +187,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $message = "Tous les champs obligatoires doivent être remplis.";
             $messageType = "danger";
         }
-        elseif (strlen($password) < 6) {
-            $message = "Le mot de passe doit contenir au moins 6 caractères.";
+        elseif (strlen($password) < 8) {
+            $message = "Le mot de passe doit contenir au moins 8 caractères.";
             $messageType = "danger";
         }
         else {

@@ -2681,8 +2681,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            if (password.length < 17) {
-                msgEl.textContent = 'Le mot de passe doit faire 17 caractères minimum';
+            if (password.length < 8) {
+                msgEl.textContent = 'Le mot de passe doit faire 8 caractères minimum';
                 msgEl.style.color = 'var(--danger)';
                 msgEl.style.display = 'inline-block';
                 return;

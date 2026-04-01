@@ -16,8 +16,8 @@ if (!$username || !$email || !$password) {
     exit;
 }
 
-if (strlen($password) < 17) {
-    echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 17 caractères']);
+if (strlen($password) < 8) {
+    echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères']);
     exit;
 }
 

@@ -201,8 +201,8 @@ if ($method === 'GET') {
             exit;
         }
         
-        if (strlen($password) < 17) {
-            echo json_encode(['success' => false, 'message' => 'Le mot de passe doit faire 17 caractères minimum']);
+        if (strlen($password) < 8) {
+            echo json_encode(['success' => false, 'message' => 'Le mot de passe doit faire 8 caractères minimum']);
             exit;
         }
         
