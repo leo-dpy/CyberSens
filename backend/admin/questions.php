@@ -19,20 +19,20 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 }
 
 // Récupérer tous les cours pour le filtre
-$all_courses = $pdo->query("SELECT id, title FROM courses ORDER BY title")->fetchAll();
+$all_courses = $pdo->query("SELECT id, title FROM cours ORDER BY title")->fetchAll();
 
 // Récupérer les questions
 if ($course_filter) {
-    $stmt = $pdo->prepare("SELECT q.*, c.title as course_title FROM questions q JOIN courses c ON q.course_id = c.id WHERE q.course_id = ? ORDER BY q.id");
+    $stmt = $pdo->prepare("SELECT q.*, c.title as course_title FROM questions q JOIN cours c ON q.course_id = c.id WHERE q.course_id = ? ORDER BY q.id");
     $stmt->execute([$course_filter]);
     $questions = $stmt->fetchAll();
     
     // Récupérer le nom du cours filtré
-    $course_stmt = $pdo->prepare("SELECT title FROM courses WHERE id = ?");
+    $course_stmt = $pdo->prepare("SELECT title FROM cours WHERE id = ?");
     $course_stmt->execute([$course_filter]);
     $course_name = $course_stmt->fetchColumn();
 } else {
-    $questions = $pdo->query("SELECT q.*, c.title as course_title FROM questions q JOIN courses c ON q.course_id = c.id ORDER BY c.id, q.id")->fetchAll();
+    $questions = $pdo->query("SELECT q.*, c.title as course_title FROM questions q JOIN cours c ON q.course_id = c.id ORDER BY c.id, q.id")->fetchAll();
     $course_name = null;
 }
 ?>

@@ -50,7 +50,7 @@ cybersens/
 │   ├── db.php           # Configuration base de données
 │   ├── login.php        # Authentification
 │   ├── register.php     # Inscription
-│   ├── courses.php      # API cours
+│   ├── cours.php      # API cours
 │   ├── questions.php    # API questions
 │   ├── progression.php  # Suivi de progression
 │   ├── badges.php       # Gestion des badges

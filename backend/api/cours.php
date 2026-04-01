@@ -23,7 +23,7 @@ try {
                 // Toujours exclure les cours cachés (l'admin utilise ses propres pages PHP)
                 $stmt = $pdo->prepare("SELECT c.*, 
                     (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions 
-                    FROM courses c WHERE c.id = ? AND c.is_hidden = 0");
+                    FROM cours c WHERE c.id = ? AND c.is_hidden = 0");
                 $stmt->execute([$id]);
                 $course = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -42,7 +42,7 @@ try {
                 // Toujours exclure les cours cachés (l'admin utilise ses propres pages PHP)
                 $sql = "SELECT c.*, 
                     (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions 
-                    FROM courses c WHERE c.is_hidden = 0
+                    FROM cours c WHERE c.is_hidden = 0
                     ORDER BY c.display_order ASC, c.id ASC";
                 $stmt = $pdo->query($sql);
                 $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -108,7 +108,7 @@ try {
                 exit;
             }
 
-            $stmt = $pdo->prepare("INSERT INTO courses (title, description, content, difficulty, icon, theme, xp_reward, estimated_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO cours (title, description, content, difficulty, icon, theme, xp_reward, estimated_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$title, $description, $content, $difficulty, $icon, $theme, $xp_reward, $estimated_time]);
 
             $id = $pdo->lastInsertId();
@@ -134,7 +134,7 @@ try {
                 exit;
             }
 
-            $stmt = $pdo->prepare("UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ?, icon = ?, theme = ?, xp_reward = ?, estimated_time = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE cours SET title = ?, description = ?, content = ?, difficulty = ?, icon = ?, theme = ?, xp_reward = ?, estimated_time = ? WHERE id = ?");
             $stmt->execute([$title, $description, $content, $difficulty, $icon, $theme, $xp_reward, $estimated_time, $id]);
 
             echo json_encode(['success' => true, 'message' => 'Cours mis à jour']);
@@ -155,7 +155,7 @@ try {
             $stmt->execute([$id]);
 
             // Supprimer le cours
-            $stmt = $pdo->prepare("DELETE FROM courses WHERE id = ?");
+            $stmt = $pdo->prepare("DELETE FROM cours WHERE id = ?");
             $stmt->execute([$id]);
 
             echo json_encode(['success' => true, 'message' => 'Cours supprimé']);

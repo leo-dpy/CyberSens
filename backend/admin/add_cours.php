@@ -53,9 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     else {
         try {
             // Vérifier si les colonnes existent
-            $columns = $pdo->query("DESCRIBE courses")->fetchAll(PDO::FETCH_COLUMN);
+            $columns = $pdo->query("DESCRIBE cours")->fetchAll(PDO::FETCH_COLUMN);
 
-            $sql = "INSERT INTO courses (title, description, content, difficulty";
+            $sql = "INSERT INTO cours (title, description, content, difficulty";
             $params = [$title, $description, $content, $difficulty];
 
             if (in_array('icon', $columns)) {

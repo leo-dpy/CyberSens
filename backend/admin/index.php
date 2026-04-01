@@ -10,7 +10,7 @@ $canManageUsers = hasPermission('manage_users');
 // Statistiques
 $stats = [];
 $stats['users'] = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$stats['courses'] = $pdo->query("SELECT COUNT(*) FROM courses")->fetchColumn();
+$stats['cours'] = $pdo->query("SELECT COUNT(*) FROM cours")->fetchColumn();
 $stats['questions'] = $pdo->query("SELECT COUNT(*) FROM questions")->fetchColumn();
 $stats['progressions'] = $pdo->query("SELECT COUNT(*) FROM progression WHERE is_completed = 1")->fetchColumn();
 
@@ -116,7 +116,7 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                     <div class="icon-box bg-success-subtle">
                         <i data-lucide="book"></i>
                     </div>
-                    <h3><?php echo $stats['courses']; ?></h3>
+                    <h3><?php echo $stats['cours']; ?></h3>
                     <p>COURS PUBLIÉS</p>
                 </div>
 
@@ -163,7 +163,7 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                 <div class="card" style="grid-column: span 2;">
                     <h3 style="margin-bottom: 1.5rem;">Derniers Cours Ajoutés</h3>
                     <?php
-                    $recent = $pdo->query("SELECT id, title, difficulty, created_at FROM courses ORDER BY created_at DESC LIMIT 5")->fetchAll();
+                    $recent = $pdo->query("SELECT id, title, difficulty, created_at FROM cours ORDER BY created_at DESC LIMIT 5")->fetchAll();
                     if (count($recent) > 0):
                     ?>
                     <table class="admin-table">

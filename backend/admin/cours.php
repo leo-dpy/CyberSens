@@ -7,7 +7,7 @@ $currentUser = getCurrentUser();
 // Suppression d'un cours
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM courses WHERE id = ?");
+    $stmt = $pdo->prepare("DELETE FROM cours WHERE id = ?");
     $stmt->execute([$id]);
     header("Location: cours.php?msg=deleted");
     exit;
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     if ($orders) {
         foreach ($orders as $item) {
-            $stmt = $pdo->prepare("UPDATE courses SET display_order = ? WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE cours SET display_order = ? WHERE id = ?");
             $stmt->execute([(int)$item['order'], (int)$item['id']]);
         }
         echo json_encode(['success' => true]);
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Récupérer tous les cours triés par ordre d'affichage
-$cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions FROM courses c ORDER BY c.display_order ASC, c.id ASC")->fetchAll();
+$cours = $pdo->query("SELECT c.*, (SELECT COUNT(*) FROM questions WHERE course_id = c.id) as nb_questions FROM cours c ORDER BY c.display_order ASC, c.id ASC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="fr">

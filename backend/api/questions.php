@@ -23,7 +23,7 @@ try {
                 $course_id = (int)$_GET['course_id'];
                 $stmt = $pdo->prepare("SELECT q.*, c.title as course_title 
                     FROM questions q 
-                    JOIN courses c ON q.course_id = c.id 
+                    JOIN cours c ON q.course_id = c.id 
                     WHERE q.course_id = ? AND c.is_hidden = 0
                     ORDER BY q.id");
                 $stmt->execute([$course_id]);
@@ -34,7 +34,7 @@ try {
                 $id = (int)$_GET['id'];
                 $stmt = $pdo->prepare("SELECT q.*, c.title as course_title 
                     FROM questions q 
-                    JOIN courses c ON q.course_id = c.id 
+                    JOIN cours c ON q.course_id = c.id 
                     WHERE q.id = ?");
                 $stmt->execute([$id]);
                 $question = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,7 +43,7 @@ try {
                 // Toutes les questions groupées par cours
                 $stmt = $pdo->query("SELECT q.*, c.title as course_title 
                     FROM questions q 
-                    JOIN courses c ON q.course_id = c.id 
+                    JOIN cours c ON q.course_id = c.id 
                     ORDER BY c.id, q.id");
                 $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 echo json_encode(['success' => true, 'questions' => $questions]);

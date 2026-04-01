@@ -40,7 +40,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $id = (int)$_GET['id'];
-$stmt = $pdo->prepare("SELECT * FROM courses WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM cours WHERE id = ?");
 $stmt->execute([$id]);
 $course = $stmt->fetch();
 
@@ -67,9 +67,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     else {
         try {
-            $columns = $pdo->query("DESCRIBE courses")->fetchAll(PDO::FETCH_COLUMN);
+            $columns = $pdo->query("DESCRIBE cours")->fetchAll(PDO::FETCH_COLUMN);
 
-            $sql = "UPDATE courses SET title = ?, description = ?, content = ?, difficulty = ?";
+            $sql = "UPDATE cours SET title = ?, description = ?, content = ?, difficulty = ?";
             $params = [$title, $description, $content, $difficulty];
 
             if (in_array('icon', $columns)) {

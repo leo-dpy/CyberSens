@@ -184,7 +184,7 @@ class ApiClient {
     // API COURS
     async getCourses(userId = null, userRole = null) {
         try {
-            let url = `${API_URL}/courses.php`;
+            let url = `${API_URL}/cours.php`;
             const params = [];
             if (userId) params.push(`user_id=${userId}`);
             if (userRole) params.push(`role=${userRole}`);
@@ -201,7 +201,7 @@ class ApiClient {
 
     async getCourse(id) {
         try {
-            const response = await fetch(`${API_URL}/courses.php?id=${id}`);
+            const response = await fetch(`${API_URL}/cours.php?id=${id}`);
             const data = await response.json();
             return data.success ? data.course : null;
         } catch (e) {
@@ -212,7 +212,7 @@ class ApiClient {
 
     async createCourse(courseData) {
         try {
-            const response = await fetch(`${API_URL}/courses.php`, {
+            const response = await fetch(`${API_URL}/cours.php`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(courseData)
@@ -225,7 +225,7 @@ class ApiClient {
 
     async updateCourse(courseData) {
         try {
-            const response = await fetch(`${API_URL}/courses.php`, {
+            const response = await fetch(`${API_URL}/cours.php`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(courseData)
@@ -238,7 +238,7 @@ class ApiClient {
 
     async deleteCourse(id) {
         try {
-            const response = await fetch(`${API_URL}/courses.php`, {
+            const response = await fetch(`${API_URL}/cours.php`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id })

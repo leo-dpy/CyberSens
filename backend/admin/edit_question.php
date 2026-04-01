@@ -19,7 +19,7 @@ if (!$question) {
     exit;
 }
 
-$all_courses = $pdo->query("SELECT id, title FROM courses ORDER BY title")->fetchAll();
+$all_courses = $pdo->query("SELECT id, title FROM cours ORDER BY title")->fetchAll();
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

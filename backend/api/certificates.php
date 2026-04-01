@@ -24,7 +24,7 @@ try {
                 $stmt = $pdo->prepare("SELECT c.*, u.username, co.title as course_title, co.difficulty
                     FROM certificates c 
                     JOIN users u ON c.user_id = u.id 
-                    JOIN courses co ON c.course_id = co.id 
+                    JOIN cours co ON c.course_id = co.id 
                     WHERE c.certificate_code = ?");
                 $stmt->execute([$cert_code]);
                 $cert = $stmt->fetch();
@@ -45,7 +45,7 @@ try {
             // Récupérer les certificats de l'utilisateur
             $stmt = $pdo->prepare("SELECT c.*, co.title as course_title, co.difficulty 
                 FROM certificates c 
-                JOIN courses co ON c.course_id = co.id 
+                JOIN cours co ON c.course_id = co.id 
                 WHERE c.user_id = ? 
                 ORDER BY c.issued_at DESC");
             $stmt->execute([$user_id]);
@@ -94,7 +94,7 @@ try {
             $stmt->execute([$user_id, $course_id, $code, $score]);
             
             // Créer une notification
-            $courseStmt = $pdo->prepare("SELECT title FROM courses WHERE id = ?");
+            $courseStmt = $pdo->prepare("SELECT title FROM cours WHERE id = ?");
             $courseStmt->execute([$course_id]);
             $course = $courseStmt->fetch();
             

@@ -4,7 +4,7 @@ checkCoursesAccess();
 
 $currentUser = getCurrentUser();
 
-$all_courses = $pdo->query("SELECT id, title FROM courses ORDER BY title")->fetchAll();
+$all_courses = $pdo->query("SELECT id, title FROM cours ORDER BY title")->fetchAll();
 $selected_course = isset($_GET['course_id']) ? (int)$_GET['course_id'] : null;
 $is_new_course = isset($_GET['new']) && $_GET['new'] == 1;
 

@@ -26,7 +26,7 @@ try {
             
             $stmt = $pdo->prepare("SELECT p.*, p.is_completed as completed, c.title as course_title, c.difficulty 
                 FROM progression p 
-                JOIN courses c ON p.course_id = c.id 
+                JOIN cours c ON p.course_id = c.id 
                 WHERE p.user_id = ?");
             $stmt->execute([$user_id]);
             $progression = $stmt->fetchAll(PDO::FETCH_ASSOC);
