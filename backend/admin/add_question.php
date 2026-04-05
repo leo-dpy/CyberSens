@@ -1,18 +1,18 @@
-﻿<?php
+<?php
 require_once 'auth.php';
 checkCoursesAccess();
 
 $currentUser = getCurrentUser();
 
-$all_courses = $pdo->query("SELECT id, title FROM cours ORDER BY title")->fetchAll();
-$selected_course = isset($_GET['course_id']) ? (int)$_GET['course_id'] : null;
-$is_new_course = isset($_GET['new']) && $_GET['new'] == 1;
+$all_modules = $pdo->query("SELECT id, title FROM modules ORDER BY display_order, title")->fetchAll();
+$selected_module = isset($_GET['module_id']) ? (int)$_GET['module_id'] : null;
+$is_new_module = isset($_GET['new']) && $_GET['new'] == 1;
 
 $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $course_id = (int)$_POST['course_id'];
+    $module_id = (int)$_POST['module_id'];
     $question = trim($_POST['question']);
     $option_a = trim($_POST['option_a']);
     $option_b = trim($_POST['option_b']);
@@ -24,18 +24,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $xp_reward = (int)($_POST['xp_reward'] ?? 10);
     $points = (int)($_POST['points'] ?? 10);
     
-    if (empty($course_id) || empty($question) || empty($option_a) || empty($option_b) || empty($option_c)) {
+    if (empty($module_id) || empty($question) || empty($option_a) || empty($option_b) || empty($option_c)) {
         $error = "Veuillez remplir tous les champs obligatoires.";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO questions (course_id, question, option_a, option_b, option_c, option_d, correct_answer, explanation, difficulty, xp_reward, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$course_id, $question, $option_a, $option_b, $option_c, $option_d, $correct_answer, $explanation, $difficulty, $xp_reward, $points]);
+            $stmt = $pdo->prepare("INSERT INTO questions (module_id, question, option_a, option_b, option_c, option_d, correct_answer, explanation, difficulty, xp_reward, points) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$module_id, $question, $option_a, $option_b, $option_c, $option_d, $correct_answer, $explanation, $difficulty, $xp_reward, $points]);
             
             if (isset($_POST['add_another'])) {
                 $success = "Question ajoutée ! Vous pouvez en ajouter une autre.";
-                $selected_course = $course_id;
+                $selected_module = $module_id;
             } else {
-                header("Location: questions.php?course_id=" . $course_id . "&msg=created");
+                header("Location: questions.php?module_id=" . $module_id . "&msg=created");
                 exit;
             }
         } catch (PDOException $e) {
@@ -66,14 +66,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="nav-menu">
                 <a href="index.php" class="nav-item"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
-                <a href="cours.php" class="nav-item"><i data-lucide="book-open"></i><span>Gestion Cours</span></a>
+                <a href="cours.php" class="nav-item"><i data-lucide="book-open"></i><span>Gestion Modules</span></a>
                 <a href="questions.php" class="nav-item active"><i data-lucide="help-circle"></i><span>Banque Questions</span></a>
                 
                 <?php if(hasPermission('manage_content')): ?>
                 <a href="news.php" class="nav-item"><i data-lucide="rss"></i><span>Actualités</span></a>
                 <?php endif; ?>
 
+                <?php if(hasPermission('manage_users')): ?>
                 <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
+                <?php endif; ?>
                 <div class="nav-divider"></div>
                 <a href="../../index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
             </div>
@@ -112,12 +114,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     
                     <div class="card" style="display: flex; flex-direction: column; gap: 1.5rem;">
                         <div class="form-group">
-                            <label class="form-label">Cours associé</label>
-                            <select name="course_id" class="form-input" required>
-                                <option value="">Choisir un cours...</option>
-                                <?php foreach($all_courses as $c): ?>
-                                <option value="<?php echo $c['id']; ?>" <?php echo $selected_course == $c['id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($c['title']); ?>
+                            <label class="form-label">Module associé</label>
+                            <select name="module_id" class="form-input" required>
+                                <option value="">Choisir un module...</option>
+                                <?php foreach($all_modules as $m): ?>
+                                <option value="<?php echo $m['id']; ?>" <?php echo $selected_module == $m['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($m['title']); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>

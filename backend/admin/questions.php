@@ -4,8 +4,8 @@ checkCoursesAccess();
 
 $currentUser = getCurrentUser();
 
-// Filtre par cours
-$course_filter = isset($_GET['course_id']) ? (int)$_GET['course_id'] : null;
+// Filtre par module
+$module_filter = isset($_GET['module_id']) ? (int)$_GET['module_id'] : null;
 
 // Suppression d'une question
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
@@ -13,27 +13,27 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $stmt = $pdo->prepare("DELETE FROM questions WHERE id = ?");
     $stmt->execute([$id]);
     
-    $redirect = $course_filter ? "questions.php?course_id=$course_filter&msg=deleted" : "questions.php?msg=deleted";
+    $redirect = $module_filter ? "questions.php?module_id=$module_filter&msg=deleted" : "questions.php?msg=deleted";
     header("Location: $redirect");
     exit;
 }
 
-// Récupérer tous les cours pour le filtre
-$all_courses = $pdo->query("SELECT id, title FROM cours ORDER BY title")->fetchAll();
+// Récupérer tous les modules pour le filtre
+$all_modules = $pdo->query("SELECT id, title FROM modules ORDER BY title")->fetchAll();
 
 // Récupérer les questions
-if ($course_filter) {
-    $stmt = $pdo->prepare("SELECT q.*, c.title as course_title FROM questions q JOIN cours c ON q.course_id = c.id WHERE q.course_id = ? ORDER BY q.id");
-    $stmt->execute([$course_filter]);
+if ($module_filter) {
+    $stmt = $pdo->prepare("SELECT q.*, m.title as module_title FROM questions q JOIN modules m ON q.module_id = m.id WHERE q.module_id = ? ORDER BY q.id");
+    $stmt->execute([$module_filter]);
     $questions = $stmt->fetchAll();
     
-    // Récupérer le nom du cours filtré
-    $course_stmt = $pdo->prepare("SELECT title FROM cours WHERE id = ?");
-    $course_stmt->execute([$course_filter]);
-    $course_name = $course_stmt->fetchColumn();
+    // Récupérer le nom du module filtré
+    $module_stmt = $pdo->prepare("SELECT title FROM modules WHERE id = ?");
+    $module_stmt->execute([$module_filter]);
+    $module_name = $module_stmt->fetchColumn();
 } else {
-    $questions = $pdo->query("SELECT q.*, c.title as course_title FROM questions q JOIN cours c ON q.course_id = c.id ORDER BY c.id, q.id")->fetchAll();
-    $course_name = null;
+    $questions = $pdo->query("SELECT q.*, m.title as module_title FROM questions q JOIN modules m ON q.module_id = m.id ORDER BY m.id, q.id")->fetchAll();
+    $module_name = null;
 }
 ?>
 <!DOCTYPE html>
@@ -66,7 +66,7 @@ if ($course_filter) {
                 <?php if(hasPermission('manage_courses')): ?>
                 <a href="cours.php" class="nav-item">
                     <i data-lucide="book-open"></i>
-                    <span>Gestion Cours</span>
+                    <span>Gestion Modules</span>
                 </a>
                 <a href="questions.php" class="nav-item active">
                     <i data-lucide="help-circle"></i>
@@ -112,16 +112,16 @@ if ($course_filter) {
             <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h1>
-                        <?php if($course_name): ?>
-                            Questions : <?php echo htmlspecialchars($course_name); ?>
+                        <?php if($module_name): ?>
+                            Questions : <?php echo htmlspecialchars($module_name); ?>
                         <?php else: ?>
                             Banque de Questions
                         <?php endif; ?>
                     </h1>
-                    <p class="subtitle">Gérez les questions et les quiz associés aux cours.</p>
+                    <p class="subtitle">Gérez les questions et les quiz associés aux modules.</p>
                 </div>
                 <div class="header-actions">
-                    <a href="add_question.php<?php echo $course_filter ? '?course_id='.$course_filter : ''; ?>" class="btn btn-primary">
+                    <a href="add_question.php<?php echo $module_filter ? '?module_id='.$module_filter : ''; ?>" class="btn btn-primary">
                         <i data-lucide="plus-circle"></i> Nouvelle question
                     </a>
                 </div>
@@ -141,16 +141,16 @@ if ($course_filter) {
             <!-- Panneau de filtre -->
             <div class="card" style="margin-bottom: 2rem; border-color: var(--accent-primary);">
                 <form method="GET" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                    <label class="fw-medium" style="white-space: nowrap; color: var(--text-primary);">Filtrer par cours :</label>
-                    <select name="course_id" class="form-select" onchange="this.form.submit()" style="flex: 1; min-width: 200px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: var(--radius-sm);">
-                        <option value="">-- Tous les cours --</option>
-                        <?php foreach($all_courses as $c): ?>
-                            <option value="<?php echo $c['id']; ?>" <?php echo $course_filter == $c['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($c['title']); ?>
+                    <label class="fw-medium" style="white-space: nowrap; color: var(--text-primary);">Filtrer par module :</label>
+                    <select name="module_id" class="form-select" onchange="this.form.submit()" style="flex: 1; min-width: 200px; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: var(--radius-sm);">
+                        <option value="">-- Tous les modules --</option>
+                        <?php foreach($all_modules as $m): ?>
+                            <option value="<?php echo $m['id']; ?>" <?php echo $module_filter == $m['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($m['title']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <?php if($course_filter): ?>
+                    <?php if($module_filter): ?>
                     <a href="questions.php" class="btn btn-outline" style="padding: 0.5rem 1rem;">
                         <i data-lucide="x"></i> Réinitialiser
                     </a>
@@ -165,7 +165,7 @@ if ($course_filter) {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Cours</th>
+                            <th>Module</th>
                             <th>Question</th>
                             <th>Difficulté</th>
                             <th>XP</th>
@@ -186,8 +186,8 @@ if ($course_filter) {
                         <tr>
                             <td class="text-muted">#<?php echo $q['id']; ?></td>
                             <td>
-                                <a href="questions.php?course_id=<?php echo $q['course_id']; ?>" style="color: var(--accent-primary); text-decoration: none;">
-                                    <?php echo htmlspecialchars($q['course_title']); ?>
+                                <a href="questions.php?module_id=<?php echo $q['module_id']; ?>" style="color: var(--accent-primary); text-decoration: none;">
+                                    <?php echo htmlspecialchars($q['module_title']); ?>
                                 </a>
                             </td>
                             <td>
@@ -215,7 +215,7 @@ if ($course_filter) {
                                     <a href="edit_question.php?id=<?php echo $q['id']; ?>" class="btn-icon edit" title="Modifier">
                                         <i data-lucide="pencil"></i>
                                     </a>
-                                    <a href="questions.php?delete=<?php echo $q['id']; ?><?php echo $course_filter ? '&course_id='.$course_filter : ''; ?>" 
+                                    <a href="questions.php?delete=<?php echo $q['id']; ?><?php echo $module_filter ? '&module_id='.$module_filter : ''; ?>" 
                                        class="btn-icon delete" title="Supprimer" 
                                        onclick="return confirmAction(event, 'Êtes-vous sûr de vouloir supprimer cette question ?');">
                                         <i data-lucide="trash-2"></i>
@@ -231,13 +231,13 @@ if ($course_filter) {
                     <i data-lucide="help-circle" style="width: 64px; height: 64px; color: var(--text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
                     <h3 style="margin-bottom: 0.5rem;">Aucune question</h3>
                     <p class="text-muted" style="margin-bottom: 1.5rem;">
-                        <?php if($course_filter): ?>
-                            Ce cours n'a pas encore de quiz.
+                        <?php if($module_filter): ?>
+                            Ce module n'a pas encore de quiz.
                         <?php else: ?>
-                            Commencez par créer des questions pour vos cours.
+                            Commencez par créer des questions pour vos modules.
                         <?php endif; ?>
                     </p>
-                    <a href="add_question.php<?php echo $course_filter ? '?course_id='.$course_filter : ''; ?>" class="btn btn-primary">
+                    <a href="add_question.php<?php echo $module_filter ? '?module_id='.$module_filter : ''; ?>" class="btn btn-primary">
                         <i data-lucide="plus-circle"></i> Ajouter une question
                     </a>
                 </div>

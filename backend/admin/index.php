@@ -10,7 +10,7 @@ $canManageUsers = hasPermission('manage_users');
 // Statistiques
 $stats = [];
 $stats['users'] = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$stats['cours'] = $pdo->query("SELECT COUNT(*) FROM cours")->fetchColumn();
+$stats['modules'] = $pdo->query("SELECT COUNT(*) FROM modules")->fetchColumn();
 $stats['questions'] = $pdo->query("SELECT COUNT(*) FROM questions")->fetchColumn();
 $stats['progressions'] = $pdo->query("SELECT COUNT(*) FROM progression WHERE is_completed = 1")->fetchColumn();
 
@@ -116,8 +116,8 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                     <div class="icon-box bg-success-subtle">
                         <i data-lucide="book"></i>
                     </div>
-                    <h3><?php echo $stats['cours']; ?></h3>
-                    <p>COURS PUBLIÉS</p>
+                    <h3><?php echo $stats['modules']; ?></h3>
+                    <p>MODULES PUBLIÉS</p>
                 </div>
 
                 <div class="stat-card-admin">
@@ -159,11 +159,11 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                     </div>
                 </div>
 
-                <!-- Cours récents -->
+                <!-- Modules récents -->
                 <div class="card" style="grid-column: span 2;">
-                    <h3 style="margin-bottom: 1.5rem;">Derniers Cours Ajoutés</h3>
+                    <h3 style="margin-bottom: 1.5rem;">Derniers Modules Ajoutés</h3>
                     <?php
-                    $recent = $pdo->query("SELECT id, title, difficulty, created_at FROM cours ORDER BY created_at DESC LIMIT 5")->fetchAll();
+                    $recent = $pdo->query("SELECT id, title, difficulty, created_at FROM modules ORDER BY created_at DESC LIMIT 5")->fetchAll();
                     if (count($recent) > 0):
                     ?>
                     <table class="admin-table">
@@ -195,7 +195,7 @@ $errorMsg = isset($_GET['error']) && $_GET['error'] === 'no_permission' ? "Vous 
                         </tbody>
                     </table>
                     <?php else: ?>
-                    <p class="text-muted">Aucun cours pour le moment.</p>
+                    <p class="text-muted">Aucun module pour le moment.</p>
                     <?php endif; ?>
                 </div>
             </div>

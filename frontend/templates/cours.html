@@ -1,13 +1,422 @@
-<h1>Modules de <span class="text-gradient">Formation</span></h1>
-<p class="subtitle">Accédez à notre base de connaissances classifiée. Du niveau novice à expert.</p>
+<div id="modules-view">
+    <h1>Modules de <span class="text-gradient">Formation</span></h1>
+    <p class="subtitle">Accédez à notre base de connaissances classifiée. Du niveau novice à expert.</p>
 
-<div class="bento-grid">
-    <div style="grid-column: span 3; text-align: center; padding: 4rem;">
-        <i data-lucide="loader-2" style="width: 48px; height: 48px; color: var(--primary-color); animation: spin 1s linear infinite; margin-bottom: 2rem;"></i>
-        <p style="color: #888; font-size: 1.1rem;">Chargement en cours...</p>
+    <div id="modules-grid" class="bento-grid">
+        <div style="grid-column: span 3; text-align: center; padding: 4rem;">
+            <i data-lucide="loader-2" style="width: 48px; height: 48px; color: var(--primary-color); animation: spin 1s linear infinite; margin-bottom: 2rem;"></i>
+            <p style="color: #888; font-size: 1.1rem;">Chargement des modules...</p>
+        </div>
+    </div>
+</div>
+
+<div id="submodules-view" style="display: none;">
+    <button onclick="backToModules()" class="btn btn-secondary" style="margin-bottom: 1.5rem;">
+        <i data-lucide="arrow-left"></i> Retour aux modules
+    </button>
+    
+    <div id="module-header">
+        <!-- Rempli dynamiquement -->
+    </div>
+    
+    <div id="submodules-grid" class="bento-grid">
+        <!-- Rempli dynamiquement -->
+    </div>
+</div>
+
+<div id="submodule-content-view" style="display: none;">
+    <button onclick="backToSubmodules()" class="btn btn-secondary" style="margin-bottom: 1.5rem;">
+        <i data-lucide="arrow-left"></i> Retour au module
+    </button>
+    
+    <div id="submodule-content-container" class="content-card">
+        <!-- Rempli dynamiquement -->
     </div>
 </div>
 
 <style>
 @keyframes spin { 100% { transform: rotate(360deg); } }
+
+.module-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.module-card:hover:not(.locked) {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px var(--primary-glow);
+    border-color: var(--primary);
+}
+
+.module-card.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.module-card .module-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+}
+
+.module-card .module-icon i {
+    color: white;
+    width: 24px;
+    height: 24px;
+}
+
+.module-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.module-card p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.module-card .module-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.module-card .module-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.module-card .module-meta i {
+    width: 14px;
+    height: 14px;
+}
+
+.module-card .status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.module-card .status-badge.completed {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.module-card .status-badge.in-progress {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.module-card .status-badge.locked {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6b7280;
+}
+
+.module-card .lock-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+}
+
+.module-card .lock-overlay i {
+    width: 32px;
+    height: 32px;
+    color: #6b7280;
+}
+
+/* Submodule cards */
+.submodule-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    position: relative;
+}
+
+.submodule-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px var(--primary-glow);
+    border-color: var(--primary);
+}
+
+.submodule-card.completed {
+    border-color: #10b981;
+}
+
+.submodule-card .submodule-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    background: var(--bg-tertiary);
+}
+
+.submodule-card .submodule-icon i {
+    color: var(--primary);
+    width: 20px;
+    height: 20px;
+}
+
+.submodule-card h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.submodule-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.submodule-card .submodule-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.submodule-card .submodule-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.submodule-card .submodule-meta i {
+    width: 12px;
+    height: 12px;
+}
+
+.submodule-card .check-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submodule-card .check-badge i {
+    width: 14px;
+    height: 14px;
+    color: white;
+}
+
+/* Quiz card */
+.quiz-card {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    color: white;
+}
+
+.quiz-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px var(--primary-glow);
+}
+
+.quiz-card .quiz-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.quiz-card .quiz-icon i {
+    color: white;
+    width: 24px;
+    height: 24px;
+}
+
+.quiz-card h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.quiz-card p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.quiz-card .quiz-meta {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Content view */
+.content-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.content-card .content-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.content-card .content-header .icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+}
+
+.content-card .content-header .icon i {
+    color: white;
+    width: 24px;
+    height: 24px;
+}
+
+.content-card .content-header h2 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.content-card .content-body {
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.content-card .content-body h2,
+.content-card .content-body h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.content-card .content-body ul,
+.content-card .content-body ol {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.content-card .content-body li {
+    margin-bottom: 0.5rem;
+}
+
+.content-card .content-body code {
+    background: var(--bg-tertiary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.content-card .content-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.module-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.module-header .module-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+}
+
+.module-header .module-icon i {
+    color: white;
+    width: 28px;
+    height: 28px;
+}
+
+.module-header .module-info h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.module-header .module-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.difficulty-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.difficulty-badge.easy {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.difficulty-badge.medium {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.difficulty-badge.hard {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
 </style>

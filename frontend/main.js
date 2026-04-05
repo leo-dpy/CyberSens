@@ -182,6 +182,86 @@ class ApiClient {
     }
 
     // API COURS
+    // ========== MODULES API ==========
+    async getModules(userId = null, userRole = null) {
+        try {
+            let url = `${API_URL}/modules.php`;
+            const params = [];
+            if (userId) params.push(`user_id=${userId}`);
+            if (userRole) params.push(`role=${userRole}`);
+            if (params.length > 0) url += '?' + params.join('&');
+
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.success ? data.modules : [];
+        } catch (e) {
+            console.error("Erreur GetModules:", e);
+            return [];
+        }
+    }
+
+    async getModule(id) {
+        try {
+            const response = await fetch(`${API_URL}/modules.php?id=${id}`);
+            const data = await response.json();
+            return data.success ? data.module : null;
+        } catch (e) {
+            console.error("Erreur GetModule:", e);
+            return null;
+        }
+    }
+
+    // ========== SUBMODULES API ==========
+    async getSubmodules(moduleId, userId = null) {
+        try {
+            let url = `${API_URL}/submodules.php?module_id=${moduleId}`;
+            if (userId) url += `&user_id=${userId}`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.success ? data : null;
+        } catch (e) {
+            console.error("Erreur GetSubmodules:", e);
+            return null;
+        }
+    }
+
+    async getSubmodule(id) {
+        try {
+            const response = await fetch(`${API_URL}/submodules.php?id=${id}`);
+            const data = await response.json();
+            return data.success ? data.submodule : null;
+        } catch (e) {
+            console.error("Erreur GetSubmodule:", e);
+            return null;
+        }
+    }
+
+    async saveSubmoduleProgress(userId, submoduleId, completed = 0) {
+        try {
+            const response = await fetch(`${API_URL}/progression.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, submodule_id: submoduleId, completed })
+            });
+            return await response.json();
+        } catch (e) {
+            return { success: false, message: "Erreur serveur" };
+        }
+    }
+
+    async getQuestionsByModule(moduleId) {
+        try {
+            const response = await fetch(`${API_URL}/questions.php?module_id=${moduleId}`);
+            const data = await response.json();
+            return data.success ? data.questions : [];
+        } catch (e) {
+            console.error("Erreur GetQuestionsByModule:", e);
+            return [];
+        }
+    }
+
+    // ========== LEGACY COURSES API (deprecated) ==========
     async getCourses(userId = null, userRole = null) {
         try {
             let url = `${API_URL}/cours.php`;
@@ -1828,81 +1908,455 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     }
 
-    // VUE COURS (Public)
+    // VUE MODULES (Public) - Remplace l'ancienne vue cours
+    // Variable pour stocker le module courant
+    let currentModuleId = null;
+
+    const themes = {
+        'blue': { primary: '#3b82f6', glow: 'rgba(59, 130, 246, 0.4)' },
+        'purple': { primary: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.4)' },
+        'green': { primary: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
+        'red': { primary: '#ef4444', glow: 'rgba(239, 68, 68, 0.4)' },
+        'orange': { primary: '#f59e0b', glow: 'rgba(245, 158, 11, 0.4)' },
+        'cyan': { primary: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)' },
+        'pink': { primary: '#ec4899', glow: 'rgba(236, 72, 153, 0.4)' }
+    };
+
     async function loadCoursesView() {
-        // Récupérer l'utilisateur connecté pour le verrouillage
+        // Charge les modules
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         const userId = currentUser ? currentUser.id : null;
         const userRole = currentUser ? currentUser.role : null;
 
-        // Thèmes de couleurs (identiques à admin/add_cours.php)
-        const themes = {
-            'blue': { primary: '#3b82f6', glow: 'rgba(59, 130, 246, 0.4)' },
-            'purple': { primary: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.4)' },
-            'green': { primary: '#10b981', glow: 'rgba(16, 185, 129, 0.4)' },
-            'red': { primary: '#ef4444', glow: 'rgba(239, 68, 68, 0.4)' },
-            'orange': { primary: '#f59e0b', glow: 'rgba(245, 158, 11, 0.4)' },
-            'cyan': { primary: '#06b6d4', glow: 'rgba(6, 182, 212, 0.4)' },
-            'pink': { primary: '#ec4899', glow: 'rgba(236, 72, 153, 0.4)' }
-        };
+        const modules = await api.getModules(userId, userRole);
+        
+        // Afficher la vue modules
+        document.getElementById('modules-view').style.display = 'block';
+        document.getElementById('submodules-view').style.display = 'none';
+        document.getElementById('submodule-content-view').style.display = 'none';
 
-        const courses = await api.getCourses(userId, userRole);
-        const contentArea = document.getElementById('content-area');
+        const modulesGrid = document.getElementById('modules-grid');
+        if (!modulesGrid) return;
 
-        if (courses.length === 0) return;
-
-        // Remplacer le contenu statique par les cours dynamiques
-        const bentoGrid = contentArea.querySelector('.bento-grid');
-        if (bentoGrid) {
-            bentoGrid.innerHTML = courses.map(c => {
-                const isLocked = c.is_locked === true || c.is_locked === 1;
-                const isCompleted = c.is_completed === true || c.is_completed === 1;
-                const isRead = c.is_read === true || c.is_read === 1;
-
-                // Application du thème personnalisé
-                const theme = themes[c.theme] || themes['blue'];
-                const styleAttr = `style="--primary: ${theme.primary}; --primary-glow: ${theme.glow}; --primary-dim: ${theme.primary}80;"`;
-
-                // Icône personnalisée ou par défaut
-                const iconName = c.icon && c.icon !== '' ? c.icon : getDifficultyIcon(c.difficulty);
-
-                // Logique du badge de statut
-                let statusBadge = '';
-                if (isCompleted) {
-                    statusBadge = '<span class="status-badge status-completed" style="margin-right:0.5rem; display:flex; align-items:center; font-size:0.85rem;"><i data-lucide="check-circle" style="width:14px;height:14px;margin-right:4px;"></i>Terminé</span>';
-                } else if (isRead) {
-                    statusBadge = '<span class="status-badge status-progress" style="margin-right:0.5rem; color:var(--warning); display:flex; align-items:center; font-size:0.85rem;"><i data-lucide="loader-2" style="width:14px;height:14px;margin-right:4px;"></i>En cours</span>';
-                }
-
-                return `
-                <div class="card course-card ${isLocked ? 'card-locked' : ''} ${isCompleted ? 'card-completed' : ''} ${isRead ? 'card-read' : ''}" 
-                     data-course-id="${c.id}" 
-                     ${styleAttr}
-                     ${isLocked ? '' : `onclick="viewCourse(${c.id})"`}>
-                    ${isLocked ? '<div class="lock-overlay"><i data-lucide="lock" class="lock-icon"></i><span>Terminez le module précédent</span></div>' : ''}
-                    
-                    <div class="course-header">
-                        <div class="card-icon"><i data-lucide="${iconName}"></i></div>
-                        <span class="difficulty-badge difficulty-${c.difficulty?.toLowerCase()}">${c.difficulty}</span>
-                    </div>
-                    
-                    <div class="course-body">
-                        <h3>${c.title}</h3>
-                        <p>${c.description}</p>
-                    </div>
-                    
-                    ${(isCompleted || isRead) ? `
-                    <div class="course-status-footer" style="padding-top: 1rem; margin-top: auto; display: flex; justify-content: flex-end;">
-                        ${statusBadge}
-                    </div>` : ''}
+        if (modules.length === 0) {
+            modulesGrid.innerHTML = `
+                <div style="grid-column: span 3; text-align: center; padding: 4rem;">
+                    <i data-lucide="book-x" style="width: 48px; height: 48px; color: #888; margin-bottom: 1rem;"></i>
+                    <p style="color: #888;">Aucun module disponible pour le moment.</p>
                 </div>
             `;
-            }).join('');
+            lucide.createIcons();
+            return;
+        }
+
+        modulesGrid.innerHTML = modules.map(m => {
+            const isLocked = m.is_locked === true || m.is_locked === 1;
+            const isCompleted = m.is_completed === true || m.is_completed === 1;
+            const isStarted = m.is_started === true || m.is_started === 1;
+            const theme = themes[m.theme] || themes['blue'];
+            const iconName = m.icon || 'book-open';
+
+            // Badge de statut
+            let statusBadge = '';
+            if (isCompleted) {
+                statusBadge = '<span class="status-badge completed">✓ Terminé</span>';
+            } else if (isStarted) {
+                statusBadge = '<span class="status-badge in-progress">⏳ En cours</span>';
+            } else if (isLocked) {
+                statusBadge = '<span class="status-badge locked">🔒 Bloqué</span>';
+            }
+
+            // Difficulté badge
+            const diffClass = m.difficulty === 'Facile' ? 'easy' : m.difficulty === 'Intermédiaire' ? 'medium' : 'hard';
+
+            return `
+                <div class="module-card ${isLocked ? 'locked' : ''}" 
+                     style="--primary: ${theme.primary}; --primary-glow: ${theme.glow}; --primary-dim: ${theme.primary}80;"
+                     ${isLocked ? '' : `onclick="viewModule(${m.id})"`}>
+                    ${statusBadge}
+                    ${isLocked ? '<div class="lock-overlay"><i data-lucide="lock"></i></div>' : ''}
+                    
+                    <div class="module-icon">
+                        <i data-lucide="${iconName}"></i>
+                    </div>
+                    
+                    <h3>${m.title}</h3>
+                    <p>${m.description || ''}</p>
+                    
+                    <div class="module-meta">
+                        <span><i data-lucide="layers"></i> ${m.nb_submodules || 0} sous-modules</span>
+                        <span><i data-lucide="help-circle"></i> ${m.nb_questions || 0} questions</span>
+                        <span class="difficulty-badge ${diffClass}">${m.difficulty}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        lucide.createIcons();
+        initTiltEffect();
+    }
+
+    // Voir un module (afficher ses sous-modules)
+    window.viewModule = async function(moduleId) {
+        currentModuleId = moduleId;
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        const userId = currentUser ? currentUser.id : null;
+
+        const data = await api.getSubmodules(moduleId, userId);
+        if (!data) {
+            showToast('Erreur', 'Module non trouvé', 'error');
+            return;
+        }
+
+        const { module, submodules, quiz } = data;
+        const theme = themes[module.theme] || themes['blue'];
+
+        // Cacher la vue modules, afficher la vue sous-modules
+        document.getElementById('modules-view').style.display = 'none';
+        document.getElementById('submodules-view').style.display = 'block';
+        document.getElementById('submodule-content-view').style.display = 'none';
+
+        // Appliquer le thème au conteneur
+        const submodulesView = document.getElementById('submodules-view');
+        submodulesView.style.setProperty('--primary', theme.primary);
+        submodulesView.style.setProperty('--primary-glow', theme.glow);
+        submodulesView.style.setProperty('--primary-dim', theme.primary + '80');
+
+        // Header du module
+        const diffClass = module.difficulty === 'Facile' ? 'easy' : module.difficulty === 'Intermédiaire' ? 'medium' : 'hard';
+        document.getElementById('module-header').innerHTML = `
+            <div class="module-header" style="--primary: ${theme.primary}; --primary-glow: ${theme.glow};">
+                <div class="module-icon">
+                    <i data-lucide="${module.icon || 'book-open'}"></i>
+                </div>
+                <div class="module-info">
+                    <h2>${module.title}</h2>
+                    <p>${module.description || ''}</p>
+                </div>
+                <span class="difficulty-badge ${diffClass}">${module.difficulty}</span>
+            </div>
+        `;
+
+        // Grille des sous-modules + carte quiz
+        const submodulesGrid = document.getElementById('submodules-grid');
+        
+        let html = submodules.map(s => {
+            const isCompleted = s.is_completed === true || s.is_completed === 1;
+            const isRead = s.is_read === true || s.is_read === 1;
+
+            return `
+                <div class="submodule-card ${isCompleted ? 'completed' : ''}" onclick="viewSubmodule(${s.id})">
+                    ${isCompleted ? '<div class="check-badge"><i data-lucide="check"></i></div>' : ''}
+                    
+                    <div class="submodule-icon">
+                        <i data-lucide="${s.icon || 'file-text'}"></i>
+                    </div>
+                    
+                    <h4>${s.title}</h4>
+                    <p>${s.description || ''}</p>
+                    
+                    <div class="submodule-meta">
+                        <span><i data-lucide="clock"></i> ${s.estimated_time || 5} min</span>
+                        <span><i data-lucide="zap"></i> ${s.xp_reward || 15} XP</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Carte Quiz
+        const quizScore = quiz.last_result ? quiz.last_result.score : null;
+        const quizPassed = quizScore !== null && quizScore >= 70;
+        
+        html += `
+            <div class="quiz-card" onclick="startModuleQuiz(${moduleId})">
+                <div class="quiz-icon">
+                    <i data-lucide="${quizPassed ? 'trophy' : 'brain'}"></i>
+                </div>
+                
+                <h4>${quizPassed ? '🎉 Quiz Réussi !' : '🎯 Quiz du Module'}</h4>
+                <p>${quizPassed ? `Score: ${quizScore}%` : 'Testez vos connaissances'}</p>
+                
+                <div class="quiz-meta">
+                    ${quiz.nb_questions} questions • ${quizPassed ? 'Refaire le quiz' : 'Valider le module'}
+                </div>
+            </div>
+        `;
+
+        submodulesGrid.innerHTML = html;
+        lucide.createIcons();
+    };
+
+    // Retour aux modules
+    window.backToModules = function() {
+        currentModuleId = null;
+        document.getElementById('modules-view').style.display = 'block';
+        document.getElementById('submodules-view').style.display = 'none';
+        document.getElementById('submodule-content-view').style.display = 'none';
+    };
+
+    // Voir un sous-module (contenu)
+    window.viewSubmodule = async function(submoduleId) {
+        const submodule = await api.getSubmodule(submoduleId);
+        if (!submodule) {
+            showToast('Erreur', 'Sous-module non trouvé', 'error');
+            return;
+        }
+
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        const theme = themes[submodule.module_theme] || themes['blue'];
+
+        // Marquer comme lu
+        if (currentUser) {
+            await api.saveSubmoduleProgress(currentUser.id, submoduleId, 0);
+        }
+
+        // Afficher la vue contenu
+        document.getElementById('modules-view').style.display = 'none';
+        document.getElementById('submodules-view').style.display = 'none';
+        document.getElementById('submodule-content-view').style.display = 'block';
+
+        const container = document.getElementById('submodule-content-container');
+        container.style.setProperty('--primary', theme.primary);
+        container.style.setProperty('--primary-glow', theme.glow);
+
+        container.innerHTML = `
+            <div class="content-header">
+                <div class="icon">
+                    <i data-lucide="${submodule.icon || 'file-text'}"></i>
+                </div>
+                <div>
+                    <h2>${submodule.title}</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">${submodule.module_title}</p>
+                </div>
+            </div>
+            
+            <div class="content-body">
+                ${submodule.content || '<p>Contenu à venir...</p>'}
+            </div>
+            
+            <div class="content-footer">
+                <button class="btn btn-primary" onclick="markSubmoduleComplete(${submoduleId})">
+                    <i data-lucide="check-circle"></i> Marquer comme terminé
+                </button>
+            </div>
+        `;
+
+        lucide.createIcons();
+    };
+
+    // Retour aux sous-modules
+    window.backToSubmodules = function() {
+        if (currentModuleId) {
+            viewModule(currentModuleId);
+        } else {
+            backToModules();
+        }
+    };
+
+    // Marquer un sous-module comme terminé
+    window.markSubmoduleComplete = async function(submoduleId) {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!currentUser) {
+            showToast('Connexion requise', 'Connectez-vous pour sauvegarder votre progression', 'warning');
+            return;
+        }
+
+        const result = await api.saveSubmoduleProgress(currentUser.id, submoduleId, 1);
+        if (result.success) {
+            showToast('Bravo !', `Sous-module terminé${result.xp_earned ? ` • +${result.xp_earned} XP` : ''}`, 'success');
+            // Retourner au module pour voir la progression mise à jour
+            backToSubmodules();
+        } else {
+            showToast('Erreur', result.message || 'Impossible de sauvegarder', 'error');
+        }
+    };
+
+    // Démarrer le quiz d'un module
+    window.startModuleQuiz = async function(moduleId) {
+        const questions = await api.getQuestionsByModule(moduleId);
+        if (!questions || questions.length === 0) {
+            showToast('Pas de quiz', 'Aucune question disponible pour ce module', 'warning');
+            return;
+        }
+
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        const module = await api.getModule(moduleId);
+        const theme = themes[module?.theme] || themes['blue'];
+
+        // Mélanger les questions
+        const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
+        
+        let currentQuestion = 0;
+        let correctAnswers = 0;
+        let totalXP = 0;
+
+        function renderQuestion() {
+            const q = shuffledQuestions[currentQuestion];
+            const contentArea = document.getElementById('content-area');
+
+            contentArea.innerHTML = `
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="margin: 0;">Quiz: ${module?.title || 'Module'}</h2>
+                        <span style="color: var(--text-secondary);">Question ${currentQuestion + 1}/${shuffledQuestions.length}</span>
+                    </div>
+                    
+                    <div class="progress-bar" style="height: 6px; background: var(--bg-tertiary); border-radius: 3px; margin-bottom: 2rem;">
+                        <div style="width: ${((currentQuestion) / shuffledQuestions.length) * 100}%; height: 100%; background: ${theme.primary}; border-radius: 3px; transition: width 0.3s;"></div>
+                    </div>
+                    
+                    <div class="settings-card" style="padding: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; line-height: 1.4;">${q.question}</h3>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            ${['A', 'B', 'C', 'D'].map(letter => {
+                                const optionText = q['option_' + letter.toLowerCase()];
+                                if (!optionText) return '';
+                                return `
+                                    <button class="btn btn-outline quiz-option" data-answer="${letter}" style="text-align: left; padding: 1rem; justify-content: flex-start;">
+                                        <strong style="margin-right: 0.75rem;">${letter}.</strong> ${optionText}
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
 
             lucide.createIcons();
-            initTiltEffect();
+
+            // Event listeners pour les options
+            document.querySelectorAll('.quiz-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const selectedAnswer = this.dataset.answer;
+                    const correctAnswer = q.correct_answer.toUpperCase();
+                    const isCorrect = selectedAnswer === correctAnswer;
+
+                    // Désactiver tous les boutons
+                    document.querySelectorAll('.quiz-option').forEach(b => b.disabled = true);
+
+                    // Colorer les boutons
+                    this.style.background = isCorrect ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                    this.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
+
+                    if (!isCorrect) {
+                        document.querySelector(`[data-answer="${correctAnswer}"]`).style.background = 'rgba(16, 185, 129, 0.2)';
+                        document.querySelector(`[data-answer="${correctAnswer}"]`).style.borderColor = '#10b981';
+                    }
+
+                    if (isCorrect) {
+                        correctAnswers++;
+                        totalXP += q.xp_reward || 5;
+                    }
+
+                    // Afficher l'explication
+                    if (q.explanation) {
+                        const card = document.querySelector('.settings-card');
+                        card.innerHTML += `
+                            <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px; border-left: 4px solid ${isCorrect ? '#10b981' : '#ef4444'};">
+                                <strong>${isCorrect ? '✓ Correct !' : '✗ Incorrect'}</strong>
+                                <p style="margin-top: 0.5rem; color: var(--text-secondary);">${q.explanation}</p>
+                            </div>
+                        `;
+                    }
+
+                    // Bouton suivant
+                    const card = document.querySelector('.settings-card');
+                    card.innerHTML += `
+                        <div style="margin-top: 1.5rem; text-align: right;">
+                            <button class="btn btn-primary" onclick="nextQuizQuestion()">
+                                ${currentQuestion < shuffledQuestions.length - 1 ? 'Question suivante' : 'Voir les résultats'}
+                                <i data-lucide="arrow-right"></i>
+                            </button>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                });
+            });
         }
-    }
+
+        window.nextQuizQuestion = function() {
+            currentQuestion++;
+            if (currentQuestion < shuffledQuestions.length) {
+                renderQuestion();
+            } else {
+                showQuizResults();
+            }
+        };
+
+        async function showQuizResults() {
+            const score = Math.round((correctAnswers / shuffledQuestions.length) * 100);
+            const passed = score >= 70;
+
+            // Sauvegarder le résultat si connecté
+            if (currentUser) {
+                await fetch(`${API_URL}/quiz_results.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        module_id: moduleId,
+                        score: score,
+                        total_questions: shuffledQuestions.length,
+                        correct_answers: correctAnswers,
+                        xp_earned: totalXP
+                    })
+                });
+
+                // Mettre à jour les XP de l'utilisateur
+                if (totalXP > 0) {
+                    const userUpdate = await fetch(`${API_URL}/users.php`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: currentUser.id, add_xp: totalXP })
+                    });
+                }
+            }
+
+            const contentArea = document.getElementById('content-area');
+            contentArea.innerHTML = `
+                <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">${passed ? '🎉' : '📚'}</div>
+                    
+                    <h1 style="margin-bottom: 0.5rem;">${passed ? 'Félicitations !' : 'Continuez à apprendre !'}</h1>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        ${passed ? 'Vous avez validé ce module !' : 'Il vous faut 70% pour valider ce module.'}
+                    </p>
+                    
+                    <div class="settings-card" style="padding: 2rem; margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-around; text-align: center;">
+                            <div>
+                                <div style="font-size: 2.5rem; font-weight: bold; color: ${passed ? '#10b981' : '#ef4444'};">${score}%</div>
+                                <div style="color: var(--text-secondary);">Score</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2.5rem; font-weight: bold;">${correctAnswers}/${shuffledQuestions.length}</div>
+                                <div style="color: var(--text-secondary);">Bonnes réponses</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 2.5rem; font-weight: bold; color: #f59e0b;">+${totalXP}</div>
+                                <div style="color: var(--text-secondary);">XP gagnés</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-outline" onclick="loadTemplate('cours')">
+                            <i data-lucide="arrow-left"></i> Retour aux modules
+                        </button>
+                        ${!passed ? `
+                            <button class="btn btn-primary" onclick="startModuleQuiz(${moduleId})">
+                                <i data-lucide="refresh-cw"></i> Réessayer
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        renderQuestion();
+    };
 
     function getDifficultyIcon(difficulty) {
         switch (difficulty) {

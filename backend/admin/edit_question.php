@@ -19,11 +19,11 @@ if (!$question) {
     exit;
 }
 
-$all_courses = $pdo->query("SELECT id, title FROM cours ORDER BY title")->fetchAll();
+$all_modules = $pdo->query("SELECT id, title FROM modules ORDER BY display_order, title")->fetchAll();
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $course_id = (int)$_POST['course_id'];
+    $module_id = (int)$_POST['module_id'];
     $question_text = trim($_POST['question']);
     $option_a = trim($_POST['option_a']);
     $option_b = trim($_POST['option_b']);
@@ -34,15 +34,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $difficulty = $_POST['difficulty'] ?? 'Facile';
     $xp_reward = (int)($_POST['xp_reward'] ?? 10);
 
-    if (empty($course_id) || empty($question_text) || empty($option_a) || empty($option_b) || empty($option_c)) {
+    if (empty($module_id) || empty($question_text) || empty($option_a) || empty($option_b) || empty($option_c)) {
         $error = "Veuillez remplir tous les champs obligatoires.";
     }
     else {
         try {
-            $stmt = $pdo->prepare("UPDATE questions SET course_id = ?, question = ?, option_a = ?, option_b = ?, option_c = ?, option_d = ?, correct_answer = ?, explanation = ?, difficulty = ?, xp_reward = ? WHERE id = ?");
-            $stmt->execute([$course_id, $question_text, $option_a, $option_b, $option_c, $option_d, $correct_answer, $explanation, $difficulty, $xp_reward, $id]);
+            $stmt = $pdo->prepare("UPDATE questions SET module_id = ?, question = ?, option_a = ?, option_b = ?, option_c = ?, option_d = ?, correct_answer = ?, explanation = ?, difficulty = ?, xp_reward = ? WHERE id = ?");
+            $stmt->execute([$module_id, $question_text, $option_a, $option_b, $option_c, $option_d, $correct_answer, $explanation, $difficulty, $xp_reward, $id]);
 
-            header("Location: questions.php?course_id=" . $course_id . "&msg=updated");
+            header("Location: questions.php?module_id=" . $module_id . "&msg=updated");
             exit;
 
         }
@@ -74,17 +74,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div class="nav-menu">
                 <a href="index.php" class="nav-item"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
-                <a href="cours.php" class="nav-item"><i data-lucide="book-open"></i><span>Gestion Cours</span></a>
+                <a href="cours.php" class="nav-item"><i data-lucide="book-open"></i><span>Gestion Modules</span></a>
                 <a href="questions.php" class="nav-item active"><i data-lucide="help-circle"></i><span>Banque Questions</span></a>
                 
                 <?php if (hasPermission('manage_content')): ?>
                 <a href="news.php" class="nav-item"><i data-lucide="rss"></i><span>Actualités</span></a>
-                <?php
-endif; ?>
+                <?php endif; ?>
 
-
-
+                <?php if (hasPermission('manage_users')): ?>
                 <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
+                <?php endif; ?>
                 <div class="nav-divider"></div>
                 <a href="../../index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
             </div>
@@ -110,22 +109,20 @@ endif; ?>
             <div class="alert alert-danger">
                 <i data-lucide="alert-circle"></i> <?php echo $error; ?>
             </div>
-            <?php
-endif; ?>
+            <?php endif; ?>
 
             <form method="POST">
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
                     
                     <div class="card static-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
                         <div class="form-group">
-                            <label class="form-label">Cours associé</label>
-                            <select name="course_id" class="form-input" required>
-                                <?php foreach ($all_courses as $c): ?>
-                                <option value="<?php echo $c['id']; ?>" <?php echo $question['course_id'] == $c['id'] ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($c['title']); ?>
+                            <label class="form-label">Module associé</label>
+                            <select name="module_id" class="form-input" required>
+                                <?php foreach ($all_modules as $m): ?>
+                                <option value="<?php echo $m['id']; ?>" <?php echo $question['module_id'] == $m['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($m['title']); ?>
                                 </option>
-                                <?php
-endforeach; ?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
