@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : mer. 04 fév. 2026 à 18:18
+-- Généré le : mer. 01 avr. 2026 à 14:04
 -- Version du serveur : 8.4.7
 -- Version de PHP : 8.3.28
 
@@ -94,11 +94,11 @@ INSERT INTO `certificates` (`id`, `user_id`, `course_id`, `certificate_code`, `s
 -- --------------------------------------------------------
 
 --
--- Structure de la table `courses`
+-- Structure de la table `cours`
 --
 
-DROP TABLE IF EXISTS `courses`;
-CREATE TABLE IF NOT EXISTS `courses` (
+DROP TABLE IF EXISTS `cours`;
+CREATE TABLE IF NOT EXISTS `cours` (
   `id` int NOT NULL AUTO_INCREMENT,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -120,10 +120,10 @@ CREATE TABLE IF NOT EXISTS `courses` (
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Déchargement des données de la table `courses`
+-- Déchargement des données de la table `cours`
 --
 
-INSERT INTO `courses` (`id`, `title`, `description`, `content`, `difficulty`, `icon`, `theme`, `xp_reward`, `estimated_time`, `display_order`, `is_published`, `is_hidden`, `created_at`, `updated_at`) VALUES
+INSERT INTO `cours` (`id`, `title`, `description`, `content`, `difficulty`, `icon`, `theme`, `xp_reward`, `estimated_time`, `display_order`, `is_published`, `is_hidden`, `created_at`, `updated_at`) VALUES
 (1, 'Introduction à la Cybersécurité', 'Découvrez les bases de la sécurité informatique et les menaces courantes.', '<h2>Qu\'est-ce que la cybersécurité ?</h2><p>La <strong>cybersécurité</strong> est l\'ensemble des moyens techniques, organisationnels et humains mis en place pour protéger les systèmes informatiques, les réseaux et les données contre les attaques malveillantes.</p><h3>Les trois piliers de la sécurité</h3><ul><li><strong>Confidentialité</strong> : seules les personnes autorisées peuvent accéder aux informations</li><li><strong>Intégrité</strong> : les données ne peuvent pas être modifiées sans autorisation</li><li><strong>Disponibilité</strong> : les systèmes et données sont accessibles quand on en a besoin</li></ul><h3>Les principales menaces</h3><p>Les cyberattaques peuvent prendre de nombreuses formes :</p><ul><li><strong>Malwares</strong> : virus, ransomwares, chevaux de Troie</li><li><strong>Phishing</strong> : tentatives d\'hameçonnage par email ou SMS</li><li><strong>Attaques par force brute</strong> : tentatives de deviner les mots de passe</li><li><strong>Ingénierie sociale</strong> : manipulation psychologique</li></ul><h3>Pourquoi c\'est important ?</h3><p>En 2025, les cyberattaques coûtent des milliards d\'euros aux entreprises et particuliers. Chaque individu est une cible potentielle.</p>', 'Facile', 'shield', 'blue', 25, 15, 6, 1, 1, '2026-01-07 12:12:36', '2026-01-08 14:00:04'),
 (2, 'Créer des mots de passe sécurisés', 'Apprenez à créer et gérer des mots de passe robustes pour protéger vos comptes.', '<h2>L\'importance des mots de passe</h2><p>Le mot de passe est souvent la <strong>première ligne de défense</strong> contre les intrusions. Un mot de passe faible, c\'est comme laisser la porte de sa maison grande ouverte.</p><h3>Les caractéristiques d\'un bon mot de passe</h3><ul><li><strong>Longueur</strong> : minimum 12 caractères (idéalement 16+)</li><li><strong>Complexité</strong> : mélange de majuscules, minuscules, chiffres et symboles</li><li><strong>Unicité</strong> : un mot de passe différent pour chaque compte</li><li><strong>Imprévisibilité</strong> : éviter les informations personnelles</li></ul><h3>La méthode de la phrase secrète</h3><p>Une technique efficace est de créer une phrase et de la transformer :</p><p><code>\"J\'aime le café le matin à 7h\"</code> devient <code>J@1m3L3C@f3L3M@t1n@7h!</code></p><h3>Les gestionnaires de mots de passe</h3><p>Utilisez un gestionnaire comme <strong>Bitwarden</strong>, <strong>1Password</strong> ou <strong>Dashlane</strong> pour :</p><ul><li>Générer des mots de passe complexes</li><li>Les stocker de façon sécurisée</li><li>Les remplir automatiquement</li></ul><h3>L\'authentification à deux facteurs (2FA)</h3><p>Activez toujours le 2FA quand c\'est possible ! Même si votre mot de passe est compromis, le pirate ne pourra pas accéder à votre compte.</p>', 'Facile', 'key', 'green', 30, 20, 7, 1, 1, '2026-01-07 12:12:36', '2026-01-08 14:00:13'),
 (3, 'Reconnaître le Phishing', 'Identifiez les tentatives d\'hameçonnage et protégez-vous des arnaques en ligne.', '<h2>Qu\'est-ce que le phishing ?</h2><p>Le <strong>phishing</strong> (ou hameçonnage) est une technique utilisée par les cybercriminels pour voler vos informations personnelles en se faisant passer pour une entité de confiance.</p><h3>Les différents types de phishing</h3><ul><li><strong>Email phishing</strong> : faux emails imitant des entreprises légitimes</li><li><strong>Smishing</strong> : phishing par SMS</li><li><strong>Vishing</strong> : phishing par téléphone</li><li><strong>Spear phishing</strong> : attaques ciblées et personnalisées</li></ul><h3>Comment reconnaître un email de phishing ?</h3><p><strong>🚩 Signaux d\'alerte :</strong></p><ul><li>Adresse email suspecte (ex: support@amaz0n-secure.com)</li><li>Urgence excessive (\"Votre compte sera bloqué dans 24h\")</li><li>Fautes d\'orthographe et de grammaire</li><li>Liens suspects (survolez sans cliquer !)</li><li>Demande d\'informations sensibles</li><li>Pièces jointes inattendues</li></ul><h3>Que faire en cas de doute ?</h3><ol><li>Ne cliquez sur aucun lien</li><li>Ne téléchargez aucune pièce jointe</li><li>Contactez l\'entreprise via son site officiel</li><li>Signalez l\'email comme phishing</li></ol>', 'Intermédiaire', 'mail', 'red', 35, 25, 8, 1, 1, '2026-01-07 12:12:36', '2026-01-08 14:00:20'),
@@ -133,6 +133,28 @@ INSERT INTO `courses` (`id`, `title`, `description`, `content`, `difficulty`, `i
 (12, 'Module 3: Glossaire des Concepts de Défense', 'Glossaire des concepts de défense et de protection.', '<h2>🟢 Niveau 1 : Les Fondations de la Sécurité (Facile)</h2><p><em>Les dispositifs essentiels pour filtrer, piéger et cloisonner.</em></p><h3>🔥 Pare-feu (Firewall)</h3><p>Le douanier du réseau. C\'est un dispositif (logiciel ou matériel) qui agit comme une barrière filtrante entre un réseau de confiance (votre entreprise) et un réseau non fiable (Internet).</p><ul><li><strong>Rôle :</strong> Il examine chaque paquet de données qui entre ou sort et décide, selon des règles strictes, de le laisser passer ou de le bloquer.</li></ul><h3>🍯 Honeypot (Pot de miel)</h3><p>Le leurre numérique. C\'est un système volontairement vulnérable conçu pour attirer les pirates.</p><ul><li><strong>Objectif :</strong> Détourner l\'attention des vraies cibles et observer les méthodes de l\'attaquant.</li><li class=\"ql-indent-1\"><strong>Faible interaction :</strong> Un leurre simple, sans risque, qui imite juste l\'apparence d\'un système.</li><li class=\"ql-indent-1\"><strong>Forte interaction :</strong> Un environnement complexe (cloisonné) où le hacker peut réellement entrer, ce qui permet d\'analyser une attaque en situation réelle.</li></ul><h3>🏢 VLANs (Réseaux Locaux Virtuels)</h3><p>La stratégie du cloisonnement. Cela consiste à diviser un réseau physique unique en plusieurs sous-réseaux isolés virtuellement.</p><ul><li><strong>L\'intérêt :</strong> \"Diviser pour mieux régner\". Si un pirate infecte l\'ordinateur d\'un utilisateur, le VLAN l\'empêche de voir ou d\'attaquer directement les serveurs critiques qui sont isolés dans un autre compartiment étanche.</li></ul><h3>🔐 Authentification à Double Facteur (MFA / 2FA)</h3><p>La règle des deux clés. Ce système exige deux preuves d\'identité distinctes pour se connecter. Elle combine généralement \"ce que je sais\" (mot de passe) et \"ce que je possède\" (téléphone).</p><blockquote><strong>Le Scénario Salvateur :</strong> Un pirate vole votre mot de passe Facebook grâce à du Phishing. Il essaie de se connecter.</blockquote><ul><li><strong>Résultat :</strong> L\'accès lui est refusé car il ne possède pas votre smartphone pour recevoir le code SMS de validation. Votre compte est sauvé.</li></ul><h2>🟠 Niveau 2 : Confidentialité et Résilience (Intermédiaire)</h2><p><em>Comment rendre les données illisibles et indestructibles.</em></p><h3>🚇 VPN (Réseau Privé Virtuel)</h3><p>Le tunnel invisible. Cette technologie crée un canal sécurisé et chiffré entre votre appareil et un serveur distant.</p><ul><li><strong>Double effet :</strong> Il masque votre adresse IP (anonymat) et rend vos données illisibles pour les observateurs extérieurs.</li></ul><blockquote><strong>Exemple de vie réelle :</strong> Vous travaillez sur le Wi-Fi public d\'un aéroport. Sans VPN, un attaquant sur le même réseau pourrait intercepter vos données. Avec le VPN, vos données voyagent dans un tunnel chiffré ; elles sont illisibles pour lui.</blockquote><h3>📜 Chiffrement (Encryption)</h3><p>L\'art du code secret. C\'est un procédé mathématique qui transforme des informations lisibles en un code secret qui ne peut être lu qu\'avec une clé de déchiffrement spécifique.</p><ul><li><strong>Indicateur clé :</strong> Le petit cadenas (HTTPS) sur votre navigateur signifie que la communication est chiffrée. Cela garantit que personne ne peut lire vos données (comme votre numéro de carte bancaire) pendant leur transfert.</li></ul><h3>💾 Sauvegardes (Backups)</h3><p>L\'assurance-vie numérique. C\'est une copie de sécurité des données stockée sur un support indépendant (disque dur externe, cloud sécurisé). C\'est souvent la \"dernière ligne de défense\".</p><ul><li><strong>Utilité :</strong> En cas d\'attaque par Ransomware, au lieu de payer la rançon pour récupérer vos fichiers chiffrés, vous pouvez simplement effacer le système infecté et restaurer vos données saines depuis la sauvegarde.</li></ul><h2>🔴 Niveau 3 : Surveillance Active (Difficile)</h2><p><em>Les systèmes intelligents qui écoutent le réseau.</em></p><h3>🚨 IDS / IPS (Détection et Prévention d\'Intrusion)</h3><p>Si le Pare-feu est le douanier à l\'entrée, ces systèmes sont la sécurité qui patrouille à l\'intérieur du réseau. Ils analysent le trafic pour repérer des comportements anormaux.</p><p>Il est important de bien distinguer les deux :</p><p><strong>1. L\'IDS (Intrusion Detection System)</strong></p><ul><li><strong>Son rôle :</strong> C\'est l\'observateur.</li><li><strong>L\'analogie :</strong> C\'est une <strong>alarme silencieuse</strong>.</li><li><strong>Action :</strong> Il surveille le réseau et s\'il repère une signature d\'attaque, il prévient immédiatement l\'administrateur (\"Attention, une serrure est forcée !\"), mais il ne bloque pas l\'action lui-même.</li></ul><p><strong>2. L\'IPS (Intrusion Prevention System)</strong></p><ul><li><strong>Son rôle :</strong> C\'est l\'intervenant.</li><li><strong>L\'analogie :</strong> C\'est un <strong>garde du corps</strong>.</li><li><strong>Action :</strong> Il surveille aussi, mais il a le pouvoir d\'agir. S\'il détecte une tentative d\'intrusion, il intervient activement pour bloquer l\'intrus et couper la connexion instantanément.</li></ul><p><br></p>', 'Facile', 'shield', 'blue', 25, 15, 3, 1, 0, '2026-01-08 13:31:20', '2026-01-08 13:37:17'),
 (13, 'Module 4 : Guide pour le Grand Public', 'Les réflexes essentiels pour sécuriser votre vie numérique au quotidien.', '<h1>👥 </h1><h3>Les réflexes essentiels pour sécuriser votre vie numérique au quotidien.</h3><p>La sécurité informatique n\'est pas qu\'une affaire d\'experts. 90% des piratages exploitent des erreurs simples. Voici les habitudes clés pour verrouiller votre vie numérique.</p><p><br></p><h2>🔐 1. L\'Art du Mot de Passe</h2><h3>🗣️ Mots de passe forts (La méthode \"Passphrase\")</h3><p>Oubliez les mots de passe courts remplis de symboles impossibles à taper. La sécurité réside désormais dans la <strong>longueur</strong>.</p><ul><li><strong>Le principe :</strong> Une phrase est mathématiquement beaucoup plus difficile à casser pour un ordinateur qu\'un mot court complexe, et elle est bien plus facile à retenir pour un humain.</li></ul><blockquote><strong>Comparatif :</strong></blockquote><ul><li>❌ <strong>Faible :</strong> <code>P@ssw0rd!</code> (Court, prévisible. Piraté en quelques secondes).</li><li>✅ <strong>Fort :</strong> <code>J\'aime_Manger_Des_Pommes_En_Hiver_2024</code> (Long, mémorable. Prendrait des siècles à deviner pour une machine).</li></ul><h3>🛡️ Gestionnaire de mots de passe</h3><p>Arrêtez d\'utiliser le même mot de passe partout. Utilisez un <strong>coffre-fort numérique</strong>.</p><ul><li><strong>Définition :</strong> C\'est un logiciel chiffré qui génère et stocke des mots de passe complexes et uniques pour chacun de vos comptes.</li><li><strong>Avantage :</strong> Vous n\'avez plus qu\'un seul mot de passe à retenir : le \"mot de passe maître\" qui ouvre le coffre.</li></ul><blockquote><strong>L\'Analogie :</strong> Imaginez un trousseau avec 50 clés différentes. Au lieu de les porter sur vous (risque de les perdre), vous les placez toutes dans un coffre blindé. Vous n\'avez besoin que de la combinaison du coffre pour accéder à toutes vos clés.</blockquote><h2>💾 2. La Survie des Données</h2><h3>🔄 La Règle du 3-2-1 (Sauvegardes)</h3><p>C\'est la stratégie ultime, utilisée par les professionnels, pour garantir que vous ne perdrez <strong>jamais</strong> vos photos ou documents importants.</p><p>Voici la recette :</p><ul><li><strong>3</strong> copies de vos données (au total).</li><li><strong>2</strong> supports différents (par exemple : votre ordinateur + un disque dur externe).</li><li><strong>1</strong> copie hors site (par exemple : sur le Cloud).</li></ul><blockquote><strong>Pourquoi c\'est infaillible ?</strong> Si un incendie détruit votre maison (adieu l\'ordinateur et le disque dur), il vous reste la copie Cloud. Si le Cloud est piraté ou inaccessible, il vous reste vos copies physiques à la maison.</blockquote><h2>🛠️ 3. Maintenance et Confidentialité</h2><h3>🩹 Mises à jour logicielles (Patchs)</h3><p>Ce petit bouton \"Mettre à jour\" que l\'on repousse souvent est votre meilleur allié.</p><ul><li><strong>Définition :</strong> Les mises à jour installent des correctifs de sécurité fournis par les fabricants (Apple, Microsoft, Google). Ce n\'est pas que pour le design, c\'est surtout pour combler les failles.</li></ul><blockquote><strong>L\'Analogie du Maçon :</strong> Imaginez que les murs de votre maison ont des trous. Une mise à jour, c\'est comme un maçon qui vient boucher ces trous gratuitement avant que les voleurs ne les repèrent. Repousser une mise à jour, c\'est choisir de laisser le trou ouvert volontairement.</blockquote><h3>📱 Permissions des Applications</h3><p>C\'est le contrôle de ce qu\'une application a le droit de faire sur votre téléphone (accès au micro, à la caméra, à la localisation).</p><ul><li><strong>Le réflexe :</strong> Demandez-vous toujours si l\'application a <em>réellement</em> besoin de cet accès pour fonctionner.</li></ul><blockquote><strong>L\'Exemple suspect :</strong> Vous installez une application \"Lampe de poche\". Si elle vous demande l\'accès à vos <strong>Contacts</strong> et à votre <strong>Position GPS</strong>, refusez et supprimez-la. Une lampe n\'a pas besoin de savoir où vous êtes ni qui sont vos amis. C\'est souvent une ruse pour voler et revendre vos données personnelles.</blockquote><p><br></p>', 'Facile', 'users', 'orange', 25, 5, 4, 1, 0, '2026-01-08 13:39:47', '2026-01-08 13:51:15'),
 (14, 'Module 5: Guide Niveau Avancé', 'Stratégies et politiques de sécurité pour les organisations.', '<h2>👔 Politiques et Comportements Humains</h2><p><em>Gérer les droits d\'accès et les usages imprévus des collaborateurs.</em></p><h3>🔑 Principe du Moindre Privilège</h3><p>C\'est la règle d\'or de l\'administration système. Elle consiste à donner à un utilisateur <strong>uniquement</strong> les accès strictement nécessaires à son travail, et rien de plus.</p><ul><li><strong>Pourquoi ?</strong> Pour limiter la casse. Si un compte est piraté, les dégâts restent confinés à la zone autorisée de cet utilisateur.</li></ul><blockquote><strong>Exemple concret :</strong> Un stagiaire en communication doit avoir la clé du dossier \"Photos\", mais pas celle du dossier \"Comptabilité/Salaires\". Si le compte du stagiaire est compromis, le pirate sera bloqué à la porte de la comptabilité.</blockquote><h3>📱 BYOD (Bring Your Own Device)</h3><p>Littéralement \"Apportez votre propre appareil\". C\'est une pratique qui autorise les collaborateurs à utiliser leur matériel personnel (PC, smartphone) pour travailler.</p><ul><li><strong>Le Risque majeur :</strong> L\'ordinateur personnel est une zone de non-droit (jeux vidéo crackés, pas d\'antivirus professionnel, mises à jour en retard).</li><li><strong>Conséquence :</strong> S\'il se connecte au Wi-Fi de l\'entreprise, cet appareil peut servir de \"cheval de Troie\" et infecter tout le réseau professionnel sain.</li></ul><h3>👻 Shadow IT (Informatique de l\'ombre)</h3><p>C\'est l\'utilisation par les employés de logiciels ou services non approuvés par le service informatique. Ce n\'est généralement pas malveillant, mais fait pour \"gagner du temps\" ou \"contourner une restriction\".</p><ul><li><strong>Le danger :</strong> L\'entreprise perd totalement le contrôle et la visibilité sur ses données.</li></ul><blockquote><strong>Le scénario classique :</strong> Le serveur de l\'entreprise est sécurisé mais un peu lent. Pour aller plus vite, les employés s\'envoient des fichiers confidentiels via <strong>WeTransfer</strong> ou leur <strong>Gmail personnel</strong>. Résultat : Des documents sensibles sortent du périmètre sécurisé de l\'entreprise sans que personne ne le sache.</blockquote><h2>🏗️ Architecture et Stratégie</h2><p><em>Comment concevoir un système résilient face aux attaques modernes.</em></p><h3>🏰 Surface d\'attaque</h3><p>C\'est l\'ensemble des points d\'entrée (vulnérabilités potentielles) qu\'un attaquant peut utiliser pour pénétrer dans un système.</p><ul><li><strong>L\'objectif de la sécurité :</strong> Réduire cette surface au maximum. Moins il y a d\'entrées, plus c\'est facile à surveiller.</li></ul><blockquote><strong>L\'Analogie de la Forteresse :</strong></blockquote><ul><li><strong>Grande surface d\'attaque :</strong> Une forteresse avec 50 portes et 100 fenêtres. C\'est un cauchemar à surveiller.</li><li><strong>Réduire la surface :</strong> Vous murez 40 portes inutilisées et mettez des barreaux aux fenêtres.</li></ul><blockquote><em>En informatique, cela revient à désactiver les logiciels inutiles, fermer les ports réseaux non utilisés et supprimer les vieux comptes utilisateurs.</em></blockquote><h3>🆔 Zero Trust (Zéro Confiance)</h3><p>C\'est le modèle de sécurité moderne. Il part du principe qu\'aucun utilisateur ni appareil ne doit être approuvé par défaut, même s\'il est déjà \"à l\'intérieur\" du réseau ou des bureaux.</p><ul><li><strong>La Devise :</strong> \"Ne jamais faire confiance, toujours vérifier.\"</li></ul><blockquote><strong>L\'évolution du modèle :</strong></blockquote><ul><li><strong>Avant (Modèle Château Fort) :</strong> Une fois le pont-levis passé (mot de passe initial), on considère que vous êtes un \"gentil\" et vous pouvez vous balader partout librement.</li><li><strong>Aujourd\'hui (Zero Trust) :</strong> Il y a un garde de sécurité devant <strong>chaque</strong> porte à l\'intérieur du château. Même si vous êtes entré, on revérifie votre badge pour aller à la cafétéria, et on le revérifie encore pour aller aux archives.</li></ul><p><br></p>', 'Intermédiaire', 'users', 'purple', 40, 10, 5, 1, 0, '2026-01-08 13:47:19', '2026-01-08 13:51:15');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `groups`
+--
+
+DROP TABLE IF EXISTS `groups`;
+CREATE TABLE IF NOT EXISTS `groups` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `groups`
+--
+
+INSERT INTO `groups` (`id`, `name`, `created_at`) VALUES
+(4, 'Staff', '2026-04-01 14:01:45');
 
 -- --------------------------------------------------------
 
@@ -487,28 +509,6 @@ INSERT INTO `resources` (`id`, `title`, `description`, `category`, `url`, `conte
 -- --------------------------------------------------------
 
 --
--- Structure de la table `groups`
---
-
-DROP TABLE IF EXISTS `groups`;
-CREATE TABLE IF NOT EXISTS `groups` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `groups` (`name`) VALUES
-('Blue Team'),
-('Purple Team'),
-('Red Team'),
-('Staff'),
-('VIP');
-
--- --------------------------------------------------------
-
---
 -- Structure de la table `users`
 --
 
@@ -542,11 +542,11 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Déchargement des données de la table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `group_name`, `xp`, `level`, `avatar`, `email_verified`, `last_login`, `created_at`, `updated_at`, `is_protected`) VALUES
-(1, 'admin', 'admin@cybersens.fr', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Aucun', 885, 4, NULL, 1, '2026-01-08 12:52:11', '2026-01-07 12:12:36', '2026-01-08 11:52:11', 0),
-(5, 'louis', 'louis@gmail.prout', '$2y$10$NUwTI6i6y3.5UUr/DHMn7.cQyTUbaIZZUyCTT0lUHNm5zJtzMVeWu', 'user', 'Aucun', 1192, 5, NULL, 1, '2026-01-08 16:31:43', '2026-01-07 14:44:56', '2026-01-08 15:34:56', 0),
-(9, 'superadmin', 'superadmin@cybersens.local', '$2y$10$65k4Cs5wUDzxsxwj3tjC9eVEPUqYhxVnjvL2t878bbX1opmmvT.pG', 'superadmin', 'Staff', 10211, 7, NULL, 1, '2026-01-08 16:35:23', '2026-01-08 11:44:53', '2026-01-08 15:35:23', 1),
-(10, 'jules', 'jules@gmail.com', '$2y$10$srsEbDJVeq/zMZg4P6JXSOeOfptzYjFCGHzhA6.wXDt5xX91TwqbG', 'creator', 'Staff', 0, 1, NULL, 1, NULL, '2026-01-08 11:57:33', '2026-01-08 11:57:33', 0);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `group_name`, `xp`, `level`, `avatar`, `email_verified`, `verification_code`, `verification_expires`, `last_login`, `created_at`, `updated_at`, `is_protected`) VALUES
+(1, 'admin', 'admin@cybersens.fr', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'Aucun', 885, 4, NULL, 1, NULL, NULL, '2026-01-08 12:52:11', '2026-01-07 12:12:36', '2026-01-08 11:52:11', 0),
+(5, 'louis', 'louis@gmail.prout', '$2y$10$NUwTI6i6y3.5UUr/DHMn7.cQyTUbaIZZUyCTT0lUHNm5zJtzMVeWu', 'user', 'Aucun', 1192, 5, NULL, 1, NULL, NULL, '2026-01-08 16:31:43', '2026-01-07 14:44:56', '2026-01-08 15:34:56', 0),
+(9, 'superadmin', 'superadmin@cybersens.local', '$2y$10$65k4Cs5wUDzxsxwj3tjC9eVEPUqYhxVnjvL2t878bbX1opmmvT.pG', 'superadmin', 'Staff', 10211, 7, NULL, 1, NULL, NULL, '2026-01-08 16:35:23', '2026-01-08 11:44:53', '2026-01-08 15:35:23', 1),
+(10, 'jules', 'jules@gmail.com', '$2y$10$srsEbDJVeq/zMZg4P6JXSOeOfptzYjFCGHzhA6.wXDt5xX91TwqbG', 'creator', 'Staff', 0, 1, NULL, 1, NULL, NULL, NULL, '2026-01-08 11:57:33', '2026-01-08 11:57:33', 0);
 
 -- --------------------------------------------------------
 
@@ -599,7 +599,7 @@ INSERT INTO `user_badges` (`id`, `user_id`, `badge_id`, `earned_at`) VALUES
 --
 ALTER TABLE `certificates`
   ADD CONSTRAINT `certificates_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `certificates_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `certificates_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `cours` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `notifications`
@@ -619,20 +619,20 @@ ALTER TABLE `phishing_results`
 --
 ALTER TABLE `progression`
   ADD CONSTRAINT `progression_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `progression_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `progression_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `cours` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `questions`
 --
 ALTER TABLE `questions`
-  ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `cours` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `quiz_results`
 --
 ALTER TABLE `quiz_results`
   ADD CONSTRAINT `quiz_results_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `quiz_results_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `quiz_results_ibfk_2` FOREIGN KEY (`course_id`) REFERENCES `cours` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `user_badges`

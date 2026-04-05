@@ -1022,8 +1022,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
         
-        // Restriction d'accès : Si non connecté et essaie d'accéder à autre chose que profil ou home
-        if (!sessionUser && viewId !== 'profil' && viewId !== 'home') {
+        // Restriction d'accès : Si non connecté et essaie d'accéder à autre chose que profil ou home ou mentions
+        if (!sessionUser && viewId !== 'profil' && viewId !== 'home' && viewId !== 'mentions') {
             viewId = 'profil';
         }
 

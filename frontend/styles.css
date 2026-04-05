@@ -250,7 +250,7 @@ p {
     -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
 
-body.auth-restricted .nav-item[data-view]:not([data-view="home"]):not([data-view="profil"]) {
+body.auth-restricted .nav-item[data-view]:not([data-view="home"]):not([data-view="profil"]):not([data-view="mentions"]) {
     opacity: 0.25;
     filter: grayscale(100%);
 }
