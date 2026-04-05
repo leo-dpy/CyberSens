@@ -133,12 +133,13 @@ try {
             $title = trim($data['title'] ?? '');
             $description = trim($data['description'] ?? '');
             $difficulty = $data['difficulty'] ?? 'Facile';
-            $icon = trim($data['icon'] ?? 'book-open');
+            $icon = trim($data['icon'] ?? 'shield');
             $theme = trim($data['theme'] ?? 'blue');
             $xp_reward = (int)($data['xp_reward'] ?? 50);
+            $is_published = isset($data['is_published']) ? (int)$data['is_published'] : 1;
 
             if (empty($title)) {
-                echo json_encode(['success' => false, 'message' => 'Le titre est requis']);
+                echo json_encode(['success' => false, 'error' => 'Le titre est requis']);
                 exit;
             }
 
@@ -147,10 +148,10 @@ try {
             $nextOrder = $orderStmt->fetch()['next_order'];
 
             $stmt = $pdo->prepare("
-                INSERT INTO modules (title, description, difficulty, icon, theme, xp_reward, display_order) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO modules (title, description, difficulty, icon, theme, xp_reward, display_order, is_published) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ");
-            $stmt->execute([$title, $description, $difficulty, $icon, $theme, $xp_reward, $nextOrder]);
+            $stmt->execute([$title, $description, $difficulty, $icon, $theme, $xp_reward, $nextOrder, $is_published]);
 
             $id = $pdo->lastInsertId();
             echo json_encode(['success' => true, 'message' => 'Module créé', 'id' => $id]);
@@ -186,15 +187,28 @@ try {
 
         case 'DELETE':
             // Supprimer un module (cascade les sous-modules et questions)
-            $data = json_decode(file_get_contents('php://input'), true);
-            $id = (int)($data['id'] ?? 0);
+            // L'ID peut être passé en query string ou dans le body
+            $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+            
+            if (!$id) {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $id = (int)($data['id'] ?? 0);
+            }
 
             if (!$id) {
-                echo json_encode(['success' => false, 'message' => 'ID requis']);
+                echo json_encode(['success' => false, 'error' => 'ID requis']);
                 exit;
             }
 
-            // Les FK CASCADE supprimeront automatiquement submodules et questions
+            // Supprimer d'abord les sous-modules (au cas où pas de FK CASCADE)
+            $stmt = $pdo->prepare("DELETE FROM submodules WHERE module_id = ?");
+            $stmt->execute([$id]);
+            
+            // Supprimer les questions
+            $stmt = $pdo->prepare("DELETE FROM questions WHERE module_id = ?");
+            $stmt->execute([$id]);
+            
+            // Supprimer le module
             $stmt = $pdo->prepare("DELETE FROM modules WHERE id = ?");
             $stmt->execute([$id]);
 

@@ -5,102 +5,128 @@ checkCoursesAccess();
 $currentUser = getCurrentUser();
 
 // Suppression d'un module
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM modules WHERE id = ?");
-    $stmt->execute([$id]);
+if (isset($_GET['delete_module']) && is_numeric($_GET['delete_module'])) {
+    $id = (int)$_GET['delete_module'];
+    // Supprimer les sous-modules d'abord
+    $pdo->prepare("DELETE FROM submodules WHERE module_id = ?")->execute([$id]);
+    $pdo->prepare("DELETE FROM questions WHERE module_id = ?")->execute([$id]);
+    $pdo->prepare("DELETE FROM modules WHERE id = ?")->execute([$id]);
     header("Location: cours.php?msg=deleted");
     exit;
 }
 
-// Mise à jour de l'ordre via AJAX
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_order') {
-    header('Content-Type: application/json');
-    $orders = json_decode($_POST['orders'], true);
-    
-    if ($orders) {
-        foreach ($orders as $item) {
-            $stmt = $pdo->prepare("UPDATE modules SET display_order = ? WHERE id = ?");
-            $stmt->execute([(int)$item['order'], (int)$item['id']]);
-        }
-        echo json_encode(['success' => true]);
-    } else {
-        echo json_encode(['success' => false, 'error' => 'Invalid data']);
-    }
+// Suppression d'un sous-module
+if (isset($_GET['delete_submodule']) && is_numeric($_GET['delete_submodule'])) {
+    $id = (int)$_GET['delete_submodule'];
+    $pdo->prepare("DELETE FROM submodules WHERE id = ?")->execute([$id]);
+    header("Location: cours.php?msg=sub_deleted");
     exit;
 }
 
-// Récupérer tous les modules triés par ordre d'affichage
-$modules = $pdo->query("SELECT m.*, 
-    (SELECT COUNT(*) FROM submodules WHERE module_id = m.id) as nb_submodules,
-    (SELECT COUNT(*) FROM questions WHERE module_id = m.id) as nb_questions 
-    FROM modules m ORDER BY m.display_order ASC, m.id ASC")->fetchAll();
+// Récupérer les modules avec stats
+$modules = $pdo->query("
+    SELECT m.*, 
+           (SELECT COUNT(*) FROM submodules WHERE module_id = m.id) as nb_submodules,
+           (SELECT COUNT(*) FROM questions WHERE module_id = m.id) as nb_questions
+    FROM modules m 
+    ORDER BY m.display_order, m.id
+")->fetchAll();
+
+// Récupérer tous les sous-modules groupés par module
+$allSubmodules = [];
+$submodulesQuery = $pdo->query("SELECT * FROM submodules ORDER BY display_order, id");
+foreach ($submodulesQuery as $sub) {
+    $allSubmodules[$sub['module_id']][] = $sub;
+}
+
+// Icônes
+$icons = [
+    'shield' => '🛡️', 'lock' => '🔒', 'key' => '🔑', 'bug' => '🐛', 'wifi' => '📶',
+    'mail' => '📧', 'globe' => '🌐', 'smartphone' => '📱', 'database' => '🗄️',
+    'cloud' => '☁️', 'code' => '💻', 'terminal' => '⌨️', 'alert-triangle' => '⚠️',
+    'eye' => '👁️', 'users' => '👥', 'file-text' => '📄', 'book' => '📖', 'bookmark' => '🔖'
+];
+
+// Thèmes
+$themes = [
+    'blue' => '#3b82f6', 'purple' => '#8b5cf6', 'green' => '#10b981',
+    'red' => '#ef4444', 'orange' => '#f59e0b', 'cyan' => '#06b6d4', 'pink' => '#ec4899'
+];
+
+$msg = $_GET['msg'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Modules - Admin CyberSens</title>
-    <link rel="stylesheet" href="../../frontend/styles.css?v=<?php echo time(); ?>">
+    <title>Gestion Modules - Admin CyberSens</title>
+    <link rel="stylesheet" href="../../frontend/styles.css">
     <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        .modules-grid { display: flex; flex-direction: column; gap: 1rem; }
+        .module-card { background: rgba(26, 26, 46, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
+        .module-card:hover { border-color: #3b82f6; }
+        .module-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; cursor: pointer; }
+        .module-header:hover { background: rgba(255,255,255,0.02); }
+        .module-info { display: flex; align-items: center; gap: 1rem; flex: 1; }
+        .module-icon-large { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .module-details h3 { margin: 0 0 0.25rem 0; font-size: 1.1rem; color: #fff; }
+        .module-details p { margin: 0; font-size: 0.85rem; color: #888; }
+        .module-stats { display: flex; gap: 1.5rem; margin-right: 2rem; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.25rem; font-weight: 600; color: #fff; }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #888; }
+        .module-actions { display: flex; gap: 0.5rem; }
+        .expand-icon { transition: transform 0.3s; color: #888; }
+        .module-card.expanded .expand-icon { transform: rotate(180deg); }
+        .module-content { display: none; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; background: rgba(0,0,0,0.2); }
+        .module-card.expanded .module-content { display: block; }
+        .submodules-section h4 { margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; color: #fff; }
+        .submodules-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+        .submodule-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; background: rgba(26, 26, 46, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; }
+        .submodule-item:hover { border-color: #3b82f6; }
+        .submodule-info { display: flex; align-items: center; gap: 0.75rem; }
+        .submodule-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .submodule-title { font-weight: 500; color: #fff; }
+        .submodule-meta { font-size: 0.8rem; color: #888; }
+        .empty-state { text-align: center; padding: 2rem; color: #888; }
+        .btn-add-submodule { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; border: 2px dashed rgba(255,255,255,0.2); border-radius: 10px; color: #888; background: transparent; text-decoration: none; transition: all 0.2s; width: 100%; }
+        .btn-add-submodule:hover { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .status-published { background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; }
+        .status-draft { background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; }
+        .diff-facile { color: #10b981; }
+        .diff-intermédiaire { color: #f59e0b; }
+        .diff-difficile { color: #ef4444; }
+        .btn-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+        .btn-icon:hover { background: rgba(59, 130, 246, 0.1); border-color: #3b82f6; color: #3b82f6; }
+        .btn-icon.danger:hover { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; color: #ef4444; }
+        .alert { padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+        .alert-success { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; }
+    </style>
 </head>
 <body>
     <div class="bg-grid"></div>
-
     <div class="app-container">
-        <!-- Barre latérale -->
         <nav class="sidebar">
-            <div class="logo">
-                <span class="logo-text">CyberSens</span>
-            </div>
-            
+            <div class="logo"><span class="logo-text">CyberSens</span></div>
             <div class="nav-menu">
-                <a href="index.php" class="nav-item">
-                    <i data-lucide="layout-dashboard"></i>
-                    <span>Dashboard</span>
-                </a>
-                
-                <?php if(hasPermission('manage_courses')): ?>
-                <a href="cours.php" class="nav-item active">
-                    <i data-lucide="book-open"></i>
-                    <span>Gestion Modules</span>
-                </a>
-                <a href="questions.php" class="nav-item">
-                    <i data-lucide="help-circle"></i>
-                    <span>Banque Questions</span>
-                </a>
+                <a href="index.php" class="nav-item"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+                <a href="cours.php" class="nav-item active"><i data-lucide="book-open"></i><span>Gestion Modules</span></a>
+                <a href="questions.php" class="nav-item"><i data-lucide="help-circle"></i><span>Banque Questions</span></a>
+                <?php if (hasPermission('manage_content')): ?>
+                <a href="news.php" class="nav-item"><i data-lucide="rss"></i><span>Actualités</span></a>
                 <?php endif; ?>
-
-                <?php if(hasPermission('manage_content')): ?>
-                <a href="news.php" class="nav-item">
-                    <i data-lucide="rss"></i>
-                    <span>Actualités</span>
-                </a>
+                <?php if (hasPermission('manage_users')): ?>
+                <a href="users.php" class="nav-item"><i data-lucide="users"></i><span>Utilisateurs</span></a>
                 <?php endif; ?>
-
-                <?php if(hasPermission('manage_users')): ?>
-                <a href="users.php" class="nav-item">
-                    <i data-lucide="users"></i>
-                    <span>Utilisateurs</span>
-                </a>
-                <?php endif; ?>
-
                 <div class="nav-divider"></div>
-
-                <a href="../../index.html" class="nav-item">
-                    <i data-lucide="arrow-left"></i>
-                    <span>Retour au site</span>
-                </a>
+                <a href="../../index.html" class="nav-item"><i data-lucide="arrow-left"></i><span>Retour au site</span></a>
             </div>
-            
             <div class="sidebar-user">
-                <div class="sidebar-user-avatar">
-                     <?php echo strtoupper(substr($currentUser['username'], 0, 1)); ?>
-                </div>
+                <div class="sidebar-user-avatar"><?php echo strtoupper(substr($currentUser['username'], 0, 1)); ?></div>
                 <div class="sidebar-user-info">
                     <div class="sidebar-user-name"><?php echo htmlspecialchars($currentUser['username']); ?></div>
                     <div class="sidebar-user-role"><?php echo getRoleName($currentUser['role']); ?></div>
@@ -108,138 +134,129 @@ $modules = $pdo->query("SELECT m.*,
             </div>
         </nav>
 
-        <!-- Contenu principal -->
         <main class="main-content">
-            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="page-header">
                 <div>
-                    <h1>Modules</h1>
-                    <p class="subtitle">Créez et organisez les modules de formation.</p>
+                    <h1>Gestion des modules</h1>
+                    <p class="subtitle">Créez et organisez vos modules de formation et leurs sous-modules.</p>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button class="btn btn-outline" id="toggleOrderMode">
-                        <i data-lucide="arrow-up-down"></i> Réorganiser
-                    </button>
-                    <a href="add_cours.php" class="btn btn-primary">
-                        <i data-lucide="plus-circle"></i> Nouveau module
-                    </a>
-                </div>
+                <a href="add_cours.php" class="btn btn-primary"><i data-lucide="plus"></i> Nouveau module</a>
             </div>
 
-            <!-- Mode réorganisation -->
-            <div id="orderModePanel" class="card" style="display: none; margin-bottom: 2rem; border-color: var(--accent-primary);">
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div>
-                        <h4 style="color: var(--accent-primary); margin-bottom: 0.5rem;"><i data-lucide="arrow-up-down" style="display: inline; width: 20px;"></i> Mode Réorganisation</h4>
-                        <p class="text-muted" style="margin: 0;">Glissez-déposez les modules pour définir l'ordre.</p>
-                    </div>
-                    <button class="btn btn-success" id="saveOrder" disabled>
-                        <i data-lucide="check"></i> Sauvegarder l'ordre
-                    </button>
-                </div>
-            </div>
-
-            <?php if(isset($_GET['msg'])): ?>
-            <div class="alert alert-success">
-                <i data-lucide="check-circle"></i>
-                <?php 
-                if($_GET['msg'] == 'created') echo 'Module créé avec succès !';
-                if($_GET['msg'] == 'updated') echo 'Module mis à jour !';
-                if($_GET['msg'] == 'deleted') echo 'Module supprimé !';
-                ?>
-            </div>
+            <?php if ($msg === 'created'): ?>
+            <div class="alert alert-success"><i data-lucide="check-circle"></i> Module créé avec succès !</div>
+            <?php elseif ($msg === 'updated'): ?>
+            <div class="alert alert-success"><i data-lucide="check-circle"></i> Module mis à jour !</div>
+            <?php elseif ($msg === 'deleted'): ?>
+            <div class="alert alert-success"><i data-lucide="check-circle"></i> Module supprimé !</div>
+            <?php elseif ($msg === 'sub_created'): ?>
+            <div class="alert alert-success"><i data-lucide="check-circle"></i> Sous-module créé !</div>
+            <?php elseif ($msg === 'sub_updated'): ?>
+            <div class="alert alert-success"><i data-lucide="check-circle"></i> Sous-module mis à jour !</div>
+            <?php elseif ($msg === 'sub_deleted'): ?>
+            <div class="alert alert-success"><i data-lucide="check-circle"></i> Sous-module supprimé !</div>
             <?php endif; ?>
 
-            <div class="admin-table-container">
-                <?php if(count($modules) > 0): ?>
-                <table class="admin-table has-hidden-col">
-                    <thead>
-                        <tr>
-                            <th class="order-handle-col" style="display: none; width: 50px;"></th>
-                            <th>Ordre</th>
-                            <th>Titre</th>
-                            <th>Difficulté</th>
-                            <th>Contenu</th>
-                            <th>Statut</th>
-                            <th>Date</th>
-                            <th class="text-end actions-col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="coursesTableBody">
-                        <?php $order = 1; foreach($modules as $m): ?>
-                        <tr data-id="<?php echo $m['id']; ?>">
-                            <td class="order-handle-col" style="display: none; text-align: center;">
-                                <i data-lucide="grip-vertical" style="cursor: grab; color: var(--accent-primary);"></i>
-                            </td>
-                            <td>
-                                <span class="badge order-badge" style="background: var(--bg-tertiary); color: var(--text-primary); border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;"><?php echo $order++; ?></span>
-                            </td>
-                            <td>
-                                <div style="font-weight: 500; color: var(--text-primary);"><?php echo htmlspecialchars($m['title']); ?></div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;"><?php echo htmlspecialchars($m['description']); ?></div>
-                            </td>
-                            <td>
-                                <?php 
-                                $diffCss = 'facile';
-                                if($m['difficulty'] == 'Intermédiaire' || $m['difficulty'] == 'Moyen') $diffCss = 'moyen';
-                                if($m['difficulty'] == 'Difficile') $diffCss = 'difficile';
-                                ?>
-                                <span class="difficulty-badge <?php echo $diffCss; ?>">
-                                    <?php echo $m['difficulty']; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge" style="background: var(--bg-tertiary); color: var(--text-secondary); margin-right: 0.5rem;">
-                                    <?php echo $m['nb_submodules']; ?> sous-modules
-                                </span>
-                                <span class="badge" style="background: var(--bg-tertiary); color: var(--text-secondary);">
-                                    <?php echo $m['nb_questions']; ?> questions
-                                </span>
-                            </td>
-                            <td>
-                                <?php if(empty($m['is_published']) || $m['is_published'] == 0): ?>
-                                    <span class="badge" style="background: var(--bg-tertiary); color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.6rem;">
-                                        <i data-lucide="eye-off" style="width: 14px; height: 14px;"></i> Brouillon
-                                    </span>
-                                <?php else: ?>
-                                    <span class="badge badge-success" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-                                        <i data-lucide="eye" style="width: 14px; height: 14px;"></i> Publié
-                                    </span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-muted"><?php echo date('d/m/Y', strtotime($m['created_at'])); ?></td>
-                            <td class="text-end actions-col">
-                                <div class="admin-actions">
-                                    <a href="edit_cours.php?id=<?php echo $m['id']; ?>" class="btn-icon edit" title="Modifier">
-                                        <i data-lucide="pencil"></i>
-                                    </a>
-                                    <a href="questions.php?module_id=<?php echo $m['id']; ?>" class="btn-icon manage" title="Gérer les questions">
-                                        <i data-lucide="help-circle"></i>
-                                    </a>
-                                    <a href="cours.php?delete=<?php echo $m['id']; ?>" class="btn-icon delete" title="Supprimer" onclick="return confirmAction(event, 'Êtes-vous sûr de vouloir supprimer ce module et tous ses sous-modules ?');">
-                                        <i data-lucide="trash-2"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <div style="padding: 4rem; text-align: center;">
-                    <i data-lucide="book-open" style="width: 64px; height: 64px; color: var(--text-muted); opacity: 0.5; margin-bottom: 1rem;"></i>
-                    <h3 style="margin-bottom: 0.5rem;">Aucun module</h3>
-                    <p class="text-muted" style="margin-bottom: 1.5rem;">Commencez par créer votre premier module de formation.</p>
-                    <a href="add_cours.php" class="btn btn-primary">
-                        <i data-lucide="plus-circle"></i> Créer un module
-                    </a>
+            <div class="modules-grid">
+                <?php if (empty($modules)): ?>
+                <div class="card">
+                    <div class="empty-state">
+                        <i data-lucide="book-open"></i>
+                        <p>Aucun module créé. Cliquez sur "Nouveau module" pour commencer.</p>
+                    </div>
                 </div>
+                <?php else: ?>
+                <?php foreach ($modules as $module): 
+                    $themeColor = $themes[$module['theme'] ?? 'blue'] ?? '#3b82f6';
+                    $submodules = $allSubmodules[$module['id']] ?? [];
+                ?>
+                <div class="module-card" data-module-id="<?php echo $module['id']; ?>">
+                    <div class="module-header" onclick="toggleModule(<?php echo $module['id']; ?>)">
+                        <div class="module-info">
+                            <div class="module-icon-large" style="background: <?php echo $themeColor; ?>20; color: <?php echo $themeColor; ?>;">
+                                <?php echo $icons[$module['icon'] ?? 'shield'] ?? '🛡️'; ?>
+                            </div>
+                            <div class="module-details">
+                                <h3><?php echo htmlspecialchars($module['title']); ?></h3>
+                                <p><?php echo htmlspecialchars(substr($module['description'] ?? '', 0, 80)); ?></p>
+                            </div>
+                        </div>
+                        
+                        <div class="module-stats">
+                            <div class="stat-item">
+                                <div class="stat-value"><?php echo $module['nb_submodules']; ?></div>
+                                <div class="stat-label">Sous-modules</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value"><?php echo $module['nb_questions']; ?></div>
+                                <div class="stat-label">Questions</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value diff-<?php echo strtolower($module['difficulty'] ?? 'facile'); ?>"><?php echo $module['difficulty'] ?? 'Facile'; ?></div>
+                                <div class="stat-label">Difficulté</div>
+                            </div>
+                        </div>
+                        
+                        <span class="<?php echo $module['is_published'] ? 'status-published' : 'status-draft'; ?>">
+                            <?php echo $module['is_published'] ? 'Publié' : 'Brouillon'; ?>
+                        </span>
+                        
+                        <div class="module-actions" onclick="event.stopPropagation();">
+                            <a href="edit_cours.php?id=<?php echo $module['id']; ?>" class="btn-icon" title="Modifier"><i data-lucide="edit"></i></a>
+                            <a href="questions.php?module_id=<?php echo $module['id']; ?>" class="btn-icon" title="Questions"><i data-lucide="help-circle"></i></a>
+                            <a href="cours.php?delete_module=<?php echo $module['id']; ?>" class="btn-icon danger" title="Supprimer" onclick="return confirm('Supprimer ce module et tous ses sous-modules ?');"><i data-lucide="trash-2"></i></a>
+                        </div>
+                        
+                        <i data-lucide="chevron-down" class="expand-icon"></i>
+                    </div>
+                    
+                    <div class="module-content">
+                        <div class="submodules-section">
+                            <h4><i data-lucide="layers"></i> Sous-modules (<?php echo count($submodules); ?>)</h4>
+                            
+                            <?php if (empty($submodules)): ?>
+                            <div class="empty-state">
+                                <p>Aucun sous-module.</p>
+                            </div>
+                            <?php else: ?>
+                            <div class="submodules-list">
+                                <?php foreach ($submodules as $sub): ?>
+                                <div class="submodule-item">
+                                    <div class="submodule-info">
+                                        <div class="submodule-icon" style="background: <?php echo $themeColor; ?>20; color: <?php echo $themeColor; ?>;">
+                                            <?php echo $icons[$sub['icon'] ?? 'file-text'] ?? '📄'; ?>
+                                        </div>
+                                        <div>
+                                            <div class="submodule-title"><?php echo htmlspecialchars($sub['title']); ?></div>
+                                            <div class="submodule-meta"><?php echo $sub['estimated_time'] ?? 10; ?> min • <?php echo $sub['xp_reward'] ?? 10; ?> XP</div>
+                                        </div>
+                                    </div>
+                                    <div class="module-actions">
+                                        <a href="edit_submodule.php?id=<?php echo $sub['id']; ?>" class="btn-icon" title="Modifier"><i data-lucide="edit"></i></a>
+                                        <a href="cours.php?delete_submodule=<?php echo $sub['id']; ?>" class="btn-icon danger" title="Supprimer" onclick="return confirm('Supprimer ce sous-module ?');"><i data-lucide="trash-2"></i></a>
+                                    </div>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php endif; ?>
+                            
+                            <a href="add_submodule.php?module_id=<?php echo $module['id']; ?>" class="btn-add-submodule">
+                                <i data-lucide="plus"></i> Ajouter un sous-module
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </main>
     </div>
 
-    <script src="../../frontend/js/admin/shared.js"></script>
-    <script src="../../frontend/js/admin/cours.js"></script>
-    <link rel="stylesheet" href="../../frontend/css/admin/cours.css">
+    <script>
+        function toggleModule(moduleId) {
+            document.querySelector(`.module-card[data-module-id="${moduleId}"]`).classList.toggle('expanded');
+        }
+        lucide.createIcons();
+    </script>
 </body>
 </html>

@@ -194,8 +194,13 @@ try {
 
         case 'DELETE':
             // Supprimer un sous-module
-            $data = json_decode(file_get_contents('php://input'), true);
-            $id = (int)($data['id'] ?? 0);
+            // L'ID peut être passé en query string ou dans le body
+            $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+            
+            if (!$id) {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $id = (int)($data['id'] ?? 0);
+            }
 
             if (!$id) {
                 echo json_encode(['success' => false, 'message' => 'ID requis']);
