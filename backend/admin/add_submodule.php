@@ -69,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="../../frontend/styles.css">
     <link rel="icon" type="image/svg+xml" href="../../frontend/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         .icon-grid {
@@ -96,6 +97,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-color: var(--primary);
             background: rgba(59, 130, 246, 0.2);
         }
+        /* Quill Editor Styles */
+        .editor-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+        .ql-toolbar.ql-snow {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .ql-container.ql-snow {
+            border: none;
+            min-height: 300px;
+            font-size: 1rem;
+        }
+        .ql-editor {
+            color: #fff;
+            min-height: 300px;
+        }
+        .ql-editor.ql-blank::before {
+            color: #666;
+            font-style: normal;
+        }
+        .ql-snow .ql-stroke { stroke: #aaa; }
+        .ql-snow .ql-fill { fill: #aaa; }
+        .ql-snow .ql-picker { color: #aaa; }
+        .ql-snow .ql-picker-options { background: #1a1a2e; border-color: rgba(255,255,255,0.1); }
+        .ql-snow .ql-picker-item:hover { color: #3b82f6; }
+        .ql-snow .ql-picker-item.ql-selected { color: #3b82f6; }
+        .ql-snow button:hover .ql-stroke { stroke: #3b82f6; }
+        .ql-snow button:hover .ql-fill { fill: #3b82f6; }
+        .ql-snow button.ql-active .ql-stroke { stroke: #3b82f6; }
+        .ql-snow button.ql-active .ql-fill { fill: #3b82f6; }
+        .ql-toolbar.ql-snow .ql-formats { margin-right: 10px; }
+        .ql-editor h1, .ql-editor h2, .ql-editor h3 { color: #fff; }
+        .ql-editor a { color: #3b82f6; }
+        .ql-editor blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #aaa; }
+        .ql-editor pre.ql-syntax { background: rgba(0,0,0,0.4); border-radius: 6px; padding: 1rem; }
+        .ql-editor code { background: rgba(59, 130, 246, 0.2); padding: 2px 6px; border-radius: 4px; color: #3b82f6; }
     </style>
 </head>
 <body>
@@ -157,7 +199,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         <div class="form-group">
                             <label class="form-label">Contenu du cours</label>
-                            <textarea name="content" class="form-input" rows="15" placeholder="Rédigez le contenu ici... (HTML supporté)"></textarea>
+                            <input type="hidden" name="content" id="contentInput">
+                            <div class="editor-container">
+                                <div id="editor"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -197,12 +242,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </main>
     </div>
 
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <script>
+        // Sélection d'icône
         function selectIcon(value, element) {
             document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             document.getElementById('iconInput').value = value;
         }
+
+        // Initialiser Quill
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Rédigez le contenu du cours ici...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    ['blockquote', 'code-block'],
+                    ['link', 'image'],
+                    [{ 'align': [] }],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Synchroniser avec le champ hidden avant soumission
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('contentInput').value = quill.root.innerHTML;
+        });
+
         lucide.createIcons();
     </script>
 </body>
