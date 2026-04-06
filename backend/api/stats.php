@@ -15,12 +15,12 @@ try {
     // Nombre de modules publiés (anciennement cours)
     $stats['courses'] = $pdo->query("SELECT COUNT(*) FROM modules WHERE is_published = 1")->fetchColumn();
     
-    // Taux de réussite (Moyenne des scores des certifications, ou 0 si vide)
-    $avgScore = $pdo->query("SELECT AVG(score) FROM certificates")->fetchColumn();
+    // Taux de réussite (basé sur les quiz complétés)
+    $avgScore = $pdo->query("SELECT AVG(score) FROM quiz_results")->fetchColumn();
     $stats['successRate'] = $avgScore ? round($avgScore, 1) : 0;
     
-    // Nombre de certificats délivrés
-    $stats['certificates'] = $pdo->query("SELECT COUNT(*) FROM certificates")->fetchColumn();
+    // Nombre de badges délivrés
+    $stats['badges'] = $pdo->query("SELECT COUNT(*) FROM user_badges")->fetchColumn();
     
     echo json_encode(['success' => true, 'stats' => $stats]);
     

@@ -943,6 +943,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (s.questions !== undefined) animateValue("stat-questions", s.questions, 1000);
                 if (s.courses !== undefined) animateValue("stat-courses", s.courses, 1000);
                 if (s.successRate !== undefined) animateValue("stat-success-rate", s.successRate, 1000, "%");
+                if (s.badges !== undefined) animateValue("stat-badges", s.badges, 1000);
 
             }
         } catch (e) {
