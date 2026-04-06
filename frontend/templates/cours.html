@@ -2,7 +2,7 @@
     <h1>Modules de <span class="text-gradient">Formation</span></h1>
     <p class="subtitle">Accédez à notre base de connaissances classifiée. Du niveau novice à expert.</p>
 
-    <div id="modules-grid" class="bento-grid">
+    <div id="modules-grid" class="bento-grid" style="margin-top: 2rem;">
         <div style="grid-column: span 3; text-align: center; padding: 4rem;">
             <i data-lucide="loader-2" style="width: 48px; height: 48px; color: var(--primary-color); animation: spin 1s linear infinite; margin-bottom: 2rem;"></i>
             <p style="color: #888; font-size: 1.1rem;">Chargement des modules...</p>
@@ -114,20 +114,29 @@
 .module-card .module-meta {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
     font-size: 0.75rem;
     color: var(--text-secondary);
+    margin-top: auto;
+}
+
+.module-card .module-meta .meta-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .module-card .module-meta span {
     display: flex;
     align-items: center;
     gap: 0.3rem;
+    white-space: nowrap;
 }
 
 .module-card .module-meta i {
     width: 14px;
     height: 14px;
+    flex-shrink: 0;
 }
 
 .module-card .status-badge {
@@ -445,6 +454,8 @@
     border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .difficulty-badge.easy {

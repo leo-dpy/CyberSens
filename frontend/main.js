@@ -1988,8 +1988,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p>${m.description || ''}</p>
                     
                     <div class="module-meta">
-                        <span><i data-lucide="layers"></i> ${m.nb_submodules || 0} sous-modules</span>
-                        <span><i data-lucide="help-circle"></i> ${m.nb_questions || 0} questions</span>
+                        <div class="meta-left">
+                            <span><i data-lucide="layers"></i> ${m.nb_submodules || 0} sous-modules</span>
+                            <span><i data-lucide="help-circle"></i> ${m.nb_questions || 0} questions</span>
+                        </div>
                         <span class="difficulty-badge ${diffClass}">${m.difficulty}</span>
                     </div>
                 </div>
