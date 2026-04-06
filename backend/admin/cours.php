@@ -112,15 +112,18 @@ $msg = $_GET['msg'] ?? '';
         .modules-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
         
         .module-card { 
-            background: rgba(5, 5, 5, 0.95); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 16px; 
+            background: rgba(10, 10, 12, 0.9); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px; 
             overflow: hidden;
             transition: all 0.3s ease;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
         }
         .module-card:hover { 
-            border-color: rgba(255,255,255,0.25);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
         }
         
         .module-header { 
@@ -172,9 +175,9 @@ $msg = $_GET['msg'] ?? '';
         
         .module-content { 
             display: none; 
-            border-top: 1px solid rgba(255,255,255,0.08); 
+            border-top: 1px solid rgba(255,255,255,0.1); 
             padding: 1.5rem; 
-            background: rgba(0,0,0,0.5); 
+            background: rgba(0,0,0,0.4); 
         }
         .module-card.expanded .module-content { display: block; }
         
@@ -195,14 +198,18 @@ $msg = $_GET['msg'] ?? '';
             align-items: center; 
             justify-content: space-between; 
             padding: 1rem 1.25rem; 
-            background: rgba(10, 10, 10, 0.9); 
-            border: 1px solid rgba(255,255,255,0.08); 
-            border-radius: 12px;
-            transition: all 0.2s;
+            background: rgba(10, 10, 12, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
         .submodule-item:hover { 
-            border-color: rgba(255,255,255,0.2); 
-            background: rgba(15, 15, 15, 0.95);
+            border-color: rgba(255, 255, 255, 0.3); 
+            background: rgba(20, 20, 26, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
         
         .submodule-info { display: flex; align-items: center; gap: 1rem; }

@@ -38,25 +38,47 @@
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 .module-card {
-    background: var(--bg-secondary);
-    border-radius: 16px;
-    padding: 1.5rem;
+    background: linear-gradient(145deg, rgba(12, 12, 15, 0.98), rgba(5, 5, 8, 0.99));
+    border-radius: 20px;
+    padding: 1.75rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     position: relative;
     overflow: hidden;
+    box-shadow: 
+        0 4px 24px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Ligne lumineuse en haut */
+.module-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
 }
 
 .module-card:hover:not(.locked) {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px var(--primary-glow);
-    border-color: var(--primary);
+    transform: translateY(-5px);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        0 0 25px var(--primary-glow, rgba(255, 255, 255, 0.1));
+    border-color: var(--primary, rgba(255, 255, 255, 0.4));
+    background: linear-gradient(145deg, rgba(18, 18, 22, 0.98), rgba(10, 10, 14, 0.99));
+}
+
+.module-card:hover:not(.locked)::before {
+    background: linear-gradient(90deg, transparent, var(--primary, rgba(255, 255, 255, 0.5)), transparent);
 }
 
 .module-card.locked {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .module-card .module-icon {
@@ -151,23 +173,36 @@
 
 /* Submodule cards */
 .submodule-card {
-    background: var(--bg-secondary);
+    background: linear-gradient(145deg, rgba(12, 12, 15, 0.98), rgba(5, 5, 8, 0.99));
     border-radius: 16px;
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     position: relative;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .submodule-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 32px var(--primary-glow);
-    border-color: var(--primary);
+    box-shadow: 
+        0 10px 35px rgba(0, 0, 0, 0.4),
+        0 0 20px var(--primary-glow, rgba(255, 255, 255, 0.1));
+    border-color: var(--primary, rgba(255, 255, 255, 0.35));
+    background: linear-gradient(145deg, rgba(18, 18, 22, 0.98), rgba(10, 10, 14, 0.99));
 }
 
 .submodule-card.completed {
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.submodule-card.completed:hover {
     border-color: #10b981;
+    box-shadow: 
+        0 10px 35px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(16, 185, 129, 0.2);
 }
 
 .submodule-card .submodule-icon {
@@ -239,18 +274,25 @@
 
 /* Quiz card */
 .quiz-card {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+    background: linear-gradient(145deg, rgba(12, 12, 15, 0.98), rgba(5, 5, 8, 0.99));
     border-radius: 16px;
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    border: none;
-    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .quiz-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 32px var(--primary-glow);
+    border-color: var(--primary, rgba(255, 255, 255, 0.35));
+    box-shadow: 
+        0 10px 35px rgba(0, 0, 0, 0.4),
+        0 0 20px var(--primary-glow, rgba(255, 255, 255, 0.1));
+    background: linear-gradient(145deg, rgba(18, 18, 22, 0.98), rgba(10, 10, 14, 0.99));
 }
 
 .quiz-card .quiz-icon {
@@ -261,11 +303,11 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 1rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, var(--primary, #fff), var(--primary-dim, #ccc));
 }
 
 .quiz-card .quiz-icon i {
-    color: white;
+    color: #000;
     width: 24px;
     height: 24px;
 }

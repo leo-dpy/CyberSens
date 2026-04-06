@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if(hasPermission('manage_courses')): ?>
                 <a href="cours.php" class="nav-item">
                     <i data-lucide="book-open"></i>
-                    <span>Gestion Cours</span>
+                    <span>Gestion Modules</span>
                 </a>
                 <a href="questions.php" class="nav-item">
                     <i data-lucide="help-circle"></i>
