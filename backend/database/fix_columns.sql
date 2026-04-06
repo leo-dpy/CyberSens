@@ -7,27 +7,14 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- =====================================================
--- CERTIFICATES : Renommer course_id en module_id
+-- SUPPRIMER LA TABLE CERTIFICATES (plus utilisée)
 -- =====================================================
--- Vérifier si la colonne course_id existe
-SET @col_exists = (SELECT COUNT(*) 
-    FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_SCHEMA = DATABASE() 
-    AND TABLE_NAME = 'certificates' 
-    AND COLUMN_NAME = 'course_id');
-
--- Si course_id existe, le renommer en module_id
-SET @sql = IF(@col_exists > 0, 
-    'ALTER TABLE `certificates` CHANGE COLUMN `course_id` `module_id` int NOT NULL',
-    'SELECT "Column module_id already exists in certificates"');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+DROP TABLE IF EXISTS `certificates`;
 
 -- =====================================================
 -- QUIZ_RESULTS : Renommer course_id en module_id
 -- =====================================================
-SET @col_exists = (SELECT COUNT(*) 
+SET @col_exists = (SELECT COUNT(*)
     FROM INFORMATION_SCHEMA.COLUMNS 
     WHERE TABLE_SCHEMA = DATABASE() 
     AND TABLE_NAME = 'quiz_results' 
@@ -110,7 +97,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 SELECT 'Colonnes mises à jour avec succès!' AS message;
 
 -- Afficher la structure des tables modifiées
-SHOW COLUMNS FROM certificates WHERE Field = 'module_id';
 SHOW COLUMNS FROM quiz_results WHERE Field = 'module_id';
 SHOW COLUMNS FROM questions WHERE Field = 'module_id';
 SHOW COLUMNS FROM progression WHERE Field = 'module_id';

@@ -460,38 +460,6 @@ class ApiClient {
         }
     }
 
-    // API CERTIFICATS
-    async getCertificates(userId) {
-        try {
-            const response = await fetch(`${API_URL}/certificates.php?user_id=${userId}`);
-            const data = await response.json();
-            return data.success ? data.certificates : [];
-        } catch (e) {
-            return [];
-        }
-    }
-
-    async generateCertificate(userId, courseId, score) {
-        try {
-            const response = await fetch(`${API_URL}/certificates.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, course_id: courseId, score })
-            });
-            return await response.json();
-        } catch (e) {
-            return { success: false };
-        }
-    }
-
-    async verifyCertificate(code) {
-        try {
-            const response = await fetch(`${API_URL}/certificates.php?code=${code}`);
-            return await response.json();
-        } catch (e) {
-            return { success: false, valid: false };
-        }
-    }
 
     // API PHISHING
     async getPhishingScenarios(userId = null) {
@@ -975,7 +943,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (s.questions !== undefined) animateValue("stat-questions", s.questions, 1000);
                 if (s.courses !== undefined) animateValue("stat-courses", s.courses, 1000);
                 if (s.successRate !== undefined) animateValue("stat-success-rate", s.successRate, 1000, "%");
-                if (s.certificates !== undefined) animateValue("stat-certificates", s.certificates, 1000);
 
             }
         } catch (e) {
@@ -1437,12 +1404,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 updateXpProgressBar(xp, levelNum);
             }
             
-            // Toujours charger les badges et certificats si on est sur la page profil
+            // Toujours charger les badges si on est sur la page profil
             const badgesGrid = document.getElementById('user-badges-grid');
-            const certsGrid = document.getElementById('user-certificates-grid');
-            if (badgesGrid || certsGrid) {
+            if (badgesGrid) {
                 loadUserBadges(user.id);
-                loadUserCertificates(user.id);
             }
 
             // Charger les notifications globals
@@ -1544,35 +1509,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
             }).join('');
             console.log('[DEBUG] badges HTML généré');
-
-            lucide.createIcons();
-        }
-
-        async function loadUserCertificates(userId) {
-            const certificates = await api.getCertificates(userId);
-            const certsGrid = document.getElementById('user-certificates-grid');
-            const certCountEl = document.getElementById('user-certs-display');
-
-            if (certCountEl) {
-                certCountEl.textContent = certificates.length || 0;
-            }
-
-            if (!certsGrid) return;
-
-            if (!certificates || certificates.length === 0) {
-                certsGrid.innerHTML = '<div class="no-data"><i data-lucide="scroll"></i><p>Complétez des cours avec 70%+ pour obtenir des certificats</p></div>';
-                lucide.createIcons();
-                return;
-            }
-
-            certsGrid.innerHTML = certificates.map(c => `
-                <div class="certificate-item">
-                    <span class="cert-score">${c.score}%</span>
-                    <h4>${c.course_title}</h4>
-                    <div class="cert-code">${c.certificate_code}</div>
-                    <div class="cert-date">Obtenu le ${new Date(c.issued_at).toLocaleDateString('fr-FR')}</div>
-                </div>
-            `).join('');
 
             lucide.createIcons();
         }
@@ -2941,7 +2877,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Sauvegarder la progression si l'utilisateur est connecté
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        let certificateCode = null;
         let xpGained = 0;
         let leveledUp = false;
 
@@ -2975,41 +2910,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Sauvegarder la progression avec le score
                 await api.saveProgression(sessionUser.id, courseId, 1, percentage);
 
-                // Vérifier si un nouveau module est débloqué
-                const courses = await api.getCourses(sessionUser.id, sessionUser.role);
-                const currentCourseIndex = courses.findIndex(c => c.id == courseId);
-                if (currentCourseIndex !== -1 && currentCourseIndex < courses.length - 1) {
-                    const nextCourse = courses[currentCourseIndex + 1];
-                    if (!nextCourse.is_locked) {
-                        // Le prochain module est maintenant débloqué !
-                        setTimeout(() => {
-                            showToast('🔓 Module Débloqué !', `"${nextCourse.title}" est maintenant accessible !`, 'unlock', 7000);
-                        }, 1000);
-
-                        // Sauvegarder la notification en base
-                        await api.createNotification(
-                            sessionUser.id,
-                            'Nouveau module débloqué !',
-                            `Vous avez débloqué le module "${nextCourse.title}". Continuez votre progression !`,
-                            'unlock',
-                            '#cours'
-                        );
-                    }
-                }
-
-                // Générer un certificat
-                const certResult = await api.generateCertificate(sessionUser.id, courseId, percentage);
-                if (certResult.success) {
-                    certificateCode = certResult.certificate_code;
-                    setTimeout(() => {
-                        showToast('Certificat Obtenu !', 'Un certificat a été généré pour ce cours', 'achievement', 5000);
-                    }, 1500);
-                }
-
                 // Vérifier les nouveaux badges
                 const badgeResult = await api.checkBadges(sessionUser.id);
                 if (badgeResult.new_badges && badgeResult.new_badges.length > 0) {
-                    let delay = 2000;
+                    let delay = 1000;
                     badgeResult.new_badges.forEach(badge => {
                         setTimeout(() => {
                             showToast(`🏅 Badge Débloqué !`, `"${badge.name}" - ${badge.description}`, 'achievement', 6000);
@@ -3039,12 +2943,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <p style="color: var(--accent-color); font-weight: 600;">
                                 +${xpGained} XP ${leveledUp ? '🎊 Niveau supérieur!' : ''}
                             </p>
-                        </div>
-                    ` : ''}
-                    ${certificateCode ? `
-                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.1); border-radius: 8px; border: 1px solid var(--primary-color);">
-                            <p style="color: var(--primary-color); font-weight: 600;">🏆 Certificat obtenu !</p>
-                            <p style="font-family: 'JetBrains Mono', monospace; color: #999;">${certificateCode}</p>
                         </div>
                     ` : ''}
                 </div>
@@ -3203,7 +3101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // VUE SIMULATION PHISHING
-    async function initPhishingView() {
+    window.initPhishingView = async function() {
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
         // Charger les scénarios

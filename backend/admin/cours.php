@@ -511,7 +511,7 @@ $msg = $_GET['msg'] ?? '';
                         <div class="module-actions" onclick="event.stopPropagation();">
                             <a href="edit_cours.php?id=<?php echo $module['id']; ?>" class="btn-icon" title="Modifier"><i data-lucide="edit"></i></a>
                             <a href="questions.php?module_id=<?php echo $module['id']; ?>" class="btn-icon" title="Questions"><i data-lucide="help-circle"></i></a>
-                            <a href="cours.php?delete_module=<?php echo $module['id']; ?>" class="btn-icon danger" title="Supprimer" onclick="return confirm('Supprimer ce module et tous ses sous-modules ?');"><i data-lucide="trash-2"></i></a>
+                            <a href="cours.php?delete_module=<?php echo $module['id']; ?>" class="btn-icon danger" title="Supprimer" onclick="return confirmAction(event, 'Supprimer le module « <?php echo htmlspecialchars(addslashes($module['title'])); ?> » et tous ses sous-modules ?')"><i data-lucide="trash-2"></i></a>
                         </div>
                         
                         <i data-lucide="chevron-down" class="expand-icon"></i>
@@ -551,7 +551,7 @@ $msg = $_GET['msg'] ?? '';
                                     </div>
                                     <div class="module-actions">
                                         <a href="edit_submodule.php?id=<?php echo $sub['id']; ?>" class="btn-icon" title="Modifier"><i data-lucide="edit"></i></a>
-                                        <a href="cours.php?delete_submodule=<?php echo $sub['id']; ?>" class="btn-icon danger" title="Supprimer" onclick="return confirm('Supprimer ce sous-module ?');"><i data-lucide="trash-2"></i></a>
+                                        <a href="cours.php?delete_submodule=<?php echo $sub['id']; ?>" class="btn-icon danger" title="Supprimer" onclick="return confirmAction(event, 'Supprimer le sous-module « <?php echo htmlspecialchars(addslashes($sub['title'])); ?> » ?')"><i data-lucide="trash-2"></i></a>
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
@@ -570,6 +570,7 @@ $msg = $_GET['msg'] ?? '';
         </main>
     </div>
 
+    <script src="../../frontend/js/admin/shared.js"></script>
     <script>
         function toggleModule(moduleId) {
             document.querySelector(`.module-card[data-module-id="${moduleId}"]`).classList.toggle('expanded');
