@@ -1117,7 +1117,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
 
             // Initialiser la logique de vue spécifique
-            if (viewId === 'profil') initAuth();
+            if (viewId === 'profil') {
+                initAuth();
+            }
             if (viewId === 'leaderboard') loadLeaderboards();
 
             if (viewId === 'home') {
@@ -1387,11 +1389,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         async function updateUI(user) {
-            if (!authContainer) return;
-
-            // Masquer Auth, Afficher Dashboard
-            authContainer.style.display = 'none';
-            userDashboard.style.display = 'block';
+            // Masquer Auth, Afficher Dashboard (si les éléments existent)
+            if (authContainer) {
+                authContainer.style.display = 'none';
+            }
+            if (userDashboard) {
+                userDashboard.style.display = 'block';
+            }
 
             // Mise à jour des globales MÊME SI la page profil a disparu
             if (user.role === 'admin' || user.role === 'creator' || user.role === 'superadmin') {
@@ -1431,8 +1435,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Mettre à jour la barre de progression XP
                 updateXpProgressBar(xp, levelNum);
-
-                // Charger les badges et certificats
+            }
+            
+            // Toujours charger les badges et certificats si on est sur la page profil
+            const badgesGrid = document.getElementById('user-badges-grid');
+            const certsGrid = document.getElementById('user-certificates-grid');
+            if (badgesGrid || certsGrid) {
                 loadUserBadges(user.id);
                 loadUserCertificates(user.id);
             }
@@ -1495,8 +1503,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         async function loadUserBadges(userId) {
+            console.log('[DEBUG] loadUserBadges appelé avec userId:', userId);
             const badgesData = await api.getBadges(userId);
+            console.log('[DEBUG] badgesData:', badgesData);
             const badgesGrid = document.getElementById('user-badges-grid');
+            console.log('[DEBUG] badgesGrid trouvé:', !!badgesGrid);
             const badgeCountEl = document.getElementById('user-badges-display');
             const coursesCountEl = document.getElementById('user-courses-display');
 
@@ -1507,7 +1518,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Récupérer la progression pour le compte des cours
             const progression = await api.getProgression(userId);
             if (coursesCountEl) {
-                coursesCountEl.textContent = progression.length || 0;
+                coursesCountEl.textContent = progression?.length || 0;
             }
 
             if (!badgesGrid) return;
@@ -1519,6 +1530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const unlockedIds = badgesData.unlocked?.map(b => b.badge_id) || [];
+            console.log('[DEBUG] unlockedIds:', unlockedIds);
 
             badgesGrid.innerHTML = badgesData.badges.map(b => {
                 const isUnlocked = unlockedIds.includes(b.id);
@@ -1531,6 +1543,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 `;
             }).join('');
+            console.log('[DEBUG] badges HTML généré');
 
             lucide.createIcons();
         }
@@ -1954,7 +1967,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         modulesGrid.innerHTML = modules.map(m => {
-            const isLocked = m.is_locked === true || m.is_locked === 1;
             const isCompleted = m.is_completed === true || m.is_completed === 1;
             const isStarted = m.is_started === true || m.is_started === 1;
             const theme = themes[m.theme] || themes['blue'];
@@ -1966,19 +1978,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 statusBadge = '<span class="status-badge completed">✓ Terminé</span>';
             } else if (isStarted) {
                 statusBadge = '<span class="status-badge in-progress">⏳ En cours</span>';
-            } else if (isLocked) {
-                statusBadge = '<span class="status-badge locked">🔒 Bloqué</span>';
             }
 
             // Difficulté badge
             const diffClass = m.difficulty === 'Facile' ? 'easy' : m.difficulty === 'Intermédiaire' ? 'medium' : 'hard';
 
             return `
-                <div class="module-card ${isLocked ? 'locked' : ''}" 
+                <div class="module-card" 
                      style="--primary: ${theme.primary}; --primary-glow: ${theme.glow}; --primary-dim: ${theme.primary}80;"
-                     ${isLocked ? '' : `onclick="viewModule(${m.id})"`}>
+                     onclick="viewModule(${m.id})">
                     ${statusBadge}
-                    ${isLocked ? '<div class="lock-overlay"><i data-lucide="lock"></i></div>' : ''}
                     
                     <div class="module-icon">
                         <i data-lucide="${iconName}"></i>
@@ -2046,13 +2055,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Grille des sous-modules + carte quiz
         const submodulesGrid = document.getElementById('submodules-grid');
         
-        let html = submodules.map(s => {
+        // Trier les sous-modules par display_order pour le blocage
+        const sortedSubmodules = [...submodules].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        
+        let html = sortedSubmodules.map((s, index) => {
             const isCompleted = s.is_completed === true || s.is_completed === 1;
             const isRead = s.is_read === true || s.is_read === 1;
+            
+            // Un sous-module est débloqué si :
+            // - C'est le premier (index 0)
+            // - Ou le sous-module précédent est complété
+            const previousCompleted = index === 0 || 
+                (sortedSubmodules[index - 1].is_completed === true || sortedSubmodules[index - 1].is_completed === 1);
+            const isLocked = !previousCompleted && !isCompleted;
 
             return `
-                <div class="submodule-card ${isCompleted ? 'completed' : ''}" onclick="viewSubmodule(${s.id})">
+                <div class="submodule-card ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}" 
+                     onclick="${isLocked ? 'showLockedMessage()' : `viewSubmodule(${s.id})`}"
+                     ${isLocked ? 'title="Complétez le sous-module précédent pour débloquer"' : ''}>
                     ${isCompleted ? '<div class="check-badge"><i data-lucide="check"></i></div>' : ''}
+                    ${isLocked ? '<div class="lock-badge"><i data-lucide="lock"></i></div>' : ''}
                     
                     <div class="submodule-icon">
                         <i data-lucide="${s.icon || 'file-text'}"></i>
@@ -2069,12 +2091,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }).join('');
 
-        // Carte Quiz
+        // Carte Quiz - bloquée si tous les sous-modules ne sont pas complétés
+        const allSubmodulesCompleted = sortedSubmodules.every(s => s.is_completed === true || s.is_completed === 1);
         const quizScore = quiz.last_result ? quiz.last_result.score : null;
         const quizPassed = quizScore !== null && quizScore >= 70;
+        const quizLocked = !allSubmodulesCompleted;
         
         html += `
-            <div class="quiz-card" onclick="startModuleQuiz(${moduleId})">
+            <div class="quiz-card ${quizLocked ? 'locked' : ''}" 
+                 onclick="${quizLocked ? 'showQuizLockedMessage()' : `startModuleQuiz(${moduleId})`}"
+                 ${quizLocked ? 'title="Complétez tous les sous-modules pour débloquer le quiz"' : ''}>
+                ${quizLocked ? '<div class="lock-badge"><i data-lucide="lock"></i></div>' : ''}
                 <div class="quiz-icon">
                     <i data-lucide="${quizPassed ? 'trophy' : 'brain'}"></i>
                 </div>
@@ -2098,6 +2125,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('modules-view').style.display = 'block';
         document.getElementById('submodules-view').style.display = 'none';
         document.getElementById('submodule-content-view').style.display = 'none';
+    };
+
+    // Message quand on clique sur un sous-module bloqué
+    window.showLockedMessage = function() {
+        showToast('🔒 Contenu verrouillé', 'Complétez le sous-module précédent pour débloquer celui-ci', 'warning');
+    };
+
+    // Message quand on clique sur le quiz bloqué
+    window.showQuizLockedMessage = function() {
+        showToast('🔒 Quiz verrouillé', 'Complétez tous les sous-modules pour accéder au quiz', 'warning');
     };
 
     // Voir un sous-module (contenu)

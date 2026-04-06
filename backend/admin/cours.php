@@ -23,6 +23,72 @@ if (isset($_GET['delete_submodule']) && is_numeric($_GET['delete_submodule'])) {
     exit;
 }
 
+// Réordonner les sous-modules (monter)
+if (isset($_GET['move_up']) && is_numeric($_GET['move_up']) && isset($_GET['module_id'])) {
+    $subId = (int)$_GET['move_up'];
+    $moduleId = (int)$_GET['module_id'];
+    
+    // Récupérer tous les sous-modules du module, triés par display_order
+    $stmt = $pdo->prepare("SELECT id, display_order FROM submodules WHERE module_id = ? ORDER BY display_order, id");
+    $stmt->execute([$moduleId]);
+    $subs = $stmt->fetchAll();
+    
+    // Trouver l'index du sous-module à déplacer
+    $currentIndex = null;
+    foreach ($subs as $i => $s) {
+        if ($s['id'] == $subId) {
+            $currentIndex = $i;
+            break;
+        }
+    }
+    
+    // Si pas le premier, échanger avec le précédent
+    if ($currentIndex !== null && $currentIndex > 0) {
+        $prevId = $subs[$currentIndex - 1]['id'];
+        $currentOrder = $subs[$currentIndex]['display_order'];
+        $prevOrder = $subs[$currentIndex - 1]['display_order'];
+        
+        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$prevOrder, $subId]);
+        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$currentOrder, $prevId]);
+    }
+    
+    header("Location: cours.php?msg=reordered");
+    exit;
+}
+
+// Réordonner les sous-modules (descendre)
+if (isset($_GET['move_down']) && is_numeric($_GET['move_down']) && isset($_GET['module_id'])) {
+    $subId = (int)$_GET['move_down'];
+    $moduleId = (int)$_GET['module_id'];
+    
+    // Récupérer tous les sous-modules du module, triés par display_order
+    $stmt = $pdo->prepare("SELECT id, display_order FROM submodules WHERE module_id = ? ORDER BY display_order, id");
+    $stmt->execute([$moduleId]);
+    $subs = $stmt->fetchAll();
+    
+    // Trouver l'index du sous-module à déplacer
+    $currentIndex = null;
+    foreach ($subs as $i => $s) {
+        if ($s['id'] == $subId) {
+            $currentIndex = $i;
+            break;
+        }
+    }
+    
+    // Si pas le dernier, échanger avec le suivant
+    if ($currentIndex !== null && $currentIndex < count($subs) - 1) {
+        $nextId = $subs[$currentIndex + 1]['id'];
+        $currentOrder = $subs[$currentIndex]['display_order'];
+        $nextOrder = $subs[$currentIndex + 1]['display_order'];
+        
+        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$nextOrder, $subId]);
+        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$currentOrder, $nextId]);
+    }
+    
+    header("Location: cours.php?msg=reordered");
+    exit;
+}
+
 // Récupérer les modules avec stats
 $modules = $pdo->query("
     SELECT m.*, 
@@ -204,6 +270,7 @@ $msg = $_GET['msg'] ?? '';
             transition: all 0.3s ease;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+            gap: 1rem;
         }
         .submodule-item:hover { 
             border-color: rgba(255, 255, 255, 0.3); 
@@ -212,7 +279,51 @@ $msg = $_GET['msg'] ?? '';
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
         
-        .submodule-info { display: flex; align-items: center; gap: 1rem; }
+        .submodule-order {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 70px;
+        }
+        .order-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+        .order-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .btn-order {
+            width: 20px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            color: #888;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-order:hover {
+            background: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .btn-order i {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .submodule-info { display: flex; align-items: center; gap: 1rem; flex: 1; }
         .submodule-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
         .submodule-title { font-weight: 500; color: #fff; }
         .submodule-meta { font-size: 0.8rem; color: #666; margin-top: 0.2rem; }
@@ -416,8 +527,19 @@ $msg = $_GET['msg'] ?? '';
                             </div>
                             <?php else: ?>
                             <div class="submodules-list">
-                                <?php foreach ($submodules as $sub): ?>
+                                <?php foreach ($submodules as $index => $sub): ?>
                                 <div class="submodule-item">
+                                    <div class="submodule-order">
+                                        <span class="order-number"><?php echo ($sub['display_order'] ?? $index) + 1; ?></span>
+                                        <div class="order-buttons">
+                                            <?php if ($index > 0): ?>
+                                            <a href="cours.php?move_up=<?php echo $sub['id']; ?>&module_id=<?php echo $module['id']; ?>" class="btn-order" title="Monter"><i data-lucide="chevron-up"></i></a>
+                                            <?php endif; ?>
+                                            <?php if ($index < count($submodules) - 1): ?>
+                                            <a href="cours.php?move_down=<?php echo $sub['id']; ?>&module_id=<?php echo $module['id']; ?>" class="btn-order" title="Descendre"><i data-lucide="chevron-down"></i></a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                     <div class="submodule-info">
                                         <div class="submodule-icon" style="background: <?php echo $themeColor; ?>20; color: <?php echo $themeColor; ?>;">
                                             <?php echo $icons[$sub['icon'] ?? 'file-text'] ?? '📄'; ?>

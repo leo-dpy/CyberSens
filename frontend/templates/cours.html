@@ -281,6 +281,44 @@
     color: white;
 }
 
+/* Locked submodule card */
+.submodule-card.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(30%);
+}
+
+.submodule-card.locked:hover {
+    transform: none;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, rgba(12, 12, 15, 0.98), rgba(5, 5, 8, 0.99));
+}
+
+.submodule-card .lock-badge,
+.quiz-card .lock-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.submodule-card .lock-badge i,
+.quiz-card .lock-badge i {
+    width: 14px;
+    height: 14px;
+    color: white;
+}
+
 /* Quiz card */
 .quiz-card {
     background: linear-gradient(145deg, rgba(12, 12, 15, 0.98), rgba(5, 5, 8, 0.99));
@@ -293,6 +331,7 @@
     box-shadow: 
         0 4px 20px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    position: relative;
 }
 
 .quiz-card:hover {
@@ -302,6 +341,22 @@
         0 10px 35px rgba(0, 0, 0, 0.4),
         0 0 20px var(--primary-glow, rgba(255, 255, 255, 0.1));
     background: linear-gradient(145deg, rgba(18, 18, 22, 0.98), rgba(10, 10, 14, 0.99));
+}
+
+/* Locked quiz card */
+.quiz-card.locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(30%);
+}
+
+.quiz-card.locked:hover {
+    transform: none;
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(145deg, rgba(12, 12, 15, 0.98), rgba(5, 5, 8, 0.99));
 }
 
 .quiz-card .quiz-icon {

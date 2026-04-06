@@ -38,13 +38,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $icon = $_POST['icon'] ?? 'file-text';
     $xp_reward = (int)($_POST['xp_reward'] ?? 15);
     $estimated_time = (int)($_POST['estimated_time'] ?? 10);
+    $display_order = (int)($_POST['display_order'] ?? 0);
 
     if (empty($title)) {
         $error = "Veuillez saisir un titre.";
     } else {
         try {
-            $stmt = $pdo->prepare("UPDATE submodules SET title = ?, description = ?, content = ?, icon = ?, xp_reward = ?, estimated_time = ? WHERE id = ?");
-            $stmt->execute([$title, $description, $content, $icon, $xp_reward, $estimated_time, $id]);
+            $stmt = $pdo->prepare("UPDATE submodules SET title = ?, description = ?, content = ?, icon = ?, xp_reward = ?, estimated_time = ?, display_order = ? WHERE id = ?");
+            $stmt->execute([$title, $description, $content, $icon, $xp_reward, $estimated_time, $display_order, $id]);
 
             header("Location: cours.php?msg=sub_updated");
             exit;
@@ -221,6 +222,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="form-group" style="margin-bottom: 1.5rem;">
                                 <label class="form-label">Durée estimée (minutes)</label>
                                 <input type="number" name="estimated_time" class="form-input" value="<?php echo $submodule['estimated_time'] ?? 10; ?>" min="1">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label class="form-label">Ordre d'affichage</label>
+                                <input type="number" name="display_order" class="form-input" value="<?php echo $submodule['display_order'] ?? 0; ?>" min="0">
+                                <small style="color: #888; font-size: 0.75rem;">Les sous-modules sont affichés dans l'ordre croissant (0, 1, 2...)</small>
                             </div>
 
                             <div class="form-group">
