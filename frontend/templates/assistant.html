@@ -1,0 +1,55 @@
+<link rel="stylesheet" href="frontend/css/templates/assistant.css">
+
+<div class="assistant-container">
+    <div class="chat-header">
+        <div class="assistant-avatar">
+            <i data-lucide="bot"></i>
+        </div>
+        <div class="assistant-info">
+            <h2>CyberGuard</h2>
+            <p>Assistant IA spécialisé en cybersécurité</p>
+        </div>
+        <button class="btn-clear-chat" onclick="clearChat()" title="Nouvelle conversation">
+            <i data-lucide="trash-2"></i>
+        </button>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages">
+        <div class="message assistant">
+            <div class="message-avatar">
+                <i data-lucide="bot"></i>
+            </div>
+            <div class="message-content">
+                <p>Bonjour ! Je suis <strong>CyberGuard</strong>, votre assistant IA en cybersécurité. 🛡️</p>
+                <p>Je peux vous aider à :</p>
+                <ul>
+                    <li>🔍 Analyser des emails ou images suspects</li>
+                    <li>🎣 Détecter les tentatives de phishing</li>
+                    <li>🔐 Comprendre les menaces cyber</li>
+                    <li>💡 Donner des conseils de sécurité</li>
+                </ul>
+                <p>Envoyez-moi un message ou une image à analyser !</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="image-preview-container" id="image-preview-container" style="display: none;">
+        <div class="image-preview">
+            <img id="image-preview" src="" alt="Aperçu">
+            <button class="btn-remove-image" onclick="removeImage()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+    </div>
+    
+    <form class="chat-input-form" id="chat-form" onsubmit="sendMessage(event)">
+        <label class="btn-attach" for="image-input" title="Joindre une image">
+            <i data-lucide="image-plus"></i>
+            <input type="file" id="image-input" accept="image/*" onchange="handleImageSelect(event)" style="display: none;">
+        </label>
+        <input type="text" id="chat-input" placeholder="Posez votre question sur la cybersécurité..." autocomplete="off">
+        <button type="submit" class="btn-send" id="btn-send">
+            <i data-lucide="send"></i>
+        </button>
+    </form>
+</div>

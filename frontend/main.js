@@ -1109,9 +1109,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             // APPEL DE LA FONCTION POUR CHARGER LE QUIZ
             if (viewId === 'quiz') initQuizView();
 
-            if (viewId === 'phishing') initPhishingView();
+            if (viewId === 'phishing') window.initPhishingView();
 
             if (viewId === 'parametres') initParametresView();
+
+            if (viewId === 'assistant') initAssistantView();
 
             // Mettre à jour l'état actif dans la barre latérale
             navItems.forEach(item => {
@@ -3100,6 +3102,201 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
         });
     }
+
+    // VUE ASSISTANT IA (Gemini)
+    let chatHistory = [];
+    let selectedImage = null;
+
+    function initAssistantView() {
+        chatHistory = [];
+        selectedImage = null;
+        lucide.createIcons();
+    }
+
+    window.sendMessage = async function(event) {
+        event.preventDefault();
+        
+        const input = document.getElementById('chat-input');
+        const messagesContainer = document.getElementById('chat-messages');
+        const sendBtn = document.getElementById('btn-send');
+        const message = input.value.trim();
+        
+        if (!message && !selectedImage) return;
+        
+        // Désactiver le bouton
+        sendBtn.disabled = true;
+        input.disabled = true;
+        
+        // Afficher le message utilisateur
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'message user';
+        userMessageDiv.innerHTML = `
+            <div class="message-avatar"><i data-lucide="user"></i></div>
+            <div class="message-content">
+                ${message ? `<p>${escapeHtml(message)}</p>` : ''}
+                ${selectedImage ? `<img src="${selectedImage}" class="message-image" alt="Image envoyée">` : ''}
+            </div>
+        `;
+        messagesContainer.appendChild(userMessageDiv);
+        lucide.createIcons();
+        
+        // Sauvegarder dans l'historique
+        chatHistory.push({ role: 'user', content: message || '[Image]' });
+        
+        // Clear input et image
+        input.value = '';
+        removeImage();
+        
+        // Afficher l'indicateur de frappe
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message assistant';
+        typingDiv.id = 'typing-indicator';
+        typingDiv.innerHTML = `
+            <div class="message-avatar"><i data-lucide="bot"></i></div>
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        `;
+        messagesContainer.appendChild(typingDiv);
+        lucide.createIcons();
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        try {
+            const response = await fetch(`${API_URL}/gemini.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: message,
+                    image: selectedImage,
+                    history: chatHistory.slice(0, -1) // Exclure le dernier message qu'on vient d'ajouter
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Retirer l'indicateur de frappe
+            document.getElementById('typing-indicator')?.remove();
+            
+            if (data.success) {
+                // Formater la réponse (markdown basique)
+                const formattedReply = formatMarkdown(data.reply);
+                
+                // Afficher la réponse
+                const assistantDiv = document.createElement('div');
+                assistantDiv.className = 'message assistant';
+                assistantDiv.innerHTML = `
+                    <div class="message-avatar"><i data-lucide="bot"></i></div>
+                    <div class="message-content">${formattedReply}</div>
+                `;
+                messagesContainer.appendChild(assistantDiv);
+                lucide.createIcons();
+                
+                // Ajouter à l'historique
+                chatHistory.push({ role: 'assistant', content: data.reply });
+            } else {
+                showErrorMessage(messagesContainer, data.message || 'Erreur de communication avec l\'IA');
+            }
+            
+        } catch (error) {
+            document.getElementById('typing-indicator')?.remove();
+            showErrorMessage(messagesContainer, 'Erreur de connexion au serveur');
+            console.error('Erreur Gemini:', error);
+        }
+        
+        // Réactiver
+        sendBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
+    function showErrorMessage(container, text) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message assistant';
+        errorDiv.innerHTML = `
+            <div class="message-avatar"><i data-lucide="bot"></i></div>
+            <div class="message-content" style="border-color: rgba(239, 68, 68, 0.3);">
+                <p style="color: #ef4444;">⚠️ ${escapeHtml(text)}</p>
+            </div>
+        `;
+        container.appendChild(errorDiv);
+        lucide.createIcons();
+    }
+
+    function formatMarkdown(text) {
+        // Convertir le markdown basique en HTML
+        return text
+            // Code blocks
+            .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+            // Inline code
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // Bold
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            // Italic
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            // Lists
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+            // Line breaks
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>')
+            // Wrap in paragraphs
+            .replace(/^(.+)$/gm, (match) => {
+                if (match.startsWith('<')) return match;
+                return match;
+            });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    window.handleImageSelect = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        if (!file.type.startsWith('image/')) {
+            alert('Veuillez sélectionner une image');
+            return;
+        }
+        
+        if (file.size > 10 * 1024 * 1024) { // 10MB max
+            alert('Image trop volumineuse (max 10MB)');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            selectedImage = e.target.result;
+            document.getElementById('image-preview').src = selectedImage;
+            document.getElementById('image-preview-container').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    };
+
+    window.removeImage = function() {
+        selectedImage = null;
+        document.getElementById('image-input').value = '';
+        document.getElementById('image-preview-container').style.display = 'none';
+    };
+
+    window.clearChat = function() {
+        chatHistory = [];
+        const messagesContainer = document.getElementById('chat-messages');
+        messagesContainer.innerHTML = `
+            <div class="message assistant">
+                <div class="message-avatar"><i data-lucide="bot"></i></div>
+                <div class="message-content">
+                    <p>Conversation effacée. Comment puis-je vous aider ?</p>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    };
 
     // VUE SIMULATION PHISHING
     window.initPhishingView = async function() {
