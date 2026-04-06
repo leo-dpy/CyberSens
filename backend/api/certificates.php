@@ -21,10 +21,10 @@ try {
             
             if ($cert_code) {
                 // Vérifier un certificat par son code
-                $stmt = $pdo->prepare("SELECT c.*, u.username, co.title as course_title, co.difficulty
+                $stmt = $pdo->prepare("SELECT c.*, u.username, m.title as course_title, m.difficulty
                     FROM certificates c 
                     JOIN users u ON c.user_id = u.id 
-                    JOIN cours co ON c.course_id = co.id 
+                    JOIN modules m ON c.module_id = m.id 
                     WHERE c.certificate_code = ?");
                 $stmt->execute([$cert_code]);
                 $cert = $stmt->fetch();
@@ -43,9 +43,9 @@ try {
             }
             
             // Récupérer les certificats de l'utilisateur
-            $stmt = $pdo->prepare("SELECT c.*, co.title as course_title, co.difficulty 
+            $stmt = $pdo->prepare("SELECT c.*, m.title as course_title, m.difficulty 
                 FROM certificates c 
-                JOIN cours co ON c.course_id = co.id 
+                JOIN modules m ON c.module_id = m.id 
                 WHERE c.user_id = ? 
                 ORDER BY c.issued_at DESC");
             $stmt->execute([$user_id]);
@@ -58,11 +58,11 @@ try {
             // Générer un certificat
             $data = json_decode(file_get_contents('php://input'), true);
             $user_id = (int)($data['user_id'] ?? 0);
-            $course_id = (int)($data['course_id'] ?? 0);
+            $module_id = (int)($data['module_id'] ?? $data['course_id'] ?? 0);
             $score = (int)($data['score'] ?? 0);
             
-            if (!$user_id || !$course_id) {
-                echo json_encode(['success' => false, 'message' => 'user_id et course_id requis']);
+            if (!$user_id || !$module_id) {
+                echo json_encode(['success' => false, 'message' => 'user_id et module_id requis']);
                 exit;
             }
             
@@ -73,36 +73,36 @@ try {
             }
             
             // Vérifier si le certificat existe déjà
-            $stmt = $pdo->prepare("SELECT certificate_code, score FROM certificates WHERE user_id = ? AND course_id = ?");
-            $stmt->execute([$user_id, $course_id]);
+            $stmt = $pdo->prepare("SELECT certificate_code, score FROM certificates WHERE user_id = ? AND module_id = ?");
+            $stmt->execute([$user_id, $module_id]);
             $existing = $stmt->fetch();
             
             if ($existing) {
                 // Mettre à jour le score si meilleur
                 if ($score > $existing['score']) {
-                    $updateStmt = $pdo->prepare("UPDATE certificates SET score = ? WHERE user_id = ? AND course_id = ?");
-                    $updateStmt->execute([$score, $user_id, $course_id]);
+                    $updateStmt = $pdo->prepare("UPDATE certificates SET score = ? WHERE user_id = ? AND module_id = ?");
+                    $updateStmt->execute([$score, $user_id, $module_id]);
                 }
                 echo json_encode(['success' => true, 'certificate_code' => $existing['certificate_code'], 'message' => 'Certificat existant']);
                 exit;
             }
             
             // Générer un code unique
-            $code = 'CS-' . strtoupper(substr(md5($user_id . $course_id . time() . rand()), 0, 8));
+            $code = 'CS-' . strtoupper(substr(md5($user_id . $module_id . time() . rand()), 0, 8));
             
-            $stmt = $pdo->prepare("INSERT INTO certificates (user_id, course_id, certificate_code, score) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$user_id, $course_id, $code, $score]);
+            $stmt = $pdo->prepare("INSERT INTO certificates (user_id, module_id, certificate_code, score) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$user_id, $module_id, $code, $score]);
             
             // Créer une notification
-            $courseStmt = $pdo->prepare("SELECT title FROM cours WHERE id = ?");
-            $courseStmt->execute([$course_id]);
-            $course = $courseStmt->fetch();
+            $moduleStmt = $pdo->prepare("SELECT title FROM modules WHERE id = ?");
+            $moduleStmt->execute([$module_id]);
+            $module = $moduleStmt->fetch();
             
             $notifStmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, 'certificate')");
             $notifStmt->execute([
                 $user_id,
                 'Certificat obtenu !',
-                "Félicitations ! Vous avez obtenu le certificat pour \"{$course['title']}\" avec un score de {$score}%."
+                "Félicitations ! Vous avez obtenu le certificat pour \"{$module['title']}\" avec un score de {$score}%."
             ]);
             
             echo json_encode(['success' => true, 'certificate_code' => $code, 'message' => 'Certificat généré !']);

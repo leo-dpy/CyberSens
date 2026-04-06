@@ -38,7 +38,7 @@ if ($isValid) {
     // Récupérer les stats
     $statsStmt = $pdo->prepare("
         SELECT 
-            COUNT(DISTINCT p.course_id) as courses_completed,
+            COUNT(DISTINCT p.module_id) as courses_completed,
             COUNT(DISTINCT ub.badge_id) as badges_count
         FROM users u
         LEFT JOIN progression p ON u.id = p.user_id AND p.is_completed = 1

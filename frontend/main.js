@@ -972,10 +972,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
 
                 // Mettre à jour les stats avec animation
-                if (s.questions) animateValue("stat-questions", s.questions, 1000);
-                if (s.courses) animateValue("stat-courses", s.courses, 1000);
-                if (s.successRate) animateValue("stat-success-rate", s.successRate, 1000, "%");
-                if (s.certificates) animateValue("stat-certificates", s.certificates, 1000);
+                if (s.questions !== undefined) animateValue("stat-questions", s.questions, 1000);
+                if (s.courses !== undefined) animateValue("stat-courses", s.courses, 1000);
+                if (s.successRate !== undefined) animateValue("stat-success-rate", s.successRate, 1000, "%");
+                if (s.certificates !== undefined) animateValue("stat-certificates", s.certificates, 1000);
 
             }
         } catch (e) {
@@ -1569,33 +1569,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function loadLeaderboards(forceGroup = null) {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        let userGroup = null;
+        let userGroup = currentUser?.group_name || 'Aucun';
+        
+        // Si forceGroup est spécifié et correspond au groupe de l'utilisateur ou à Global
         if (typeof forceGroup === 'string') {
-            userGroup = forceGroup;
-        } else {
-            userGroup = currentUser?.group_name || 'Aucun';
+            // N'autoriser que le groupe de l'utilisateur ou Global
+            if (forceGroup === 'Aucun' || forceGroup === userGroup) {
+                userGroup = forceGroup;
+            }
         }
-        const data = await api.getLeaderboard(userGroup);
+        
+        const data = await api.getLeaderboard(userGroup === 'Aucun' ? null : userGroup);
 
         const groupFilter = document.getElementById('lb-group-filter');
         if (groupFilter && groupFilter.dataset.loaded !== 'true') {
             groupFilter.dataset.loaded = 'true';
-            const groupsData = await api.getGroups();
-            if (groupsData.success) {
-                groupFilter.innerHTML = '<option value="Aucun">Global</option>';
-                groupsData.groups.forEach(g => {
-                    const opt = document.createElement('option');
-                    opt.value = g.name;
-                    opt.textContent = g.name;
-                    groupFilter.appendChild(opt);
-                });
-                
-                groupFilter.value = userGroup === 'Aucun' ? 'Aucun' : userGroup;
-                
-                groupFilter.addEventListener('change', (e) => {
-                    loadLeaderboards(e.target.value);
-                });
+            
+            // N'afficher que Global et le groupe de l'utilisateur (si il en a un)
+            groupFilter.innerHTML = '<option value="Aucun">Global</option>';
+            if (currentUser?.group_name && currentUser.group_name !== 'Aucun') {
+                const opt = document.createElement('option');
+                opt.value = currentUser.group_name;
+                opt.textContent = currentUser.group_name;
+                groupFilter.appendChild(opt);
+                // Sélectionner le groupe de l'utilisateur par défaut
+                groupFilter.value = currentUser.group_name;
+                userGroup = currentUser.group_name;
             }
+            
+            groupFilter.addEventListener('change', (e) => {
+                loadLeaderboards(e.target.value);
+            });
         } else if (groupFilter) {
             groupFilter.value = userGroup === 'Aucun' ? 'Aucun' : userGroup;
         }
