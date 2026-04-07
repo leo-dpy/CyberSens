@@ -49,7 +49,7 @@ function generateJWT($credentials) {
     $payload = [
         'iss' => $credentials['client_email'],
         'sub' => $credentials['client_email'],
-        'aud' => 'https://aiplatform.googleapis.com/',
+        'aud' => 'https://oauth2.googleapis.com/token',
         'iat' => $now,
         'exp' => $expiry,
         'scope' => 'https://www.googleapis.com/auth/cloud-platform'
