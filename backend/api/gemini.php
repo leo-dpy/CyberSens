@@ -68,7 +68,7 @@ function generateJWT($credentials) {
     return $headerEncoded . '.' . $payloadEncoded . '.' . $signatureEncoded;
 }
 
-// Échanger le JWT contre un access token
+// Échanger le JWT contre un access token (AVEC DEBUG)
 function getAccessToken($jwt) {
     $ch = curl_init('https://oauth2.googleapis.com/token');
     curl_setopt_array($ch, [
@@ -82,10 +82,22 @@ function getAccessToken($jwt) {
     ]);
     
     $response = curl_exec($ch);
+    $curlError = curl_error($ch);
     curl_close($ch);
     
+    // 1. Vérifier si le serveur a réussi à contacter Google
+    if ($curlError) {
+        throw new Exception("Erreur cURL vers Google : " . $curlError);
+    }
+    
     $data = json_decode($response, true);
-    return $data['access_token'] ?? null;
+    
+    // 2. Vérifier si Google a renvoyé une erreur (ex: invalid_grant)
+    if (!isset($data['access_token'])) {
+        throw new Exception("Refus de Google : " . $response);
+    }
+    
+    return $data['access_token'];
 }
 
 // System prompt pour le contexte cybersécurité
