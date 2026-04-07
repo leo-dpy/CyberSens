@@ -8,98 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// Configuration Vertex AI
-define('GCP_PROJECT_ID', getenv('GCP_PROJECT_ID') ?: 'secure-bonbon-478520-g7');
-define('GCP_REGION', getenv('GCP_REGION') ?: 'europe-west1');
-define('GEMINI_MODEL', 'gemini-2.0-flash-001');
-
-// Récupérer les credentials du compte de service
-function getServiceAccountCredentials() {
-    // Option 1: Variable d'environnement avec le JSON encodé en base64
-    $saJson = getenv('GOOGLE_SERVICE_ACCOUNT_JSON');
-    if ($saJson) {
-        return json_decode(base64_decode($saJson), true);
-    }
-    
-    // Option 2: Chemin vers le fichier (pour Coolify secrets)
-    $saPath = getenv('GOOGLE_APPLICATION_CREDENTIALS');
-    if ($saPath && file_exists($saPath)) {
-        return json_decode(file_get_contents($saPath), true);
-    }
-    
-    // Option 3: Fichier local pour dev (ne pas commiter!)
-    $localPath = __DIR__ . '/../service-account.json';
-    if (file_exists($localPath)) {
-        return json_decode(file_get_contents($localPath), true);
-    }
-    
-    return null;
-}
-
-// Générer un token JWT pour l'authentification
-function generateJWT($credentials) {
-    $now = time();
-    $expiry = $now + 3600;
-    
-    $header = [
-        'alg' => 'RS256',
-        'typ' => 'JWT'
-    ];
-    
-    $payload = [
-        'iss' => $credentials['client_email'],
-        'sub' => $credentials['client_email'],
-        'aud' => 'https://oauth2.googleapis.com/token',
-        'iat' => $now,
-        'exp' => $expiry,
-        'scope' => 'https://www.googleapis.com/auth/cloud-platform'
-    ];
-    
-    $headerEncoded = rtrim(strtr(base64_encode(json_encode($header)), '+/', '-_'), '=');
-    $payloadEncoded = rtrim(strtr(base64_encode(json_encode($payload)), '+/', '-_'), '=');
-    
-    $signatureInput = $headerEncoded . '.' . $payloadEncoded;
-    
-    $privateKey = openssl_pkey_get_private($credentials['private_key']);
-    openssl_sign($signatureInput, $signature, $privateKey, OPENSSL_ALGO_SHA256);
-    
-    $signatureEncoded = rtrim(strtr(base64_encode($signature), '+/', '-_'), '=');
-    
-    return $headerEncoded . '.' . $payloadEncoded . '.' . $signatureEncoded;
-}
-
-// Échanger le JWT contre un access token (AVEC DEBUG)
-function getAccessToken($jwt) {
-    $ch = curl_init('https://oauth2.googleapis.com/token');
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => http_build_query([
-            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion' => $jwt
-        ]),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false
-    ]);
-    
-    $response = curl_exec($ch);
-    $curlError = curl_error($ch);
-    curl_close($ch);
-    
-    // 1. Vérifier si le serveur a réussi à contacter Google
-    if ($curlError) {
-        throw new Exception("Erreur cURL vers Google : " . $curlError);
-    }
-    
-    $data = json_decode($response, true);
-    
-    // 2. Vérifier si Google a renvoyé une erreur (ex: invalid_grant)
-    if (!isset($data['access_token'])) {
-        throw new Exception("Refus de Google : " . $response);
-    }
-    
-    return $data['access_token'];
-}
-
 // System prompt pour le contexte cybersécurité
 $systemPrompt = "Tu es CyberGuard, un assistant IA spécialisé en cybersécurité. Tu aides les utilisateurs à :
 - Comprendre les menaces cyber (phishing, malware, ransomware, etc.)
@@ -115,6 +23,12 @@ Règles :
 - Reste concentré sur la cybersécurité, refuse poliment les sujets hors-sujet";
 
 try {
+    // 1. Récupérer la clé API
+    $apiKey = getenv('GEMINI_API_KEY');
+    if (!$apiKey) {
+        throw new Exception('Clé API Gemini manquante. Définissez GEMINI_API_KEY.');
+    }
+
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!$input) {
@@ -127,20 +41,6 @@ try {
     
     if (empty($userMessage) && empty($image)) {
         throw new Exception('Message ou image requis');
-    }
-    
-    // Récupérer les credentials
-    $credentials = getServiceAccountCredentials();
-    if (!$credentials) {
-        throw new Exception('Configuration du compte de service manquante. Définissez GOOGLE_SERVICE_ACCOUNT_JSON ou GOOGLE_APPLICATION_CREDENTIALS.');
-    }
-    
-    // Générer le token d'accès
-    $jwt = generateJWT($credentials);
-    $accessToken = getAccessToken($jwt);
-    
-    if (!$accessToken) {
-        throw new Exception('Impossible d\'obtenir le token d\'accès Google');
     }
     
     // Construire les messages pour Gemini
@@ -184,14 +84,8 @@ try {
         'parts' => $currentParts
     ];
     
-    // Appel à l'API Vertex AI
-    $url = sprintf(
-        'https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:generateContent',
-        GCP_REGION,
-        GCP_PROJECT_ID,
-        GCP_REGION,
-        GEMINI_MODEL
-    );
+    // Appel à l'API Gratuite de Google AI Studio
+    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey;
     
     $payload = [
         'contents' => $contents,
@@ -211,8 +105,7 @@ try {
         CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $accessToken
+            'Content-Type: application/json'
         ],
         CURLOPT_TIMEOUT => 60,
         CURLOPT_SSL_VERIFYPEER => false
@@ -224,13 +117,13 @@ try {
     curl_close($ch);
     
     if ($curlError) {
-        throw new Exception('Erreur de connexion: ' . $curlError);
+        throw new Exception('Erreur de connexion cURL : ' . $curlError);
     }
     
     $data = json_decode($response, true);
     
     if ($httpCode !== 200) {
-        $errorMsg = $data['error']['message'] ?? 'Erreur API Vertex AI (HTTP ' . $httpCode . ')';
+        $errorMsg = $data['error']['message'] ?? 'Erreur API Google (HTTP ' . $httpCode . ')';
         throw new Exception($errorMsg);
     }
     
