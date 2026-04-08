@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-// System prompt
+// System prompt pour le contexte cybersécurité
 $systemPrompt = "Tu es CyberGuard, un assistant IA spécialisé en cybersécurité. Tu aides les utilisateurs à :
 - Comprendre les menaces cyber (phishing, malware, ransomware, etc.)
 - Analyser des emails ou images suspects pour détecter le phishing
@@ -26,7 +26,7 @@ try {
     // Récupération de la clé OpenRouter
     $apiKey = getenv('OPENROUTER_API_KEY');
     if (!$apiKey) {
-        throw new Exception('Clé API manquante.');
+        throw new Exception('Clé API OpenRouter manquante. Vérifiez la configuration Apache et Coolify.');
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
@@ -77,11 +77,11 @@ try {
         'content' => $currentContent
     ];
     
-    // Appel au BON serveur : OpenRouter
+    // Appel au serveur OpenRouter
     $url = 'https://openrouter.ai/api/v1/chat/completions';
     
     $payload = [
-        'model' => 'google/gemini-2.0-flash-lite-preview-02-05:free', 
+        'model' => 'openrouter/free', // Mode automatique pour la meilleure IA gratuite
         'messages' => $messages,
         'temperature' => 0.7,
         'max_tokens' => 2048
@@ -95,7 +95,8 @@ try {
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
             'Authorization: Bearer ' . $apiKey,
-            'HTTP-Referer: https://cybersens.fr'
+            'HTTP-Referer: https://cybersens.fr', // Optionnel, recommandé par OpenRouter
+            'X-Title: Cybersens App' // Optionnel
         ],
         CURLOPT_TIMEOUT => 60,
         CURLOPT_SSL_VERIFYPEER => false
