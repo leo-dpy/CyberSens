@@ -24,9 +24,9 @@ Règles :
 
 try {
     // 1. Récupérer la clé API
-    $apiKey = getenv('GEMINI_API_KEY');
+    $apiKey = getenv('OPENROUTER_API_KEY');
     if (!$apiKey) {
-        throw new Exception('Clé API Gemini manquante. Définissez GEMINI_API_KEY.');
+        throw new Exception('Clé API OpenRouter manquante. Définissez OPENROUTER_API_KEY.');
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
