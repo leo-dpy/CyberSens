@@ -1069,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        
+
         // Restriction d'accès : Si non connecté et essaie d'accéder à autre chose que profil ou home ou mentions
         if (!sessionUser && viewId !== 'profil' && viewId !== 'home' && viewId !== 'mentions') {
             viewId = 'profil';
@@ -1150,9 +1150,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ÉCOUTEUR GLOBAL POUR LE BOUTON DÉCONNEXION (DELEGATION)
-    window.customLogout = async function(e) {
+    window.customLogout = async function (e) {
         if (e) e.preventDefault();
-        
+
         // 1. DÉTRUIRE LA SESSION PHP CÔTÉ SERVEUR (corrige l'accès admin après déco)
         try {
             await fetch(`${API_URL}/logout.php?ajax=1`, {
@@ -1163,14 +1163,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) {
             console.warn('Erreur lors de la déconnexion serveur:', err);
         }
-        
+
         // 2. Nettoyer le stockage côté client
         sessionStorage.removeItem('currentUser');
-        
+
         // 3. Cacher le lien admin
         const adminNavItem = document.querySelector('.nav-item.admin-only');
         if (adminNavItem) adminNavItem.style.display = 'none';
-        
+
         // 4. Mettre à jour l'UI
         if (typeof window.updateSidebarUser === 'function') {
             window.updateSidebarUser(null);
@@ -1205,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Mettre à jour les infos utilisateur de la barre latérale
         updateSidebarUser(sessionUser);
-        
+
         // Charger l'accueil par défaut pour les connectés
         loadTemplate('home');
     } else {
@@ -1396,17 +1396,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 userNameDisplay.textContent = user.username;
                 const levelNum = parseInt(user.level) || 1;
                 const xp = parseInt(user.xp) || 0;
-                
+
                 const userLevelDisplay = document.getElementById('user-level-display');
                 if (userLevelDisplay) userLevelDisplay.textContent = getLevelName(levelNum);
-                
+
                 const userXpDisplay = document.getElementById('user-xp-display');
                 if (userXpDisplay) userXpDisplay.textContent = xp;
 
                 // Mettre à jour la barre de progression XP
                 updateXpProgressBar(xp, levelNum);
             }
-            
+
             // Toujours charger les badges si on est sur la page profil
             const badgesGrid = document.getElementById('user-badges-grid');
             if (badgesGrid) {
@@ -1522,7 +1522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function loadLeaderboards(forceGroup = null) {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         let userGroup = currentUser?.group_name || 'Aucun';
-        
+
         // Si forceGroup est spécifié et correspond au groupe de l'utilisateur ou à Global
         if (typeof forceGroup === 'string') {
             // N'autoriser que le groupe de l'utilisateur ou Global
@@ -1530,13 +1530,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 userGroup = forceGroup;
             }
         }
-        
+
         const data = await api.getLeaderboard(userGroup === 'Aucun' ? null : userGroup);
 
         const groupFilter = document.getElementById('lb-group-filter');
         if (groupFilter && groupFilter.dataset.loaded !== 'true') {
             groupFilter.dataset.loaded = 'true';
-            
+
             // N'afficher que Global et le groupe de l'utilisateur (si il en a un)
             groupFilter.innerHTML = '<option value="Aucun">Global</option>';
             if (currentUser?.group_name && currentUser.group_name !== 'Aucun') {
@@ -1548,7 +1548,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 groupFilter.value = currentUser.group_name;
                 userGroup = currentUser.group_name;
             }
-            
+
             groupFilter.addEventListener('change', (e) => {
                 loadLeaderboards(e.target.value);
             });
@@ -1885,7 +1885,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const userRole = currentUser ? currentUser.role : null;
 
         const modules = await api.getModules(userId, userRole);
-        
+
         // Afficher la vue modules
         document.getElementById('modules-view').style.display = 'block';
         document.getElementById('submodules-view').style.display = 'none';
@@ -1951,7 +1951,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Voir un module (afficher ses sous-modules)
-    window.viewModule = async function(moduleId) {
+    window.viewModule = async function (moduleId) {
         currentModuleId = moduleId;
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         const userId = currentUser ? currentUser.id : null;
@@ -1993,18 +1993,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Grille des sous-modules + carte quiz
         const submodulesGrid = document.getElementById('submodules-grid');
-        
+
         // Trier les sous-modules par display_order pour le blocage
         const sortedSubmodules = [...submodules].sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-        
+
         let html = sortedSubmodules.map((s, index) => {
             const isCompleted = s.is_completed === true || s.is_completed === 1;
             const isRead = s.is_read === true || s.is_read === 1;
-            
+
             // Un sous-module est débloqué si :
             // - C'est le premier (index 0)
             // - Ou le sous-module précédent est complété
-            const previousCompleted = index === 0 || 
+            const previousCompleted = index === 0 ||
                 (sortedSubmodules[index - 1].is_completed === true || sortedSubmodules[index - 1].is_completed === 1);
             const isLocked = !previousCompleted && !isCompleted;
 
@@ -2035,7 +2035,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const quizScore = quiz.last_result ? quiz.last_result.score : null;
         const quizPassed = quizScore !== null && quizScore >= 70;
         const quizLocked = !allSubmodulesCompleted;
-        
+
         html += `
             <div class="quiz-card ${quizLocked ? 'locked' : ''}" 
                  onclick="${quizLocked ? 'showQuizLockedMessage()' : `startModuleQuiz(${moduleId})`}"
@@ -2059,7 +2059,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Retour aux modules
-    window.backToModules = function() {
+    window.backToModules = function () {
         currentModuleId = null;
         document.getElementById('modules-view').style.display = 'block';
         document.getElementById('submodules-view').style.display = 'none';
@@ -2067,17 +2067,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Message quand on clique sur un sous-module bloqué
-    window.showLockedMessage = function() {
+    window.showLockedMessage = function () {
         showToast('🔒 Contenu verrouillé', 'Complétez le sous-module précédent pour débloquer celui-ci', 'warning');
     };
 
     // Message quand on clique sur le quiz bloqué
-    window.showQuizLockedMessage = function() {
+    window.showQuizLockedMessage = function () {
         showToast('🔒 Quiz verrouillé', 'Complétez tous les sous-modules pour accéder au quiz', 'warning');
     };
 
     // Voir un sous-module (contenu)
-    window.viewSubmodule = async function(submoduleId) {
+    window.viewSubmodule = async function (submoduleId) {
         const submodule = await api.getSubmodule(submoduleId);
         if (!submodule) {
             showToast('Erreur', 'Sous-module non trouvé', 'error');
@@ -2127,7 +2127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Retour aux sous-modules
-    window.backToSubmodules = function() {
+    window.backToSubmodules = function () {
         if (currentModuleId) {
             viewModule(currentModuleId);
         } else {
@@ -2136,7 +2136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Marquer un sous-module comme terminé
-    window.markSubmoduleComplete = async function(submoduleId) {
+    window.markSubmoduleComplete = async function (submoduleId) {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         if (!currentUser) {
             showToast('Connexion requise', 'Connectez-vous pour sauvegarder votre progression', 'warning');
@@ -2154,7 +2154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Démarrer le quiz d'un module
-    window.startModuleQuiz = async function(moduleId) {
+    window.startModuleQuiz = async function (moduleId) {
         const questions = await api.getQuestionsByModule(moduleId);
         if (!questions || questions.length === 0) {
             showToast('Pas de quiz', 'Aucune question disponible pour ce module', 'warning');
@@ -2167,7 +2167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Mélanger les questions
         const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-        
+
         let currentQuestion = 0;
         let correctAnswers = 0;
         let totalXP = 0;
@@ -2192,14 +2192,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
                             ${['A', 'B', 'C', 'D'].map(letter => {
-                                const optionText = q['option_' + letter.toLowerCase()];
-                                if (!optionText) return '';
-                                return `
+                const optionText = q['option_' + letter.toLowerCase()];
+                if (!optionText) return '';
+                return `
                                     <button class="btn btn-outline quiz-option" data-answer="${letter}" style="text-align: left; padding: 1rem; justify-content: flex-start;">
                                         <strong style="margin-right: 0.75rem;">${letter}.</strong> ${optionText}
                                     </button>
                                 `;
-                            }).join('')}
+            }).join('')}
                         </div>
                     </div>
                 </div>
@@ -2209,7 +2209,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Event listeners pour les options
             document.querySelectorAll('.quiz-option').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const selectedAnswer = this.dataset.answer;
                     const correctAnswer = q.correct_answer.toUpperCase();
                     const isCorrect = selectedAnswer === correctAnswer;
@@ -2257,7 +2257,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        window.nextQuizQuestion = function() {
+        window.nextQuizQuestion = function () {
             currentQuestion++;
             if (currentQuestion < shuffledQuestions.length) {
                 renderQuestion();
@@ -2489,7 +2489,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     };
 
-    window.startSuddenDeathQuiz = async function() {
+    window.startSuddenDeathQuiz = async function () {
         // Fetch all questions
         const questions = await api.getQuestions();
         if (!questions || questions.length === 0) {
@@ -2499,7 +2499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Shuffle questions
         const shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-        
+
         let currentQuestion = 0;
         let score = 0;
         let gameOver = false;
@@ -2568,7 +2568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             `;
-            
+
             lucide.createIcons();
 
             // Event listeners
@@ -2576,7 +2576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.querySelectorAll('.sd-quiz-option').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         if (gameOver) return;
-                        
+
                         const selected = e.currentTarget.dataset.option.toUpperCase();
                         const isCorrect = selected === correctAnswer;
 
@@ -2584,14 +2584,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         document.querySelectorAll('.sd-quiz-option').forEach(b => {
                             b.disabled = true;
                             b.style.opacity = '0.7';
-                            
+
                             // Highlight correct answer
                             if (b.dataset.option.toUpperCase() === correctAnswer) {
                                 b.style.borderColor = 'var(--success, #10b981)';
                                 b.style.background = 'rgba(16, 185, 129, 0.2)';
                                 b.style.opacity = '1';
                             }
-                            
+
                             // Highlight wrong selected answer
                             if (b.dataset.option.toUpperCase() === selected && !isCorrect) {
                                 b.style.borderColor = 'var(--danger, #ef4444)';
@@ -2603,16 +2603,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (isCorrect) {
                             score++;
                             document.getElementById('sd-score-display').textContent = score;
-                            
+
                             // Show explanation and next button
                             const explBox = document.getElementById('sd-explanation-box');
                             explBox.style.display = 'block';
                             explBox.style.background = 'rgba(16, 185, 129, 0.1)';
                             explBox.style.borderColor = 'rgba(16, 185, 129, 0.3)';
                             explBox.innerHTML = `<h4 style="color: var(--success, #10b981); margin-top: 0; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="check-circle" style="width: 20px; height: 20px;"></i> Bonne réponse !</h4>` + (explanation ? `<p style="margin-bottom: 0;">${explanation}</p>` : '');
-                            
+
                             lucide.createIcons();
-                            
+
                             if (currentQuestion < shuffledQuestions.length - 1) {
                                 document.getElementById('sd-action-container').style.display = 'block';
                             } else {
@@ -2627,13 +2627,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         } else {
                             // Mauvaise réponse -> Game Over
                             gameOver = true;
-                            
+
                             const explBox = document.getElementById('sd-explanation-box');
                             explBox.style.display = 'block';
                             explBox.innerHTML = `<h4 style="color: var(--danger, #ef4444); margin-top: 0; display: flex; align-items: center; gap: 0.5rem;"><i data-lucide="x-circle" style="width: 20px; height: 20px;"></i> Mauvaise réponse</h4><p style="margin-bottom: 0.5rem;">La bonne réponse était: <strong>${correctAnswer}</strong></p>` + (explanation ? `<p style="margin-bottom: 0;">${explanation}</p>` : '');
-                            
+
                             lucide.createIcons();
-                            
+
                             document.getElementById('sd-gameover-container').style.display = 'block';
                             sdSaveScoreAndXp(score);
                         }
@@ -2649,20 +2649,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('sd-retry-btn')?.addEventListener('click', () => {
                 window.startSuddenDeathQuiz();
             });
-            
+
             document.getElementById('sd-quit-btn')?.addEventListener('click', () => {
                 // Return to quiz home (just triggers navigation)
                 document.querySelector('.nav-item[data-view="quiz"]')?.click();
             });
         }
-        
+
         async function sdSaveScoreAndXp(finalScore) {
             const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!sessionUser || finalScore === 0) return;
-            
+
             // Calculer l'XP : 15 XP par bonne réponse consécutive
             const xpGained = finalScore * 15;
-            
+
             const xpResult = await api.addXp(sessionUser.id, xpGained);
             if (xpResult.success) {
                 // Update session
@@ -2672,10 +2672,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     showToast('Niveau Supérieur !', `Vous avez atteint le niveau ${xpResult.new_level} !`, 'levelup', 6000);
                 }
                 sessionStorage.setItem('currentUser', JSON.stringify(sessionUser));
-                
+
                 // Show notification for XP gained
                 showToast('XP Gagnée', `+${xpGained} XP pour votre performance en Mort Subite !`, 'achievement', 5000);
-                
+
                 // Check badges
                 const badgesResult = await api.checkBadges(sessionUser.id);
                 if (badgesResult.success && badgesResult.new_badges.length > 0) {
@@ -2683,7 +2683,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showToast('Badge Débloqué !', `Vous avez obtenu le badge : ${badge.name}`, 'unlock', 6000);
                     });
                 }
-                
+
                 // Refresh sidebar
                 if (typeof window.updateSidebarUser === 'function') {
                     window.updateSidebarUser(sessionUser);
@@ -3044,7 +3044,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const username = usernameInput.value;
             const email = emailInput.value;
             const msgEl = document.getElementById('profile-update-msg');
-            
+
             msgEl.textContent = 'Enregistrement...';
             msgEl.style.color = '#fff';
             msgEl.style.display = 'inline-block';
@@ -3071,7 +3071,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const password = document.getElementById('param-password').value;
             const confirm = document.getElementById('param-password-confirm').value;
             const msgEl = document.getElementById('password-update-msg');
-            
+
             if (password !== confirm) {
                 msgEl.textContent = 'Les mots de passe ne correspondent pas';
                 msgEl.style.color = 'var(--danger)';
@@ -3113,20 +3113,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     }
 
-    window.sendMessage = async function(event) {
+    window.sendMessage = async function (event) {
         event.preventDefault();
-        
+
         const input = document.getElementById('chat-input');
         const messagesContainer = document.getElementById('chat-messages');
         const sendBtn = document.getElementById('btn-send');
         const message = input.value.trim();
-        
+
         if (!message && !selectedImage) return;
-        
+
         // Désactiver le bouton
         sendBtn.disabled = true;
         input.disabled = true;
-        
+
         // Afficher le message utilisateur
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'message user';
@@ -3139,14 +3139,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
         messagesContainer.appendChild(userMessageDiv);
         lucide.createIcons();
-        
+
         // Sauvegarder dans l'historique
         chatHistory.push({ role: 'user', content: message || '[Image]' });
-        
+
         // Clear input et image
         input.value = '';
         removeImage();
-        
+
         // Afficher l'indicateur de frappe
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message assistant';
@@ -3162,7 +3162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         messagesContainer.appendChild(typingDiv);
         lucide.createIcons();
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
+
         try {
             const response = await fetch(`${API_URL}/gemini.php`, {
                 method: 'POST',
@@ -3173,16 +3173,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     history: chatHistory.slice(0, -1) // Exclure le dernier message qu'on vient d'ajouter
                 })
             });
-            
+
             const data = await response.json();
-            
+
             // Retirer l'indicateur de frappe
             document.getElementById('typing-indicator')?.remove();
-            
+
             if (data.success) {
                 // Formater la réponse (markdown basique)
                 const formattedReply = formatMarkdown(data.reply);
-                
+
                 // Afficher la réponse
                 const assistantDiv = document.createElement('div');
                 assistantDiv.className = 'message assistant';
@@ -3192,19 +3192,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
                 messagesContainer.appendChild(assistantDiv);
                 lucide.createIcons();
-                
+
                 // Ajouter à l'historique
                 chatHistory.push({ role: 'assistant', content: data.reply });
             } else {
                 showErrorMessage(messagesContainer, data.message || 'Erreur de communication avec l\'IA');
             }
-            
+
         } catch (error) {
             document.getElementById('typing-indicator')?.remove();
             showErrorMessage(messagesContainer, 'Erreur de connexion au serveur');
             console.error('Erreur Gemini:', error);
         }
-        
+
         // Réactiver
         sendBtn.disabled = false;
         input.disabled = false;
@@ -3255,36 +3255,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         return div.innerHTML;
     }
 
-    window.handleImageSelect = function(event) {
+    window.handleImageSelect = function (event) {
         const file = event.target.files[0];
         if (!file) return;
-        
+
         if (!file.type.startsWith('image/')) {
             alert('Veuillez sélectionner une image');
             return;
         }
-        
-        if (file.size > 10 * 1024 * 1024) { // 10MB max
-            alert('Image trop volumineuse (max 10MB)');
-            return;
-        }
-        
+
         const reader = new FileReader();
-        reader.onload = function(e) {
-            selectedImage = e.target.result;
-            document.getElementById('image-preview').src = selectedImage;
-            document.getElementById('image-preview-container').style.display = 'block';
+        reader.onload = function (e) {
+            // COMPRESSION MAGIQUE : Rend l'image 10x plus légère pour une analyse instantanée
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                // On réduit la largeur à 800px maximum (largement suffisant pour l'IA)
+                const MAX_WIDTH = 800;
+                let scaleSize = 1;
+
+                if (img.width > MAX_WIDTH) {
+                    scaleSize = MAX_WIDTH / img.width;
+                }
+
+                canvas.width = img.width * scaleSize;
+                canvas.height = img.height * scaleSize;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Convertir en JPEG léger de bonne qualité
+                selectedImage = canvas.toDataURL('image/jpeg', 0.8);
+                document.getElementById('image-preview').src = selectedImage;
+                document.getElementById('image-preview-container').style.display = 'block';
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     };
 
-    window.removeImage = function() {
+    window.removeImage = function () {
         selectedImage = null;
         document.getElementById('image-input').value = '';
         document.getElementById('image-preview-container').style.display = 'none';
     };
 
-    window.clearChat = function() {
+    window.clearChat = function () {
         chatHistory = [];
         const messagesContainer = document.getElementById('chat-messages');
         messagesContainer.innerHTML = `
@@ -3299,7 +3315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // VUE SIMULATION PHISHING
-    window.initPhishingView = async function() {
+    window.initPhishingView = async function () {
         const sessionUser = JSON.parse(sessionStorage.getItem('currentUser'));
 
         // Charger les scénarios
@@ -3556,7 +3572,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function openBpModal() {
         // Prevent opening if not authenticated
         if (!sessionStorage.getItem('currentUser')) return;
-        
+
         if (modalBp) {
             modalBp.style.display = 'flex';
             setTimeout(() => modalBp.classList.add('active'), 10);
@@ -3692,7 +3708,5 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
     });
-
-
 
 });
