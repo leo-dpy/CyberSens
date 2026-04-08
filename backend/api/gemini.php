@@ -18,15 +18,15 @@ $systemPrompt = "Tu es CyberGuard, un assistant IA spécialisé en cybersécurit
 Règles :
 - Réponds toujours en français
 - Sois pédagogue et accessible
-- Si on te montre une image, analyse-la pour détecter des signes de phishing (URLs suspects, fautes, urgence artificielle, logos falsifiés, etc.)
+- Si on te montre une image, analyse-la avec attention pour détecter des signes de phishing (URLs suspects, fautes d'orthographe, urgence artificielle, logos falsifiés, etc.)
 - Ne donne jamais de conseils pour effectuer des attaques
 - Reste concentré sur la cybersécurité, refuse poliment les sujets hors-sujet";
 
 try {
-    // Récupération de la clé OpenRouter
-    $apiKey = getenv('OPENROUTER_API_KEY');
+    // Récupération de la clé Mistral
+    $apiKey = getenv('MISTRAL_API_KEY');
     if (!$apiKey) {
-        throw new Exception('Clé API OpenRouter manquante. Vérifiez la configuration Apache et Coolify.');
+        throw new Exception('Clé API Mistral manquante. Vérifiez la configuration Apache et Coolify.');
     }
 
     $input = json_decode(file_get_contents('php://input'), true);
@@ -40,7 +40,7 @@ try {
         throw new Exception('Message ou image requis');
     }
     
-    // Construction de l'historique (Format standard OpenRouter/OpenAI)
+    // Construction de l'historique
     $messages = [
         ['role' => 'system', 'content' => $systemPrompt]
     ];
@@ -52,7 +52,7 @@ try {
         ];
     }
     
-    // Construction du message actuel
+    // Construction du message actuel avec support d'image
     $currentContent = [];
     
     if ($userMessage) {
@@ -68,7 +68,7 @@ try {
         ];
         
         if (empty($userMessage)) {
-            array_unshift($currentContent, ['type' => 'text', 'text' => "Analyse cette capture d'écran et dis-moi si elle présente des signes de phishing ou d'arnaque."]);
+            array_unshift($currentContent, ['type' => 'text', 'text' => "Analyse cette capture d'écran et dis-moi en détail si elle présente des signes de phishing ou d'arnaque."]);
         }
     }
     
@@ -77,11 +77,11 @@ try {
         'content' => $currentContent
     ];
     
-    // Appel au serveur OpenRouter
-    $url = 'https://openrouter.ai/api/v1/chat/completions';
+    // Appel au serveur MISTRAL AI
+    $url = 'https://api.mistral.ai/v1/chat/completions';
     
     $payload = [
-        'model' => 'openrouter/free', // Mode automatique pour la meilleure IA gratuite
+        'model' => 'pixtral-12b-2409', // Le modèle spécialisé en analyse d'images de Mistral
         'messages' => $messages,
         'temperature' => 0.7,
         'max_tokens' => 2048
@@ -94,11 +94,9 @@ try {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . $apiKey,
-            'HTTP-Referer: https://cybersens.fr', // Optionnel, recommandé par OpenRouter
-            'X-Title: Cybersens App' // Optionnel
+            'Authorization: Bearer ' . $apiKey
         ],
-        CURLOPT_TIMEOUT => 60,
+        CURLOPT_TIMEOUT => 120, // 2 minutes de marge pour laisser le temps d'analyser l'image
         CURLOPT_SSL_VERIFYPEER => false
     ]);
     
@@ -112,7 +110,7 @@ try {
     $data = json_decode($response, true);
     
     if ($httpCode !== 200) {
-        $errorMsg = $data['error']['message'] ?? 'Erreur API (HTTP ' . $httpCode . ')';
+        $errorMsg = $data['error']['message'] ?? 'Erreur API Mistral (HTTP ' . $httpCode . ')';
         throw new Exception($errorMsg);
     }
     
