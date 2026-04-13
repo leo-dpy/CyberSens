@@ -23,72 +23,6 @@ if (isset($_GET['delete_submodule']) && is_numeric($_GET['delete_submodule'])) {
     exit;
 }
 
-// Réordonner les sous-modules (monter)
-if (isset($_GET['move_up']) && is_numeric($_GET['move_up']) && isset($_GET['module_id'])) {
-    $subId = (int)$_GET['move_up'];
-    $moduleId = (int)$_GET['module_id'];
-    
-    // Récupérer tous les sous-modules du module, triés par display_order
-    $stmt = $pdo->prepare("SELECT id, display_order FROM submodules WHERE module_id = ? ORDER BY display_order, id");
-    $stmt->execute([$moduleId]);
-    $subs = $stmt->fetchAll();
-    
-    // Trouver l'index du sous-module à déplacer
-    $currentIndex = null;
-    foreach ($subs as $i => $s) {
-        if ($s['id'] == $subId) {
-            $currentIndex = $i;
-            break;
-        }
-    }
-    
-    // Si pas le premier, échanger avec le précédent
-    if ($currentIndex !== null && $currentIndex > 0) {
-        $prevId = $subs[$currentIndex - 1]['id'];
-        $currentOrder = $subs[$currentIndex]['display_order'];
-        $prevOrder = $subs[$currentIndex - 1]['display_order'];
-        
-        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$prevOrder, $subId]);
-        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$currentOrder, $prevId]);
-    }
-    
-    header("Location: cours.php?msg=reordered");
-    exit;
-}
-
-// Réordonner les sous-modules (descendre)
-if (isset($_GET['move_down']) && is_numeric($_GET['move_down']) && isset($_GET['module_id'])) {
-    $subId = (int)$_GET['move_down'];
-    $moduleId = (int)$_GET['module_id'];
-    
-    // Récupérer tous les sous-modules du module, triés par display_order
-    $stmt = $pdo->prepare("SELECT id, display_order FROM submodules WHERE module_id = ? ORDER BY display_order, id");
-    $stmt->execute([$moduleId]);
-    $subs = $stmt->fetchAll();
-    
-    // Trouver l'index du sous-module à déplacer
-    $currentIndex = null;
-    foreach ($subs as $i => $s) {
-        if ($s['id'] == $subId) {
-            $currentIndex = $i;
-            break;
-        }
-    }
-    
-    // Si pas le dernier, échanger avec le suivant
-    if ($currentIndex !== null && $currentIndex < count($subs) - 1) {
-        $nextId = $subs[$currentIndex + 1]['id'];
-        $currentOrder = $subs[$currentIndex]['display_order'];
-        $nextOrder = $subs[$currentIndex + 1]['display_order'];
-        
-        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$nextOrder, $subId]);
-        $pdo->prepare("UPDATE submodules SET display_order = ? WHERE id = ?")->execute([$currentOrder, $nextId]);
-    }
-    
-    header("Location: cours.php?msg=reordered");
-    exit;
-}
-
 // Récupérer les modules avec stats
 $modules = $pdo->query("
     SELECT m.*, 
@@ -283,7 +217,7 @@ $msg = $_GET['msg'] ?? '';
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            min-width: 70px;
+            min-width: 50px;
         }
         .order-number {
             width: 28px;
@@ -297,30 +231,39 @@ $msg = $_GET['msg'] ?? '';
             font-size: 0.85rem;
             color: #fff;
         }
-        .order-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .btn-order {
-            width: 20px;
-            height: 16px;
+        .drag-handle {
+            cursor: grab;
+            padding: 4px;
+            color: #555;
+            transition: color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.08);
-            border-radius: 4px;
-            color: #888;
-            transition: all 0.2s;
-            text-decoration: none;
         }
-        .btn-order:hover {
-            background: rgba(59, 130, 246, 0.3);
-            color: #3b82f6;
+        .drag-handle:hover {
+            color: #fff;
         }
-        .btn-order i {
-            width: 14px;
-            height: 14px;
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .drag-handle i {
+            width: 18px;
+            height: 18px;
+        }
+        
+        /* Drag-and-drop animations */
+        .sortable-ghost {
+            opacity: 0.3;
+        }
+        .sortable-drag {
+            opacity: 0.9;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .module-card.sortable-chosen {
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        .submodule-item.sortable-chosen {
+            border-color: rgba(59, 130, 246, 0.5);
         }
         
         .submodule-info { display: flex; align-items: center; gap: 1rem; flex: 1; }
@@ -480,6 +423,9 @@ $msg = $_GET['msg'] ?? '';
                 <div class="module-card" data-module-id="<?php echo $module['id']; ?>">
                     <div class="module-header" onclick="toggleModule(<?php echo $module['id']; ?>)">
                         <div class="module-info">
+                            <div class="drag-handle module-drag-handle" title="Glisser pour réordonner" onclick="event.stopPropagation();">
+                                <i data-lucide="grip-vertical"></i>
+                            </div>
                             <div class="module-icon-large" style="background: <?php echo $themeColor; ?>20; color: <?php echo $themeColor; ?>;">
                                 <?php echo $icons[$module['icon'] ?? 'shield'] ?? '🛡️'; ?>
                             </div>
@@ -528,17 +474,12 @@ $msg = $_GET['msg'] ?? '';
                             <?php else: ?>
                             <div class="submodules-list">
                                 <?php foreach ($submodules as $index => $sub): ?>
-                                <div class="submodule-item">
+                                <div class="submodule-item" data-submodule-id="<?php echo $sub['id']; ?>">
                                     <div class="submodule-order">
-                                        <span class="order-number"><?php echo ($sub['display_order'] ?? $index) + 1; ?></span>
-                                        <div class="order-buttons">
-                                            <?php if ($index > 0): ?>
-                                            <a href="cours.php?move_up=<?php echo $sub['id']; ?>&module_id=<?php echo $module['id']; ?>" class="btn-order" title="Monter"><i data-lucide="chevron-up"></i></a>
-                                            <?php endif; ?>
-                                            <?php if ($index < count($submodules) - 1): ?>
-                                            <a href="cours.php?move_down=<?php echo $sub['id']; ?>&module_id=<?php echo $module['id']; ?>" class="btn-order" title="Descendre"><i data-lucide="chevron-down"></i></a>
-                                            <?php endif; ?>
+                                        <div class="drag-handle sub-drag-handle" title="Glisser pour réordonner">
+                                            <i data-lucide="grip-vertical"></i>
                                         </div>
+                                        <span class="order-number"><?php echo $index + 1; ?></span>
                                     </div>
                                     <div class="submodule-info">
                                         <div class="submodule-icon" style="background: <?php echo $themeColor; ?>20; color: <?php echo $themeColor; ?>;">
@@ -571,10 +512,72 @@ $msg = $_GET['msg'] ?? '';
     </div>
 
     <script src="../../frontend/js/admin/shared.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
     <script>
         function toggleModule(moduleId) {
             document.querySelector(`.module-card[data-module-id="${moduleId}"]`).classList.toggle('expanded');
         }
+        
+        // Initialiser le drag-and-drop pour les modules
+        const modulesGrid = document.querySelector('.modules-grid');
+        if (modulesGrid && modulesGrid.children.length > 0) {
+            new Sortable(modulesGrid, {
+                animation: 200,
+                handle: '.module-drag-handle',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                chosenClass: 'sortable-chosen',
+                onEnd: function() {
+                    // Recalculer l'ordre et envoyer au serveur
+                    const cards = modulesGrid.querySelectorAll('.module-card[data-module-id]');
+                    const order = Array.from(cards).map((card, index) => ({
+                        id: parseInt(card.dataset.moduleId),
+                        display_order: index + 1
+                    }));
+                    
+                    fetch('../../backend/api/modules.php', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'reorder', order: order })
+                    }).then(r => r.json()).then(data => {
+                        if (!data.success) console.error('Erreur réordonnancement modules:', data.message);
+                    });
+                }
+            });
+        }
+        
+        // Initialiser le drag-and-drop pour chaque liste de sous-modules
+        document.querySelectorAll('.submodules-list').forEach(list => {
+            new Sortable(list, {
+                animation: 200,
+                handle: '.sub-drag-handle',
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                chosenClass: 'sortable-chosen',
+                onEnd: function() {
+                    const items = list.querySelectorAll('.submodule-item[data-submodule-id]');
+                    const order = Array.from(items).map((item, index) => ({
+                        id: parseInt(item.dataset.submoduleId),
+                        display_order: index + 1
+                    }));
+                    
+                    // Mettre à jour les numéros visuels
+                    items.forEach((item, index) => {
+                        const num = item.querySelector('.order-number');
+                        if (num) num.textContent = index + 1;
+                    });
+                    
+                    fetch('../../backend/api/submodules.php', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'reorder', order: order })
+                    }).then(r => r.json()).then(data => {
+                        if (!data.success) console.error('Erreur réordonnancement sous-modules:', data.message);
+                    });
+                }
+            });
+        });
+        
         lucide.createIcons();
     </script>
 </body>

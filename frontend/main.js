@@ -1,6 +1,31 @@
 // CLIENT API (Remplace la DB LocalStorage)
 const API_URL = 'backend/api';
 
+// Restaurer le thème depuis localStorage immédiatement (évite le flash)
+(function() {
+    const savedTheme = localStorage.getItem('cybersens-theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+    }
+})();
+
+// Toggle thème clair/sombre (appelé depuis parametres.html)
+window.toggleTheme = function() {
+    const isLight = document.body.classList.toggle('light-mode');
+    localStorage.setItem('cybersens-theme', isLight ? 'light' : 'dark');
+    
+    // Mettre à jour le label si visible
+    const themeLabel = document.getElementById('theme-label');
+    if (themeLabel) themeLabel.textContent = isLight ? 'Mode clair' : 'Mode sombre';
+    
+    // Mettre à jour l'icône
+    const themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) {
+        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+        if (window.lucide) lucide.createIcons();
+    }
+};
+
 // Fonction utilitaire pour convertir le niveau numérique en texte
 function getLevelName(level) {
     const levels = {
@@ -2113,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             
             <div class="content-body">
-                ${submodule.content || '<p>Contenu à venir...</p>'}
+                ${convertYoutubeUrls(submodule.content || '<p>Contenu à venir...</p>')}
             </div>
             
             <div class="content-footer">
@@ -2125,6 +2150,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         lucide.createIcons();
     };
+
+    // Convertir les URLs YouTube en iframes intégrées
+    function convertYoutubeUrls(html) {
+        if (!html) return html;
+        // Pattern pour les URLs YouTube (watch et youtu.be)
+        const youtubeRegex = /(?:<a[^>]*>)?\s*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})(?:[^\s<]*)(?:\s*<\/a>)?/gi;
+        return html.replace(youtubeRegex, (match, videoId) => {
+            return `<div class="video-embed-container">
+                <iframe src="https://www.youtube-nocookie.com/embed/${videoId}" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        loading="lazy"></iframe>
+            </div>`;
+        });
+    }
 
     // Retour aux sous-modules
     window.backToSubmodules = function () {
@@ -3101,6 +3142,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
         });
+
+        // Initialiser le toggle thème
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeLabel = document.getElementById('theme-label');
+        if (themeToggle) {
+            const isLight = document.body.classList.contains('light-mode');
+            themeToggle.checked = isLight;
+            if (themeLabel) themeLabel.textContent = isLight ? 'Mode clair' : 'Mode sombre';
+        }
     }
 
     // VUE ASSISTANT IA (Gemini)
@@ -3147,7 +3197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         input.value = '';
         removeImage();
 
-        // Afficher l'indicateur de frappe
+        // Afficher l'indicateur de chargement explicite
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message assistant';
         typingDiv.id = 'typing-indicator';
@@ -3155,7 +3205,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="message-avatar"><i data-lucide="bot"></i></div>
             <div class="message-content">
                 <div class="typing-indicator">
-                    <span></span><span></span><span></span>
+                    <div class="typing-text">CyberGuard réfléchit<span class="typing-ellipsis"></span></div>
+                    <div class="typing-dots">
+                        <span></span><span></span><span></span>
+                    </div>
                 </div>
             </div>
         `;
@@ -3226,27 +3279,109 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function formatMarkdown(text) {
-        // Convertir le markdown basique en HTML
-        return text
-            // Code blocks
-            .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-            // Inline code
-            .replace(/`([^`]+)`/g, '<code>$1</code>')
-            // Bold
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-            // Italic
-            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-            // Lists
-            .replace(/^- (.+)$/gm, '<li>$1</li>')
-            .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-            // Line breaks
-            .replace(/\n\n/g, '</p><p>')
-            .replace(/\n/g, '<br>')
-            // Wrap in paragraphs
-            .replace(/^(.+)$/gm, (match) => {
-                if (match.startsWith('<')) return match;
-                return match;
-            });
+        if (!text) return '';
+
+        // 1. Protéger les blocs de code (les retirer temporairement)
+        const codeBlocks = [];
+        text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+            codeBlocks.push(`<pre><code>${escapeHtml(code.trim())}</code></pre>`);
+            return `__CODEBLOCK_${codeBlocks.length - 1}__`;
+        });
+
+        // 2. Inline code
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+        // 3. Bold
+        text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+        // 4. Italic
+        text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+        // 5. Traiter ligne par ligne pour les headings et listes
+        const lines = text.split('\n');
+        const result = [];
+        let inList = false;
+        let listType = null; // 'ul' ou 'ol'
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            // Ligne vide
+            if (!line) {
+                if (inList) {
+                    result.push(`</${listType}>`);
+                    inList = false;
+                    listType = null;
+                }
+                continue;
+            }
+
+            // Blocs de code protégés
+            if (line.match(/^__CODEBLOCK_\d+__$/)) {
+                if (inList) {
+                    result.push(`</${listType}>`);
+                    inList = false;
+                    listType = null;
+                }
+                const idx = parseInt(line.match(/\d+/)[0]);
+                result.push(codeBlocks[idx]);
+                continue;
+            }
+
+            // Headings
+            const headingMatch = line.match(/^(#{1,4})\s+(.+)$/);
+            if (headingMatch) {
+                if (inList) {
+                    result.push(`</${listType}>`);
+                    inList = false;
+                    listType = null;
+                }
+                const level = headingMatch[1].length;
+                result.push(`<h${level + 1}>${headingMatch[2]}</h${level + 1}>`);
+                continue;
+            }
+
+            // Listes non ordonnées (-, *, •)
+            const ulMatch = line.match(/^[-*•]\s+(.+)$/);
+            if (ulMatch) {
+                if (!inList || listType !== 'ul') {
+                    if (inList) result.push(`</${listType}>`);
+                    result.push('<ul>');
+                    inList = true;
+                    listType = 'ul';
+                }
+                result.push(`<li>${ulMatch[1]}</li>`);
+                continue;
+            }
+
+            // Listes ordonnées (1., 2., etc.)
+            const olMatch = line.match(/^\d+\.\s+(.+)$/);
+            if (olMatch) {
+                if (!inList || listType !== 'ol') {
+                    if (inList) result.push(`</${listType}>`);
+                    result.push('<ol>');
+                    inList = true;
+                    listType = 'ol';
+                }
+                result.push(`<li>${olMatch[1]}</li>`);
+                continue;
+            }
+
+            // Paragraphe normal
+            if (inList) {
+                result.push(`</${listType}>`);
+                inList = false;
+                listType = null;
+            }
+            result.push(`<p>${line}</p>`);
+        }
+
+        // Fermer une liste ouverte
+        if (inList) {
+            result.push(`</${listType}>`);
+        }
+
+        return result.join('');
     }
 
     function escapeHtml(text) {

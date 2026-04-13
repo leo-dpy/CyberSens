@@ -161,6 +161,23 @@ try {
             // Mettre à jour un module
             $data = json_decode(file_get_contents('php://input'), true);
 
+            // Action de réordonnancement
+            if (isset($data['action']) && $data['action'] === 'reorder' && isset($data['order'])) {
+                $pdo->beginTransaction();
+                try {
+                    $stmt = $pdo->prepare("UPDATE modules SET display_order = ? WHERE id = ?");
+                    foreach ($data['order'] as $item) {
+                        $stmt->execute([(int)$item['display_order'], (int)$item['id']]);
+                    }
+                    $pdo->commit();
+                    echo json_encode(['success' => true, 'message' => 'Ordre mis à jour']);
+                } catch (Exception $e) {
+                    $pdo->rollBack();
+                    echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+                }
+                break;
+            }
+
             $id = (int)($data['id'] ?? 0);
             $title = trim($data['title'] ?? '');
             $description = trim($data['description'] ?? '');

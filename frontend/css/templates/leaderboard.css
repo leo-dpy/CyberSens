@@ -248,3 +248,37 @@
 .current-user-row:hover td {
     background: rgba(59, 130, 246, 0.08);
 }
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode .leaderboard-stats .stat-card {
+    background: rgba(26, 26, 46, 0.03);
+}
+
+body.light-mode .podium-avatar {
+    background: #f0f2f5;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+body.light-mode .podium-stand {
+    color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .rank-text {
+    color: #999;
+}
+
+body.light-mode .user-avatar-sm {
+    background: rgba(0, 0, 0, 0.06);
+    color: #666;
+}
+
+body.light-mode .current-user-row td {
+    background: rgba(59, 130, 246, 0.04);
+    border-color: rgba(59, 130, 246, 0.15);
+}
+
+body.light-mode .podium-xp {
+    background: rgba(26, 26, 46, 0.06);
+}

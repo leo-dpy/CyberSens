@@ -415,3 +415,91 @@
         background-position: -200% 0;
     }
 }
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode .home-stats-grid .stat-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .home-stats-grid .stat-value {
+    color: #1a1a2e;
+}
+
+body.light-mode .home-stats-grid .stat-label {
+    color: #5a5a7a;
+}
+
+body.light-mode .terminal-window {
+    background: #f8f9fa;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .terminal-header {
+    background: #eef0f3;
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .terminal-title {
+    color: #666;
+}
+
+body.light-mode .terminal-content {
+    color: #374151;
+    scrollbar-color: #ccc #f8f9fa;
+}
+
+body.light-mode .terminal-content::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+body.light-mode .terminal-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+}
+
+body.light-mode .log-entry {
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .log-date {
+    color: #2563eb;
+}
+
+body.light-mode .log-source {
+    color: #059669;
+    background: rgba(5, 150, 105, 0.08);
+}
+
+body.light-mode .log-source.danger {
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.08);
+}
+
+body.light-mode .log-link {
+    color: #7c3aed;
+}
+
+body.light-mode .log-link:hover {
+    color: #1a1a2e;
+}
+
+body.light-mode .news-icon {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+body.light-mode .attacks-ticker-container {
+    background: rgba(220, 38, 38, 0.06);
+    border-color: rgba(220, 38, 38, 0.2);
+}
+
+body.light-mode .news-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .news-card.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+}

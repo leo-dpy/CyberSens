@@ -393,3 +393,69 @@
     color: #888;
     border: 1px dashed rgba(255, 255, 255, 0.2);
 }
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode .profile-stat-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .stat-content .stat-label {
+    color: #5a5a7a;
+}
+
+body.light-mode .setting-desc {
+    color: #5a5a7a;
+}
+
+body.light-mode .no-data {
+    color: #5a5a7a;
+}
+
+body.light-mode .certificate-item {
+    background: linear-gradient(135deg, #ffffff, rgba(26, 26, 46, 0.03));
+}
+
+body.light-mode .certificate-item::before {
+    background: var(--primary);
+    opacity: 0.05;
+}
+
+body.light-mode .certificate-item .cert-code {
+    color: #5a5a7a;
+}
+
+body.light-mode .certificate-item .cert-date {
+    color: #8a8aaa;
+}
+
+body.light-mode .certificate-item .cert-score {
+    color: #fff;
+}
+
+body.light-mode .xp-progress-bar {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+body.light-mode .xp-next-level {
+    color: #5a5a7a;
+}
+
+body.light-mode .level-badge {
+    color: #fff;
+}
+
+body.light-mode .level-badge-next {
+    background: rgba(0, 0, 0, 0.04);
+    color: #5a5a7a;
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-mode .toggle-slider {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-mode .badge-item {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+}
