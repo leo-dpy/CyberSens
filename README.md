@@ -116,13 +116,8 @@ cybersens/
 
 ## Licence
 
-⚠️ **TOUS DROITS RÉSERVÉS (ALL RIGHTS RESERVED)**
+Ce projet est distribué sous la licence **MIT**.
 
-Ce projet est sous **licence propriétaire exclusive**.
-Il est **strictement interdit** de copier, modifier, distribuer ou vendre ce projet, en tout ou partie.
-
-**Aucune reprise du projet (fork, hébergement public/privé, réutilisation du code) n'est autorisée** sans l'accord écrit explicite de l'auteur.
-
-Consultez le fichier `LICENSE` pour les détails légaux complets.
+Consultez le fichier `LICENSE` pour plus de détails.
 
 
