@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /backend/
+Disallow: /admin/
+Disallow: /api/
+Sitemap: https://cybersens.fr/sitemap.xml
