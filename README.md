@@ -33,41 +33,28 @@ Thème visuel **"Deep Void & Neon Glass"** :
 ```
 cybersens/
 ├── index.html           # Point d'entrée SPA
-├── main.js              # Logique JavaScript principale
-├── styles.css           # Styles globaux (thème Neon Glass)
-├── install.php          # Script d'installation de la BDD
-├── logout.php           # Déconnexion utilisateur
+├── robots.txt           # Règles d'indexation SEO
+├── sitemap.xml          # Sitemap XML pour les moteurs de recherche
 │
-├── admin/               # Interface d'administration
-│   ├── index.php        # Dashboard admin
-│   ├── cours.php        # Gestion des cours
-│   ├── questions.php    # Banque de questions
-│   ├── users.php        # Gestion des utilisateurs
-│   ├── auth.php         # Contrôle d'accès basé sur les rôles
-│   └── admin-style.css  # Styles spécifiques admin
+├── frontend/            # Assets, scripts et vues
+│   ├── css/             # Styles CSS (thème Neon Glass)
+│   ├── js/              # Logique JavaScript modulaire
+│   └── templates/       # Templates HTML (chargés dynamiquement, ex: home, cours)
 │
-├── backend/             # API REST (PHP)
-│   ├── db.php           # Configuration base de données
-│   ├── login.php        # Authentification
-│   ├── register.php     # Inscription
-│   ├── cours.php      # API cours
-│   ├── questions.php    # API questions
-│   ├── progression.php  # Suivi de progression
-│   ├── badges.php       # Gestion des badges
-│   ├── phishing.php     # Scénarios de phishing
-│   └── ...
+├── backend/             # Logique serveur et interfaces (PHP)
+│   ├── admin/           # Interface d'administration sécurisée
+│   │   ├── index.php    # Dashboard admin
+│   │   ├── auth.php     # Contrôle d'accès basé sur les rôles
+│   │   └── ...
+│   └── api/             # API REST et logique métier
+│       ├── db.php       # Configuration base de données
+│       ├── security.php # Couche de sécurité (CORS, Limiting, Session)
+│       └── ...
 │
 ├── database/            # Scripts SQL
 │   └── cybersens.sql    # Structure et données initiales
 │
-└── templates/           # Templates HTML (chargés dynamiquement)
-    ├── home.html        # Page d'accueil
-    ├── profil.html      # Profil utilisateur
-    ├── cours.html       # Liste des cours
-    ├── quiz.html        # Interface de quiz
-    ├── phishing.html    # Simulations de phishing
-    ├── ressources.html  # Ressources pédagogiques
-    └── leaderboard.html # Classement
+└── apache-config.conf   # Configuration serveur Web Apache
 ```
 
 ---
