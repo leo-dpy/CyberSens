@@ -1,31 +1,6 @@
 // CLIENT API (Remplace la DB LocalStorage)
 const API_URL = 'backend/api';
 
-// Restaurer le thème depuis localStorage immédiatement (évite le flash)
-(function() {
-    const savedTheme = localStorage.getItem('cybersens-theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
-    }
-})();
-
-// Toggle thème clair/sombre (appelé depuis parametres.html)
-window.toggleTheme = function() {
-    const isLight = document.body.classList.toggle('light-mode');
-    localStorage.setItem('cybersens-theme', isLight ? 'light' : 'dark');
-    
-    // Mettre à jour le label si visible
-    const themeLabel = document.getElementById('theme-label');
-    if (themeLabel) themeLabel.textContent = isLight ? 'Mode clair' : 'Mode sombre';
-    
-    // Mettre à jour l'icône
-    const themeIcon = document.getElementById('theme-icon');
-    if (themeIcon) {
-        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
-        if (window.lucide) lucide.createIcons();
-    }
-};
-
 // Fonction utilitaire pour convertir le niveau numérique en texte
 function getLevelName(level) {
     const levels = {

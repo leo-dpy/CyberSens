@@ -632,88 +632,38 @@
     cursor: pointer;
 }
 
-/* LIGHT MODE OVERRIDES */
-body.light-mode .scenario-card {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
 
-body.light-mode .scenario-card::before {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.01) 0%, transparent 100%);
-}
 
-body.light-mode .scenario-card:hover {
-    background: #f8f9fa;
-    border-color: rgba(0, 0, 0, 0.15);
-}
 
-body.light-mode .scenario-card h3 {
-    color: #1a1a2e;
-}
 
-body.light-mode .phishing-scenarios h2 {
-    color: #1a1a2e;
-}
 
-body.light-mode .phishing-stats .stat-card {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.06);
-}
 
-body.light-mode .stat-value {
-    color: #1a1a2e;
-}
 
-body.light-mode .stat-label {
-    color: #5a5a7a;
-}
 
-body.light-mode #scenarioModal .modal-content {
-    background: #ffffff !important;
-    border-color: rgba(0, 0, 0, 0.1);
-}
 
-body.light-mode #scenarioModal .modal-close {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #555;
-}
 
-body.light-mode .scenario-instruction {
-    background: rgba(26, 26, 46, 0.04);
-    color: #1a1a2e;
-}
 
-body.light-mode .answer-btn {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.08);
-}
 
-body.light-mode .result-explanation {
-    background: #f8f9fa;
-    border-color: rgba(0, 0, 0, 0.08);
-}
 
-body.light-mode .result-explanation p {
-    color: #374151;
-}
 
-body.light-mode .indicators-list li {
-    color: #5a5a7a;
-}
 
-body.light-mode .btn-next {
-    color: #fff;
-}
 
-body.light-mode .scenario-card .type-badge.email,
-body.light-mode .scenario-card .type-badge.sms,
-body.light-mode .scenario-card .type-badge.website {
-    background: rgba(26, 26, 46, 0.06);
-}
 
-body.light-mode .phone-mockup {
-    background: #1a1a2e;
-    border-color: #333;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

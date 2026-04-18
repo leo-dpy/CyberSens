@@ -164,40 +164,18 @@
     border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-/* LIGHT MODE OVERRIDES */
-body.light-mode .quiz-intro-grid .card {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.08);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
 
-body.light-mode .quiz-intro-grid .card:hover {
-    background: #f8f9fa;
-    border-color: rgba(0, 0, 0, 0.15);
-}
 
-body.light-mode .quiz-intro-grid .card-icon {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.08);
-}
 
-body.light-mode .quiz-intro-grid .card:hover .card-icon {
-    background: rgba(0, 0, 0, 0.06);
-}
 
-body.light-mode .quiz-intro-grid .card-text h3 {
-    color: #1a1a2e;
-}
 
-body.light-mode .quiz-intro-grid .card-text p {
-    color: #5a5a7a;
-}
 
-body.light-mode .quiz-intro-grid .card-action {
-    border-top-color: rgba(0, 0, 0, 0.05);
-}
 
-body.light-mode .quiz-courses-grid .card .questions-count {
-    background: rgba(0, 0, 0, 0.04);
-    color: #5a5a7a;
-}
+
+
+
+
+
+
+
+

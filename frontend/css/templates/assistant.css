@@ -464,95 +464,41 @@
     }
 }
 
-/* LIGHT MODE OVERRIDES */
-body.light-mode .assistant-container {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.1);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
 
-body.light-mode .chat-header {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(240, 242, 245, 0.8) 100%);
-    border-bottom-color: rgba(0, 0, 0, 0.08);
-}
 
-body.light-mode .btn-clear-chat {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #666;
-}
 
-body.light-mode .message.assistant .message-content {
-    background: #f5f6fa;
-    border-color: rgba(0, 0, 0, 0.06);
-    color: #1a1a2e;
-}
 
-body.light-mode .message.user .message-avatar {
-    background: rgba(0, 0, 0, 0.05);
-}
 
-body.light-mode .message-content code {
-    background: rgba(0, 0, 0, 0.06);
-    color: #d63384;
-}
 
-body.light-mode .message-content pre {
-    background: #1e1e2e;
-    color: #e0e0e0;
-}
 
-body.light-mode .message-content pre code {
-    color: #e0e0e0;
-}
 
-body.light-mode .message.assistant .message-content strong {
-    color: #1a1a2e;
-}
 
-body.light-mode .image-preview-container {
-    background: #f5f6fa;
-    border-top-color: rgba(0, 0, 0, 0.08);
-}
 
-body.light-mode .chat-input-wrapper {
-    background: #f5f6fa;
-    border-color: rgba(0, 0, 0, 0.1);
-}
 
-body.light-mode .chat-input-wrapper:focus-within {
-    border-color: #3b82f6;
-    background: #fff;
-}
 
-body.light-mode .chat-input {
-    color: #1a1a2e;
-}
 
-body.light-mode .chat-input::placeholder {
-    color: #999;
-}
 
-body.light-mode .btn-attach {
-    color: #666;
-}
 
-body.light-mode .btn-attach:hover {
-    background: rgba(0, 0, 0, 0.06);
-    color: #1a1a2e;
-}
 
-body.light-mode .typing-text {
-    color: #666;
-}
 
-body.light-mode .typing-dots span {
-    background: #999;
-}
 
-body.light-mode .message.assistant .message-content h2,
-body.light-mode .message.assistant .message-content h3,
-body.light-mode .message.assistant .message-content h4,
-body.light-mode .message.assistant .message-content h5 {
-    color: #1a1a2e;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

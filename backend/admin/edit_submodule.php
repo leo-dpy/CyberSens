@@ -246,6 +246,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="https://unpkg.com/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
     <script>
         // Sélection d'icône
         function selectIcon(value, element) {
@@ -254,11 +255,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             document.getElementById('iconInput').value = value;
         }
 
-        // Initialiser Quill
-        const quill = new Quill('#editor', {
+        // Initialiser Quill avec imageResize
+        var quill = new Quill('#editor', {
             theme: 'snow',
             placeholder: 'Rédigez le contenu du cours ici...',
             modules: {
+                imageResize: {
+                    displaySize: true,
+                    modules: [ 'Resize', 'DisplaySize', 'Toolbar' ]
+                },
                 toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
                     ['bold', 'italic', 'underline', 'strike'],
@@ -273,9 +278,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         });
 
-        // Synchroniser avec le champ hidden avant soumission
+        // Logique d'extraction des URLs avec modification avant soumission
         document.querySelector('form').addEventListener('submit', function() {
-            document.getElementById('contentInput').value = quill.root.innerHTML;
+            let content = quill.root.innerHTML;
+
+            // Extraire et remplacer les liens YouTube et Vimeo en texte brut
+            const ytRegex = /(?:<p>)?(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s<]*)(?:<\/p>)?/gi;
+            const vmRegex = /(?:<p>)?(?:https?:\/\/)?(?:www\.)?(?:vimeo\.com\/)(\d+)(?:[^\s<]*)(?:<\/p>)?/gi;
+
+            let iframes = [];
+
+            content = content.replace(ytRegex, function(match, videoId) {
+                iframes.push(`<div class="video-embed-container"><iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe></div>`);
+                return '';
+            });
+
+            content = content.replace(vmRegex, function(match, videoId) {
+                iframes.push(`<div class="video-embed-container"><iframe src="https://player.vimeo.com/video/${videoId}" allowfullscreen></iframe></div>`);
+                return '';
+            });
+
+            if (iframes.length > 0) {
+                content += "\n" + iframes.join("\n");
+            }
+            
+            document.getElementById('contentInput').value = content;
         });
 
         lucide.createIcons();
