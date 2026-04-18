@@ -10,7 +10,7 @@ RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Copier les fichiers du projet dans le dossier web d'Apache
-COPY . /var/www/html/
+COPY public/ /var/www/html/
 
 # Donner les bons droits au dossier web
 RUN chown -R www-data:www-data /var/www/html/ \
