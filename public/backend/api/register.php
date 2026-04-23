@@ -1,10 +1,14 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
 
 require 'db.php';
+
+// Headers CORS sécurisés + headers de sécurité
+setCorsHeaders();
+setSecurityHeaders();
+
+// Rate limiting : 3 inscriptions max par 15 minutes par IP
+enforceRateLimit('register', 3, 900);
 
 $data = json_decode(file_get_contents('php://input'), true);
 $username = trim($data['username'] ?? '');

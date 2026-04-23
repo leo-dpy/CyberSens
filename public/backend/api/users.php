@@ -1,15 +1,11 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 require 'db.php';
+
+// Appliquer les headers CORS sécurisés (depuis security.php)
+setCorsHeaders();
+setSecurityHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -43,7 +39,9 @@ if ($method === 'GET') {
         }
     }
 
-    // Liste des utilisateurs pour l'admin avec statistiques
+    // Liste des utilisateurs — nécessite au moins le rôle admin
+    requireApiRole($pdo, 'admin');
+    
     // Utiliser LEFT JOIN et gérer les tables qui peuvent ne pas exister
     try {
         $sql = "SELECT u.id, u.username, u.email, u.role, u.xp, u.level, u.avatar, u.group_name, u.created_at, u.last_login,
@@ -152,7 +150,9 @@ if ($method === 'GET') {
     echo json_encode(['success' => false, 'message' => 'Action non reconnue']);
 
 } elseif ($method === 'DELETE') {
-    // Supprimer un utilisateur
+    // Supprimer un utilisateur — nécessite le rôle admin
+    requireApiRole($pdo, 'admin');
+    
     $data = json_decode(file_get_contents('php://input'), true);
     $id = (int)($data['id'] ?? 0);
     
@@ -173,11 +173,16 @@ if ($method === 'GET') {
     }
 
 } elseif ($method === 'PUT') {
+    // Toutes les opérations PUT nécessitent une authentification
+    $authenticatedUserId = requireApiAuth();
+    
     $data = json_decode(file_get_contents('php://input'), true);
     $id = (int)($data['id'] ?? 0);
     
-    // Basculer le rôle admin/utilisateur
+    // Basculer le rôle admin/utilisateur — nécessite le rôle admin
     if (isset($data['toggle_admin']) && $data['toggle_admin']) {
+        requireApiRole($pdo, 'admin');
+        
         $stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
         $stmt->execute([$id]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -192,8 +197,15 @@ if ($method === 'GET') {
         }
         exit;
     }
-    // Changement de mot de passe (depuis Paramètres)
+    // Changement de mot de passe — l'utilisateur ne peut changer que SON mot de passe
     if (isset($data['action']) && $data['action'] === 'update_password') {
+        // Vérifier que l'utilisateur modifie bien son propre mot de passe
+        if ($id !== $authenticatedUserId) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Vous ne pouvez modifier que votre propre mot de passe']);
+            exit;
+        }
+        
         $password = $data['password'] ?? '';
         
         if (!$id || empty($password)) {
@@ -214,7 +226,13 @@ if ($method === 'GET') {
         exit;
     }
 
-    // Mettre à jour les infos utilisateur (depuis Paramètres)
+    // Mettre à jour les infos utilisateur — l'utilisateur ne peut modifier que SON profil
+    if ($id !== $authenticatedUserId) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Vous ne pouvez modifier que votre propre profil']);
+        exit;
+    }
+    
     $username = trim($data['username'] ?? '');
     $email = trim($data['email'] ?? '');
     
