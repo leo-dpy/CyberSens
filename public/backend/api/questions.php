@@ -5,18 +5,12 @@
  * Lié aux modules (module_id)
  */
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
 
 require 'db.php';
+setCorsHeaders();
+setSecurityHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 try {
     switch ($method) {
@@ -54,6 +48,7 @@ try {
             break;
             
         case 'POST':
+            requireApiRole($pdo, 'creator');
             $data = json_decode(file_get_contents('php://input'), true);
             
             $module_id = (int)($data['module_id'] ?? 0);
@@ -92,6 +87,7 @@ try {
             break;
             
         case 'PUT':
+            requireApiRole($pdo, 'creator');
             $data = json_decode(file_get_contents('php://input'), true);
             
             $id = (int)($data['id'] ?? 0);
@@ -124,6 +120,7 @@ try {
             break;
             
         case 'DELETE':
+            requireApiRole($pdo, 'admin');
             $data = json_decode(file_get_contents('php://input'), true);
             $id = (int)($data['id'] ?? 0);
             

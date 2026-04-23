@@ -8,16 +8,12 @@
  */
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type');
+
+require 'db.php';
+setCorsHeaders();
+setSecurityHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 // Retourner un message indiquant que l'API est obsolète
 echo json_encode([

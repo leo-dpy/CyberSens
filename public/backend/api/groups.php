@@ -1,15 +1,10 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 require 'db.php';
+setCorsHeaders();
+setSecurityHeaders();
+
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -23,7 +18,8 @@ try {
             break;
 
         case 'POST':
-            // Créer un nouveau groupe
+            // Créer un nouveau groupe (admin uniquement)
+            requireApiRole($pdo, 'admin');
             $data = json_decode(file_get_contents('php://input'), true);
             $name = trim($data['name'] ?? '');
 
@@ -52,7 +48,8 @@ try {
             break;
 
         case 'DELETE':
-            // Supprimer un groupe
+            // Supprimer un groupe (admin uniquement)
+            requireApiRole($pdo, 'admin');
             $data = json_decode(file_get_contents('php://input'), true);
             $id = (int)($data['id'] ?? 0);
 

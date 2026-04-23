@@ -5,18 +5,12 @@
  */
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type');
 
 require 'db.php';
+setCorsHeaders();
+setSecurityHeaders();
 
 $method = $_SERVER['REQUEST_METHOD'];
-
-if ($method === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
 
 try {
     switch ($method) {
@@ -128,6 +122,7 @@ try {
 
         case 'POST':
             // Créer un module (admin uniquement)
+            requireApiRole($pdo, 'creator');
             $data = json_decode(file_get_contents('php://input'), true);
 
             $title = trim($data['title'] ?? '');
@@ -158,7 +153,8 @@ try {
             break;
 
         case 'PUT':
-            // Mettre à jour un module
+            // Mettre à jour un module (admin uniquement)
+            requireApiRole($pdo, 'creator');
             $data = json_decode(file_get_contents('php://input'), true);
 
             // Action de réordonnancement
@@ -203,7 +199,8 @@ try {
             break;
 
         case 'DELETE':
-            // Supprimer un module (cascade les sous-modules et questions)
+            // Supprimer un module (admin uniquement, cascade les sous-modules et questions)
+            requireApiRole($pdo, 'admin');
             // L'ID peut être passé en query string ou dans le body
             $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
             

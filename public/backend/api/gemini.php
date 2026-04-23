@@ -1,12 +1,15 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+require 'db.php';
+setCorsHeaders();
+setSecurityHeaders();
+
+// Authentification requise pour utiliser l'IA
+requireApiAuth();
+
+// Rate limiting : 20 requêtes max par 5 minutes par IP
+enforceRateLimit('gemini', 20, 300);
 
 // System prompt pour le contexte cybersécurité
 $systemPrompt = "Tu es CyberGuard, un assistant IA spécialisé en cybersécurité. Tu aides les utilisateurs à :

@@ -1,8 +1,9 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
 
 require 'db.php';
+setCorsHeaders();
+setSecurityHeaders();
 
 try {
     $stmt = $pdo->query("SELECT * FROM news ORDER BY event_date DESC");
